@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <!-- Специальный viewport для мини-приложений ВК (предотвращает случайное масштабирование) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>База знаний: Сельские спортивные игры по футболу (группа 2)</title>
     
@@ -17,7 +16,6 @@
             padding: 20px;
             color: #1e293b;
         }
-        /* Скрываем контейнер до успешной инициализации ВК */
         #app {
             display: none;
         }
@@ -33,7 +31,7 @@
             font-size: 2.2rem;
             font-weight: 700;
             color: #0b3b5c;
-            border-left: 6px solid #ffca00; /* заменён зелёный на #ffca00 */
+            border-left: 6px solid #ffca00;
             padding-left: 15px;
             margin-bottom: 10px;
         }
@@ -72,7 +70,7 @@
             border-radius: 16px;
             padding: 20px 25px;
             margin-bottom: 25px;
-            border-left: 5px solid #ffca00; /* заменён зелёный на #ffca00 */
+            border-left: 5px solid #ffca00;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .card h2 { font-size: 1.5rem; font-weight: 600; color: #0b3b5c; margin-bottom: 12px; }
@@ -104,18 +102,18 @@
             padding: 6px 12px;
             border-bottom: 1px solid #e9edf2;
         }
-        .highlight { background: #fff3cd; font-weight: 600; } /* заменён светло-зелёный на светло-жёлтый */
+        .highlight { background: #fff3cd; font-weight: 600; }
         .badge {
             display: inline-block;
-            background: #ffca00; /* заменён зелёный на #ffca00 */
-            color: #0b3b5c;      /* тёмный текст для контраста */
+            background: #ffca00;
+            color: #0b3b5c;
             border-radius: 20px;
             padding: 0 12px;
             font-size: 0.8rem;
             line-height: 1.8;
             font-weight: 600;
         }
-        .badge-gold { background: #ffca00; color: #0b3b5c; } /* основной жёлтый #ffca00 */
+        .badge-gold { background: #ffca00; color: #0b3b5c; }
         .badge-silver { background: #a8b5c0; }
         .badge-bronze { background: #c67c4a; }
         .match-list {
@@ -218,7 +216,6 @@
         }
         .footer a:hover { text-decoration: underline; }
 
-        /* Адаптация под мобильные экраны 6.1"–6.9" */
         @media (max-width: 700px) {
             body { padding: 10px; }
             .container { padding: 15px; border-radius: 16px; }
@@ -244,7 +241,7 @@
 <div class="container" id="app">
 
     <h1>🏆 Сельские спортивные игры по футболу</h1>
-    <div class="subhead">Группа 2 · Финальные турниры (1997–2025) — известные данные</div>
+    <div class="subhead">Группа 2 · Финальные турниры (1997–2026) — известные данные</div>
 
     <!-- Навигация -->
     <div class="nav-tabs">
@@ -252,6 +249,7 @@
         <button data-target="years">По годам</button>
         <button data-target="teams">По командам</button>
         <button data-target="matches">Матчи</button>
+        <button data-target="video">Видео</button>
         <button data-target="stats">Статистика</button>
     </div>
 
@@ -262,10 +260,10 @@
             <p>Финальные соревнования краевых Cельских Спортивных Игр по футболу среди команд II группы проводятся ежегодно (кроме 2020–2021). В турнире участвуют сборные муниципальных образований Пермского края.</p>
             <br>
             <div class="grid-2">
-                <div class="stat-box"><strong>Период</strong><br>1997 – 2025 (с перерывами)</div>
+                <div class="stat-box"><strong>Период</strong><br>1997 – 2026 (с перерывами)</div>
                 <div class="stat-box"><strong>Всего чемпионов</strong><br>5 разных команд (плюс 2022 – не определён)</div>
                 <div class="stat-box"><strong>Наибольшее число побед</strong><br><span class="badge badge-gold">Берёзовский – 13</span></div>
-                <div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">Куединский (2024, 2025)</span></div>
+                <div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">Куединский (2024, 2025, 2026)</span></div>
             </div>
         </div>
         <div class="card">
@@ -282,7 +280,7 @@
                 <span><strong>2020–2021</strong> не проводились</span>
                 <span><strong>2022</strong> аннулирован</span>
                 <span><strong>2023</strong> Карагайский</span>
-                <span><strong>2024–2025</strong> Куединский (2 раза)</span>
+                <span><strong>2024–2026</strong> Куединский (3 раза)</span>
             </div>
         </div>
     </div>
@@ -296,6 +294,10 @@
     </div>
 
     <div id="matches" class="section">
+        <!-- Контент рендерится JS -->
+    </div>
+
+    <div id="video" class="section">
         <!-- Контент рендерится JS -->
     </div>
 
@@ -320,31 +322,23 @@
         }
 
         try {
-            // 1. Отправляем команду на инициализацию (убирает экран загрузки ВК)
             vkBridge.send('VKWebAppInit')
                 .then(function(data) {
                     console.log('VK Web App инициализирован:', data);
-                    
-                    // Показываем приложение сразу после успешного ответа от ВК
                     document.getElementById('app').style.display = 'block';
-                    
-                    // 2. Запрашиваем параметры запуска (тема, язык и т.д.)
                     return vkBridge.send('VKWebAppGetLaunchParams');
                 })
                 .then(function(launchParams) {
                     console.log('Параметры запуска получены:', launchParams);
-                    // Применяем тему, если она пришла
                     if (launchParams && launchParams.scheme) {
                         applyTheme(launchParams.scheme);
                     }
                 })
                 .catch(function(error) {
                     console.error('Ошибка инициализации VK Bridge:', error);
-                    // Даже если произошла ошибка, приложение должно быть видно пользователю
                     document.getElementById('app').style.display = 'block';
                 });
 
-            // Подписка на события изменения конфигурации (например, смены темы)
             vkBridge.subscribe(function(event) {
                 if (event.detail && event.detail.type === 'VKWebAppUpdateConfig') {
                     const scheme = event.detail.data.scheme;
@@ -356,7 +350,6 @@
             document.getElementById('app').style.display = 'block';
         }
 
-        // Функция для применения темы ВКонтакте
         function applyTheme(scheme) {
             console.log('Применяется тема:', scheme);
             document.documentElement.style.setProperty('--vk-color-scheme', scheme);
@@ -427,12 +420,12 @@
         2005: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Чердынь': 2, 'Октябрьский': 3, 'Куеда': 4 }, venue: 'Берёзовка' },
         2006: { champion: 'Чердынь', places: { 'Чердынь': 1, 'Кунгур': 2, 'Куеда': 3, 'Ильинский': 4, 'Октябрьский': 5, 'Берёзовка': 6 }, venue: 'Чердынь' },
         2007: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Ильинский': 2, 'Чердынь': 3, 'Суксун': 4, 'Оханск': 5, 'Карагай': 6, 'Октябрьский': 7, 'Куеда': 8 }, venue: 'п. Ильинский' },
-        2008: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Октябрьский': 2, 'Оханск': 3, 'Барда': 4, 'Ильинский': 5, 'Кунгур': 6 } },
+        2008: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Октябрьский': 2, 'Оханск': 3, 'Барда': 4, 'Ильинский': 5, 'Кунгур': 6 }, venue: 'с. Барда' },
         2009: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Карагай': 2, 'Куеда': 3, 'Барда': 4, 'Оханск': 5, 'Чердынь': 6 }, venue: 'Куеда' },
         2010: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Кунгур': 2, 'Карагай': 3, 'Чердынь': 4, 'Ильинский': 5, 'Октябрьский': 6, 'Оханск': 7 } },
         2011: { champion: 'Чердынь', places: { 'Чердынь': 1, 'Берёзовка': 2, 'Карагай': 3, 'Коса': 4, 'Куеда': 5, 'Оханск': 6 }, venue: 'г. Кудымкар' },
         2012: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Куеда': 2, 'Чердынь': 3, 'Карагай': 4, 'Коса': 5, 'Майский': 6 }, venue: 'Чердынь' },
-        2013: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Чердынь': 2, 'Карагай': 3, 'Октябрьский': 4, 'Оханск': 5, 'Суксун': 6 } },
+        2013: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Чердынь': 2, 'Карагай': 3, 'Октябрьский': 4, 'Оханск': 5, 'Суксун': 6 }, venue: 'г. Кудымкар' },
         2014: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксун': 2, 'Карагай': 3, 'Барда': 4, 'Ильинский': 5, 'Чердынь': 6, 'Берёзовка': 7, 'Коса': 8 }, venue: 'г. Чайковский' },
         2015: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Чердынь': 3, 'Суксун': 4, 'Октябрьский': 5, 'Кудымкарский': 6, 'Берёзовка': 7, 'Майский': 8 }, venue: 'г. Чайковский' },
         2016: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Чердынь': 3, 'Суксун': 4, 'Барда': 5, 'Оханск': 6, 'Берёзовка': 7, 'Кудымкарский': 8 }, venue: 'п. Суксун' },
@@ -441,10 +434,11 @@
         2019: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Октябрьский': 3, 'Ординский': 4, 'Чердынский': 5, 'Карагайский': 6, 'Частинский': 7, 'Оханский': 8 }, venue: 'п. Суксун' },
         2020: { champion: null, note: 'Не проводились (COVID-19)' },
         2021: { champion: null, note: 'Не проводились (COVID-19)' },
-        2022: { champion: null, note: 'Аннулирован (чемпион не определён)', places: { 'Суксунский': 2, 'Куеда': 2, 'Октябрьский': 3, 'Карагайский': 4, 'Кудымкарский': 5, 'Чердынский': 6, 'Частинский': 7, 'Еловский': 8 }, venue: 'п. Суксун' },
+        2022: { champion: null, note: 'Аннулирован (чемпион не определён). Результат финала аннулирован, утверждено два вторых места.', places: { 'Суксунский': 2, 'Куеда': 2, 'Октябрьский': 3, 'Карагайский': 4, 'Кудымкарский': 5, 'Чердынский': 6, 'Частинский': 7, 'Еловский': 8 }, venue: 'п. Суксун' },
         2023: { champion: 'Карагай', places: { 'Карагай': 1, 'Куеда': 2, 'Октябрьский': 3, 'Ординский': 4, 'Красновишерск': 5, 'Косинский': 6 }, venue: 'г. Кудымкар' },
         2024: { champion: 'Куеда', places: { 'Куеда': 1, 'Чердынь': 2, 'Ординский': 3, 'Карагай': 4, 'Октябрьский': 5, 'Юрлинский': 6 }, venue: 'г. Чердынь' },
-        2025: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Карагай': 3, 'Ординский': 4, 'Красношиерский': 5, 'Чердынский': 6 }, venue: 'г. Чердынь' }
+        2025: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Карагай': 3, 'Ординский': 4, 'Красношиерский': 5, 'Чердынский': 6 }, venue: 'г. Чердынь' },
+        2026: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Оханск': 3, 'Октябрьский': 4, 'Барда': 5, 'Еловский': 6 }, venue: 'с. Барда' }
     };
 
     const rawMatchesData = {
@@ -506,16 +500,60 @@
             ['Куединский р-н', 'Карагайский р-н', '2:1'],
             ['Чердынский р-н', 'Куединский р-н', '0:1']
         ],
+        2013: [
+            // Подгруппа А
+            ['Кунгурский', 'Чердынский', '2:1'],
+            ['Кунгурский', 'Суксунский', '2:1'],
+            ['Чердынский', 'Суксунский', '3:2'],
+            // Подгруппа Б
+            ['Карагайский', 'Октябрьский', '1:0'],
+            ['Карагайский', 'Оханский', '2:0'],
+            ['Оханский', 'Октябрьский', '0:2'],
+            // Матч за 5-6 места
+            ['Суксунский', 'Оханский', '2:4'],
+            // Матчи за 1-4 места
+            ['Кунгурский', 'Чердынский', '2:1'],
+            ['Кунгурский', 'Карагайский', '3:0'],
+            ['Кунгурский', 'Октябрьский', '3:1'],
+            ['Чердынский', 'Карагайский', '0:0'],
+            ['Чердынский', 'Октябрьский', '1:0'],
+            ['Карагайский', 'Октябрьский', '1:0']
+        ],
         2014: [
-            ['Куединский р-н', 'Ильинский р-н', '0:0'],
-            ['Бардымский р-н', 'Куединский р-н', '0:3'],
-            ['Суксунский р-н', 'Куединский р-н', '0:3']
+            ['Чердынский', 'Карагайский', '1:3'],
+            ['Чердынский', 'Суксунский', '1:1'],
+            ['Чердынский', 'Берёзовский', '0:0'],
+            ['Карагайский', 'Суксунский', '1:2'],
+            ['Карагайский', 'Берёзовский', '2:1'],
+            ['Суксунский', 'Берёзовский', '3:1'],
+            ['Косинский', 'Ильинский', '0:3'],
+            ['Косинский', 'Куединский', '0:3'],
+            ['Косинский', 'Бардымский', '0:3'],
+            ['Ильинский', 'Куединский', '0:0'],
+            ['Ильинский', 'Бардымский', '1:2'],
+            ['Куединский', 'Бардымский', '3:0'],
+            ['Берёзовский', 'Косинский', '3:0'],
+            ['Чердынский', 'Ильинский', '0:3'],
+            ['Карагайский', 'Бардымский', '3:1'],
+            ['Суксунский', 'Куединский', '0:3']
         ],
         2015: [
-            ['Куединский р-н', 'Чердынский р-н', '2:1'],
-            ['Березовский р-н', 'Куединский р-н', '0:4'],
-            ['Куединский р-н', 'Кудымкарский р-н', '2:1'],
-            ['Карагайский р-н', 'Куединский р-н', '1:1 (пен.2:4)']
+            ['Берёзовский', 'Куединский', '0:4'],
+            ['Берёзовский', 'Чердынский', '2:4'],
+            ['Берёзовский', 'Кудымкарский', '0:0'],
+            ['Куединский', 'Чердынский', '2:1'],
+            ['Куединский', 'Кудымкарский', '2:1'],
+            ['Чердынский', 'Кудымкарский', '0:0'],
+            ['Карагайский', 'Майский', '3:0'],
+            ['Карагайский', 'Суксунский', '2:2'],
+            ['Карагайский', 'Октябрьский', '5:0'],
+            ['Майский', 'Суксунский', '1:5'],
+            ['Майский', 'Октябрьский', '1:2'],
+            ['Суксунский', 'Октябрьский', '5:2'],
+            ['Берёзовский', 'Майский', '3:0'],
+            ['Кудымкарский', 'Октябрьский', '5:6'],
+            ['Чердынский', 'Суксунский', '3:1'],
+            ['Куединский', 'Карагайский', '1:1 (4:2 пен.)']
         ],
         2016: [
             ['Куединский р-н', 'Суксунский р-н', '2:0'],
@@ -590,10 +628,10 @@
             ['Октябрьский', 'Частинский', '2:0'],
             ['Октябрьский', 'Кудымкарский', '0:0'],
             ['Частинский', 'Кудымкарский', '0:4'],
-            ['Суксунский', 'Куединский', '1:1 (пен.4:2)'],
-            ['Карагайский', 'Октябрьский', '2:2 (пен.3:4)'],
             ['Чердынский', 'Кудымкарский', '0:3'],
-            ['Еловский', 'Частинский', '1:4']
+            ['Еловский', 'Частинский', '1:4'],
+            ['Карагайский', 'Октябрьский', '2:2 (пен.3:4)'],
+            ['Суксунский', 'Куединский', '1:1 (пен.4:2)']
         ],
         2023: [
             ['Красношиверский', 'Куединский', '1:2'],
@@ -635,6 +673,50 @@
             ['Красношиерский', 'Чердынский', '5:2'],
             ['Карагайский', 'Ординский', '7:0'],
             ['Куединский', 'Суксунский', '3:0']
+        ],
+        2026: [
+            ['Куединский', 'Оханский', '10:0'],
+            ['Еловский', 'Куединский', '1:4'],
+            ['Оханский', 'Еловский', '4:3'],
+            ['Карагайский', 'Октябрьский', '3:0'],
+            ['Бардымский', 'Карагайский', '0:5'],
+            ['Октябрьский', 'Бардымский', '3:1'],
+            ['Куединский', 'Октябрьский', '7:0'],
+            ['Оханский', 'Карагайский', '0:2'],
+            ['Еловский', 'Бардымский', '2:2 (1:3 пен.)'],
+            ['Октябрьский', 'Оханский', '1:3'],
+            ['Куединский', 'Карагайский', '2:1']
+        ]
+    };
+
+    // ============================================================
+    // ВИДЕО-ССЫЛКИ
+    // ============================================================
+    const videoLinks = {
+        2023: [
+            { team1: 'Ординский', team2: 'Карагайский', score: '1:6', url: 'https://vkvideo.ru/video-205419678_456239045' }
+        ],
+        2024: [
+            { team1: 'Октябрьский', team2: 'Юрлинский', score: '6:1', url: 'https://vkvideo.ru/video-210048215_456239149' },
+            { team1: 'Карагайский', team2: 'Ординский', score: '1:2', url: 'https://vkvideo.ru/video-210048215_456239155' },
+            { team1: 'Куединский', team2: 'Чердынский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239157' },
+            { team1: 'Карагайский', team2: 'Октябрьский', score: '4:0', url: 'https://vkvideo.ru/video-210048215_456239140' },
+            { team1: 'Юрлинский', team2: 'Чердынский', score: '0:3', url: 'https://vkvideo.ru/video-210048215_456239139' },
+            { team1: 'Куединский', team2: 'Юрлинский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239142' },
+            { team1: 'Карагайский', team2: 'Ординский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239144' },
+            { team1: 'Куединский', team2: 'Чердынский', score: '5:0', url: 'https://vkvideo.ru/video-210048215_456239145' },
+            { team1: 'Карагайский', team2: 'Чердынский', score: '0:0 (пен.4:5)', url: 'https://vkvideo.ru/video-210048215_456239148' },
+            { team1: 'Куединский', team2: 'Ординский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239149' }
+        ],
+        2025: [
+            { team1: 'Красношиверский', team2: 'Чердынский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239316' },
+            { team1: 'Карагайский', team2: 'Ординский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239317' },
+            { team1: 'Куединский', team2: 'Суксунский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239319' }
+        ],
+        2026: [
+            { team1: 'Куединский', team2: 'Карагайский', score: '2:1', url: 'https://vkvideo.ru/live-210048215_456239486' },
+            { team1: 'Октябрьский', team2: 'Оханский', score: '1:3', url: 'https://vkvideo.ru/live-210048215_456239485' },
+            { team1: 'Еловский', team2: 'Бардымский', score: '2:2 (1:3 пен.)', url: 'https://vkvideo.ru/live-210048215_456239484' }
         ]
     };
 
@@ -711,6 +793,14 @@
         return Array.from(set).sort();
     }
 
+    function getVideoLink(year, team1, team2, score) {
+        if (!videoLinks[year]) return null;
+        const found = videoLinks[year].find(v => 
+            v.team1 === team1 && v.team2 === team2 && v.score === score
+        );
+        return found ? found.url : null;
+    }
+
     // ============================================================
     // ОТРИСОВКА
     // ============================================================
@@ -777,7 +867,6 @@
                 });
             }
             const entries = Object.entries(placeMap);
-            // Сортировка: сначала числовые места по возрастанию, затем null (команды без места)
             entries.sort((a,b) => {
                 if (a[1] === null && b[1] === null) return 0;
                 if (a[1] === null) return 1;
@@ -797,12 +886,16 @@
             if (matchesData[year]) {
                 detailHtml += `<h4 style="margin-top:15px;">Матчи:</h4><ul class="match-list">`;
                 matchesData[year].forEach(m => {
-                    detailHtml += `<li><span>${m[0]} – ${m[1]}</span><span>${m[2]}</span></li>`;
+                    const videoUrl = getVideoLink(year, m[0], m[1], m[2]);
+                    let videoIcon = '';
+                    if (videoUrl) {
+                        videoIcon = `<a href="${videoUrl}" target="_blank" style="text-decoration:none; margin-left:8px;" title="Смотреть видео">▶️</a>`;
+                    }
+                    detailHtml += `<li><span>${m[0]} ${m[2]} ${m[1]}${videoIcon}</span></li>`;
                 });
                 detailHtml += `</ul>`;
             }
 
-            // Все спойлеры закрыты по умолчанию
             innerHtml += `
                 <div class="year-block" data-year="${year}">
                     <div class="header" onclick="toggleYear(this)">
@@ -860,34 +953,30 @@
             if (appearances.length === 0) {
                 html += '<p>Нет данных об участии.</p>';
             } else {
-                // Сортируем выступления по годам для наглядности
                 const sortedAppearances = appearances.slice().sort((a,b) => a.year - b.year);
                 html += '<table><tr><th>Год</th><th>Место</th></tr>';
                 sortedAppearances.forEach(a => {
                     const displayPlace = (a.place === 'участник') ? 'нет данных' : a.place;
-                    html += `<tr><td>${a.year}</td><td>${displayPlace}</td></tr>`;
+                    const placeHtml = (typeof a.place === 'number' && a.place >= 1 && a.place <= 3) 
+                        ? `<strong>${displayPlace}</strong>` 
+                        : displayPlace;
+                    html += `<tr><td>${a.year}</td><td>${placeHtml}</td></tr>`;
                 });
                 html += '</table>';
 
                 const numeric = sortedAppearances.filter(a => typeof a.place === 'number');
                 if (numeric.length > 0) {
-                    // Определяем лучшее место (минимальное число)
                     const bestPlace = Math.min(...numeric.map(a => a.place));
-                    // Все годы с этим лучшим местом, сортируем по возрастанию
                     const bestYears = numeric
                         .filter(a => a.place === bestPlace)
                         .map(a => a.year)
                         .sort((a, b) => a - b);
 
-                    // Выводим лучший результат с учётом первого повторения
                     html += `<p><strong>Лучший результат:</strong> ${bestPlace}-е место (${bestYears[0]})</p>`;
-
-                    // Если лучшее место повторялось, выводим все повторения
                     if (bestYears.length > 1) {
                         html += `<p><strong>Повторения лучшего результата:</strong> ${bestYears.slice(1).join(', ')}</p>`;
                     }
 
-                    // Счётчик призовых мест с медалями
                     const prizeCounts = { 1: 0, 2: 0, 3: 0 };
                     numeric.forEach(a => {
                         if (a.place >= 1 && a.place <= 3) {
@@ -915,7 +1004,7 @@
         let html = `
             <div class="card">
                 <h2>⚽ Результаты матчей (по годам)</h2>
-                <p>Полный перечень всех известных матчей с указанием счёта. Данные за 2000–2016 и 2017–2025.</p>
+                <p>Полный перечень всех известных матчей с указанием счёта. Данные за 2000–2026.</p>
                 <div id="matchesContainer"></div>
             </div>
         `;
@@ -931,11 +1020,39 @@
                 <h3 style="background: #e9edf2; padding: 8px 15px; border-radius: 10px;">${year}</h3>
                 <ul class="match-list">`;
             matches.forEach(m => {
-                innerHtml += `<li><span>${m[0]} – ${m[1]}</span><span>${m[2]}</span></li>`;
+                const videoUrl = getVideoLink(year, m[0], m[1], m[2]);
+                let videoIcon = '';
+                if (videoUrl) {
+                    videoIcon = `<a href="${videoUrl}" target="_blank" style="text-decoration:none; margin-left:8px;" title="Смотреть видео">▶️</a>`;
+                }
+                innerHtml += `<li><span>${m[0]} ${m[2]} ${m[1]}${videoIcon}</span></li>`;
             });
             innerHtml += `</ul></div>`;
         });
         matchContainer.innerHTML = innerHtml || 'Нет данных о матчах.';
+    }
+
+    function renderVideo() {
+        const container = document.getElementById('video');
+        let html = `
+            <div class="card">
+                <h2>📹 Видео матчей</h2>
+                <p>Доступные видеозаписи матчей.</p>
+                <div id="videoContainer"></div>
+            </div>
+        `;
+        container.innerHTML = html;
+        const videoContainer = document.getElementById('videoContainer');
+        let innerHtml = '';
+        const sortedYears = Object.keys(videoLinks).sort((a,b)=>a-b);
+        sortedYears.forEach(year => {
+            innerHtml += `<h3 style="background: #e9edf2; padding: 8px 15px; border-radius: 10px;">${year}</h3><ul class="match-list">`;
+            videoLinks[year].forEach(v => {
+                innerHtml += `<li><span>${v.team1} ${v.score} ${v.team2}</span><a href="${v.url}" target="_blank" style="text-decoration:none;" title="Смотреть видео">▶️</a></li>`;
+            });
+            innerHtml += `</ul>`;
+        });
+        videoContainer.innerHTML = innerHtml || 'Видео не добавлены.';
     }
 
     function renderStats() {
@@ -983,6 +1100,7 @@
     renderYears();
     renderTeamSelect();
     renderMatches();
+    renderVideo();
     renderStats();
 </script>
 </body>
