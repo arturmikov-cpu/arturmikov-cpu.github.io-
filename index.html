@@ -215,6 +215,23 @@
             font-weight: 600;
         }
         .footer a:hover { text-decoration: underline; }
+        .donate-button {
+            display: inline-block;
+            background: #ffca00;
+            color: #0b3b5c;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .donate-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+            color: #0b3b5c;
+        }
 
         @media (max-width: 700px) {
             body { padding: 10px; }
@@ -233,6 +250,7 @@
             .year-block .header .title { gap: 6px; }
             .year-block .header h3 { font-size: 1.1rem; }
             .match-list li { font-size: 0.85rem; }
+            .donate-button { font-size: 1.2rem; padding: 12px 30px; }
         }
     </style>
 </head>
@@ -251,6 +269,7 @@
         <button data-target="matches">Матчи</button>
         <button data-target="video">Видео</button>
         <button data-target="stats">Статистика</button>
+        <button data-target="donate">Донаты</button>
     </div>
 
     <!-- Секции -->
@@ -303,6 +322,17 @@
 
     <div id="stats" class="section">
         <!-- Контент рендерится JS -->
+    </div>
+
+    <div id="donate" class="section">
+        <div class="card" style="text-align: center;">
+            <h2>💛 Поддержать автора</h2>
+            <p>Сказать спасибо за труд автору приложения:</p>
+            <div style="margin: 25px 0;">
+                <a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="donate-button">ЗАДОНАТИТЬ</a>
+            </div>
+            <p style="color: #64748b;">Любая сумма будет приятна 🌟</p>
+        </div>
     </div>
 
     <!-- Подвал с ссылкой -->
@@ -711,12 +741,28 @@
         2025: [
             { team1: 'Красношиверский', team2: 'Чердынский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239316' },
             { team1: 'Карагайский', team2: 'Ординский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239317' },
-            { team1: 'Куединский', team2: 'Суксунский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239319' }
+            { team1: 'Куединский', team2: 'Суксунский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239319' },
+            { team1: 'Куединский', team2: 'Карагайский', score: '6:2', url: 'https://vkvideo.ru/video-210048215_456239306' },
+            { team1: 'Куединский', team2: 'Красношиверский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239311' },
+            { team1: 'Карагайский', team2: 'Красношиверский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239304' },
+            { team1: 'Чердынский', team2: 'Ординский', score: '0:1', url: 'https://vkvideo.ru/video-210048215_456239307' },
+            { team1: 'Чердынский', team2: 'Суксунский', score: '1:1', url: 'https://vkvideo.ru/video-210048215_456239312' },
+            { team1: 'Ординский', team2: 'Суксунский', score: '1:2', url: 'https://vkvideo.ru/video-210048215_456239305' },
+            { team1: 'Куединский', team2: 'Ординский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239314' },
+            { team1: 'Суксунский', team2: 'Карагайский', score: '1:0', url: 'https://vkvideo.ru/video-210048215_456239315' }
         ],
         2026: [
             { team1: 'Куединский', team2: 'Карагайский', score: '2:1', url: 'https://vkvideo.ru/live-210048215_456239486' },
             { team1: 'Октябрьский', team2: 'Оханский', score: '1:3', url: 'https://vkvideo.ru/live-210048215_456239485' },
-            { team1: 'Еловский', team2: 'Бардымский', score: '2:2 (1:3 пен.)', url: 'https://vkvideo.ru/live-210048215_456239484' }
+            { team1: 'Еловский', team2: 'Бардымский', score: '2:2 (1:3 пен.)', url: 'https://vkvideo.ru/live-210048215_456239484' },
+            { team1: 'Куединский', team2: 'Оханский', score: '10:0', url: 'https://vkvideo.ru/live-210048215_456239463' },
+            { team1: 'Еловский', team2: 'Куединский', score: '1:4', url: 'https://vkvideo.ru/live-210048215_456239465' },
+            { team1: 'Оханский', team2: 'Еловский', score: '4:3', url: 'https://vkvideo.ru/video-210048215_456239478' },
+            { team1: 'Карагайский', team2: 'Октябрьский', score: '3:0', url: 'https://vkvideo.ru/live-210048215_456239480' },
+            { team1: 'Бардымский', team2: 'Карагайский', score: '0:5', url: 'https://vkvideo.ru/live-210048215_456239466' },
+            { team1: 'Октябрьский', team2: 'Бардымский', score: '3:1', url: 'https://vkvideo.ru/live-210048215_456239462' },
+            { team1: 'Куединский', team2: 'Октябрьский', score: '7:0', url: 'https://vkvideo.ru/live-210048215_456239482' },
+            { team1: 'Оханский', team2: 'Карагайский', score: '0:2', url: 'https://vkvideo.ru/live-210048215_456239483' }
         ]
     };
 
@@ -757,7 +803,16 @@
     // ДАННЫЕ ПО ГОЛАМ
     // ============================================================
     const goalsData = {
-        2017: 57, 2018: 59, 2019: 50, 2022: 70, 2023: 48, 2024: 44, 2025: 51
+        2013: 34,
+        2014: 44,
+        2015: 64,
+        2017: 57,
+        2018: 59,
+        2019: 50,
+        2022: 70,
+        2023: 48,
+        2024: 44,
+        2025: 51
     };
 
     // ============================================================
