@@ -471,6 +471,9 @@
         2026: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Оханск': 3, 'Октябрьский': 4, 'Барда': 5, 'Еловский': 6 }, venue: 'с. Барда' }
     };
 
+    // ============================================================
+    // ОБНОВЛЕННЫЕ ДАННЫЕ МАТЧЕЙ (добавлены матчи 2016 и 2017)
+    // ============================================================
     const rawMatchesData = {
         2000: [
             ['Оханский р-н', 'Куединский р-н', '1:2'],
@@ -531,17 +534,13 @@
             ['Чердынский р-н', 'Куединский р-н', '0:1']
         ],
         2013: [
-            // Подгруппа А
             ['Кунгурский', 'Чердынский', '2:1'],
             ['Кунгурский', 'Суксунский', '2:1'],
             ['Чердынский', 'Суксунский', '3:2'],
-            // Подгруппа Б
             ['Карагайский', 'Октябрьский', '1:0'],
             ['Карагайский', 'Оханский', '2:0'],
             ['Оханский', 'Октябрьский', '0:2'],
-            // Матч за 5-6 места
             ['Суксунский', 'Оханский', '2:4'],
-            // Матчи за 1-4 места
             ['Кунгурский', 'Чердынский', '2:1'],
             ['Кунгурский', 'Карагайский', '3:0'],
             ['Кунгурский', 'Октябрьский', '3:1'],
@@ -585,12 +584,18 @@
             ['Чердынский', 'Суксунский', '3:1'],
             ['Куединский', 'Карагайский', '1:1 (4:2 пен.)']
         ],
+        // ===== ОБНОВЛЕННЫЕ ДАННЫЕ 2016 =====
         2016: [
-            ['Куединский р-н', 'Суксунский р-н', '2:0'],
-            ['Бардымский р-н', 'Куединский р-н', '0:0'],
-            ['Куединский р-н', 'Березовский р-н', '4:0'],
-            ['Карагайский р-н', 'Куединский р-н', '1:3']
+            ['Куединский', 'Суксунский', '2:0'],
+            ['Бардымский', 'Куединский', '0:0'],
+            ['Куединский', 'Березовский', '4:0'],
+            ['Карагайский', 'Куединский', '1:3'],
+            // Добавленные матчи:
+            ['Суксунский', 'Бардымский', '3:0'],          // 03.09.16
+            ['Карагайский', 'Кудымкарский', '3:0 (тех.)'], // 02.09.2016 тех. поражение
+            ['Суксунский', 'Березовский', '2:0']           // 02.09.2016
         ],
+        // ===== ОБНОВЛЕННЫЕ ДАННЫЕ 2017 (добавлен матч) =====
         2017: [
             ['Суксунский', 'Карагайский', '2:4'],
             ['Ординский', 'Чердынский', '2:2'],
@@ -607,7 +612,9 @@
             ['Чердынский', 'Октябрьский', '3:0'],
             ['Ординский', 'Бардымский', '1:3'],
             ['Суксунский', 'Оханский', '1:1 (пен.5:4)'],
-            ['Карагайский', 'Куединский', '2:3']
+            ['Карагайский', 'Куединский', '2:3'],
+            // Добавленный матч:
+            ['Суксунский', 'Бардымский', '3:0']
         ],
         2018: [
             ['Оханский', 'Карагайский', '0:2'],
@@ -720,7 +727,7 @@
     };
 
     // ============================================================
-    // ВИДЕО-ССЫЛКИ
+    // ОБНОВЛЕННЫЕ ВИДЕО-ССЫЛКИ (добавлены для 2017)
     // ============================================================
     const videoLinks = {
         2023: [
@@ -763,6 +770,11 @@
             { team1: 'Октябрьский', team2: 'Бардымский', score: '3:1', url: 'https://vkvideo.ru/live-210048215_456239462' },
             { team1: 'Куединский', team2: 'Октябрьский', score: '7:0', url: 'https://vkvideo.ru/live-210048215_456239482' },
             { team1: 'Оханский', team2: 'Карагайский', score: '0:2', url: 'https://vkvideo.ru/live-210048215_456239483' }
+        ],
+        // ===== ДОБАВЛЕНЫ ВИДЕО ДЛЯ 2017 =====
+        2017: [
+            { team1: 'Суксунский', team2: 'Бардымский', score: '3:0', url: 'https://vkvideo.ru/video-5224183_456239059?list=ln-jL7qgAzcZhBjONKHEV' },
+            { team1: 'Суксунский', team2: 'Оханский', score: '1:1 (пен.5:4)', url: 'https://vkvideo.ru/video172519179_456239017' }
         ]
     };
 
@@ -812,7 +824,8 @@
         2022: 70,
         2023: 48,
         2024: 44,
-        2025: 51
+        2025: 51,
+        2026: 54
     };
 
     // ============================================================
@@ -857,6 +870,69 @@
     }
 
     // ============================================================
+    // ФУНКЦИЯ: подсчёт сезонов участия
+    // ============================================================
+    function getTeamSeasonsCount() {
+        const allTeams = getAllTeams();
+        const result = {};
+        allTeams.forEach(team => {
+            const yearsSet = new Set();
+            for (const year of Object.keys(yearsData)) {
+                const data = yearsData[year];
+                if (data.places && data.places[team] !== undefined) {
+                    yearsSet.add(year);
+                }
+            }
+            for (const year of Object.keys(matchesData)) {
+                const matches = matchesData[year];
+                if (matches && matches.some(m => m[0] === team || m[1] === team)) {
+                    yearsSet.add(year);
+                }
+            }
+            result[team] = yearsSet.size;
+        });
+        return result;
+    }
+
+    // ============================================================
+    // ФУНКЦИЯ: "сухие" сезоны (команда не пропустила ни одного гола во всех матчах года)
+    // ============================================================
+    function getCleanSheetsFullSeason() {
+        const cleanMap = {}; // team -> Set of years
+        const yearsRange = Object.keys(matchesData).filter(y => parseInt(y) >= 2013 && parseInt(y) <= 2026);
+        for (const year of yearsRange) {
+            const matches = matchesData[year];
+            if (!matches) continue;
+            const teamsInYear = new Set();
+            const teamGoalsConceded = {};
+            matches.forEach(m => {
+                const [team1, team2, scoreStr] = m;
+                teamsInYear.add(team1);
+                teamsInYear.add(team2);
+                const parts = scoreStr.match(/(\d+)\s*:\s*(\d+)/);
+                if (!parts) return;
+                const goals1 = parseInt(parts[1]);
+                const goals2 = parseInt(parts[2]);
+                if (!teamGoalsConceded[team1]) teamGoalsConceded[team1] = 0;
+                teamGoalsConceded[team1] += goals2;
+                if (!teamGoalsConceded[team2]) teamGoalsConceded[team2] = 0;
+                teamGoalsConceded[team2] += goals1;
+            });
+            for (const team of teamsInYear) {
+                if (teamGoalsConceded[team] === 0) {
+                    if (!cleanMap[team]) cleanMap[team] = new Set();
+                    cleanMap[team].add(year);
+                }
+            }
+        }
+        const result = {};
+        for (const [team, yearsSet] of Object.entries(cleanMap)) {
+            result[team] = Array.from(yearsSet).sort((a,b)=>a-b);
+        }
+        return result;
+    }
+
+    // ============================================================
     // ОТРИСОВКА
     // ============================================================
     function renderYears() {
@@ -880,7 +956,6 @@
             const data = yearsData[year];
             if (!data.places && !data.note && !matchesData[year]) return;
 
-            // Заголовок блока
             let titleHtml = `<span class="title">`;
             titleHtml += `<h3>${year}</h3>`;
             if (data.venue) {
@@ -894,10 +969,8 @@
             }
             titleHtml += `</span>`;
 
-            // Содержимое спойлера
             let detailHtml = '';
 
-            // Призёры (первые три места)
             if (data.places) {
                 const entries = Object.entries(data.places);
                 const sorted = entries.sort((a,b) => a[1] - b[1]);
@@ -912,7 +985,6 @@
                 }
             }
 
-            // Полная таблица мест, включая команды только из матчей
             const placeMap = data.places ? { ...data.places } : {};
             if (matchesData[year]) {
                 matchesData[year].forEach(m => {
@@ -937,7 +1009,6 @@
             });
             detailHtml += '</table>';
 
-            // Матчи
             if (matchesData[year]) {
                 detailHtml += `<h4 style="margin-top:15px;">Матчи:</h4><ul class="match-list">`;
                 matchesData[year].forEach(m => {
@@ -1110,16 +1181,41 @@
         videoContainer.innerHTML = innerHtml || 'Видео не добавлены.';
     }
 
+    // ============================================================
+    // СТАТИСТИКА
+    // ============================================================
     function renderStats() {
         const container = document.getElementById('stats');
+
+        // ---- Вычисляем данные для "сухих" сезонов (пересчёт с новыми данными) ----
+        const cleanSheets = getCleanSheetsFullSeason();
+        let cleanHtml = '';
+        if (Object.keys(cleanSheets).length === 0) {
+            cleanHtml = 'Нет команд, которые не пропустили ни одного гола во всех матчах сезона.';
+        } else {
+            const sortedTeams = Object.keys(cleanSheets).sort();
+            const listItems = sortedTeams.map(team => {
+                const yearsStr = cleanSheets[team].join(', ');
+                return `<div><strong>${team}</strong>: ${yearsStr}</div>`;
+            });
+            cleanHtml = listItems.join('');
+        }
+
         container.innerHTML = `
             <div class="card">
                 <h2>📊 Статистика турниров</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 15px; margin-bottom: 20px;">
                     <div class="stat-box"><strong>Всего матчей (известных)</strong><br>≈ 120+</div>
+                    <div class="stat-box"><strong>Самая крупная победа</strong><br><span class="badge">10:0</span> (2026, Куединский – Оханский)</div>
                     <div class="stat-box"><strong>Самый крупный счёт</strong><br><span class="badge">10:1</span> (2018, Карагайский – Кудымкарский)</div>
                     <div class="stat-box"><strong>Больше всего голов за турнир</strong><br>2022 – 70</div>
                     <div class="stat-box"><strong>Меньше всего голов</strong><br>2024 – 44</div>
+                </div>
+                <h3>Топ-3 команды по количеству сезонов участия</h3>
+                <div id="topSeasons" style="margin: 10px 0 20px 0; background: #f1f5f9; border-radius: 12px; padding: 15px;"></div>
+                <h3>Розыгрышей на ноль (команды, не пропустившие ни одного гола во всех матчах сезона, 2013–2026)</h3>
+                <div style="margin: 10px 0 20px 0; background: #f1f5f9; border-radius: 12px; padding: 15px; max-height: 300px; overflow-y: auto;">
+                    ${cleanHtml}
                 </div>
                 <h3>Общее количество голов по годам (только основное время)</h3>
                 <table id="goalsTable">
@@ -1129,10 +1225,49 @@
                 <div class="footnote">* Данные за 2000–2016 не полные, указано только по известным матчам.</div>
             </div>
         `;
+
+        // ---- Топ-3 по сезонам ----
+        const seasonsCount = getTeamSeasonsCount();
+        const sorted = Object.entries(seasonsCount).sort((a, b) => b[1] - a[1]);
+        const top = [];
+        let i = 0;
+        while (i < sorted.length && top.length < 3) {
+            const currentCount = sorted[i][1];
+            const group = [];
+            while (i < sorted.length && sorted[i][1] === currentCount) {
+                group.push(sorted[i][0]);
+                i++;
+            }
+            top.push({ count: currentCount, teams: group });
+        }
+        if (top.length === 3) {
+            const thirdCount = top[2].count;
+            let idx = i;
+            while (idx < sorted.length && sorted[idx][1] === thirdCount) {
+                top[2].teams.push(sorted[idx][0]);
+                idx++;
+            }
+        }
+
+        let topHtml = '';
+        if (top.length === 0) {
+            topHtml = 'Нет данных.';
+        } else {
+            const medals = ['🥇', '🥈', '🥉'];
+            top.forEach((item, index) => {
+                const medal = medals[index] || '';
+                const teamsStr = item.teams.join(', ');
+                topHtml += `<div><strong>${medal} ${index+1} место:</strong> ${teamsStr} (${item.count} сезонов)</div>`;
+            });
+        }
+        document.getElementById('topSeasons').innerHTML = topHtml;
+
+        // ---- Таблица голов ----
         const tbody = document.querySelector('#goalsTable tbody');
         let rows = '';
-        Object.entries(goalsData).forEach(([year, goals]) => {
-            rows += `<tr><td>${year}</td><td>${goals}</td></tr>`;
+        const sortedYears = Object.keys(goalsData).sort((a,b)=>a-b);
+        sortedYears.forEach(year => {
+            rows += `<tr><td>${year}</td><td>${goalsData[year]}</td></tr>`;
         });
         tbody.innerHTML = rows;
     }
