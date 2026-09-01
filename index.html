@@ -1,1297 +1,2110 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>База знаний: Сельские спортивные игры по футболу (группа 2)</title>
-    
-    <!-- Подключение локального VK Bridge -->
-    <script src="vk-bridge.js"></script>
-    
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background: #f0f4f8;
-            padding: 20px;
-            color: #1e293b;
-        }
-        #app {
-            display: none;
-        }
-        .container {
-            max-width: 1300px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 30px;
-        }
-        h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #0b3b5c;
-            border-left: 6px solid #ffca00;
-            padding-left: 15px;
-            margin-bottom: 10px;
-        }
-        .subhead {
-            color: #475569;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-            padding-left: 21px;
-        }
-        .nav-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
-        }
-        .nav-tabs button {
-            background: #f1f5f9;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #1e293b;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .nav-tabs button:hover { background: #d9e2ef; }
-        .nav-tabs button.active { background: #0b3b5c; color: white; }
-        .section { display: none; animation: fade 0.3s ease; }
-        .section.active { display: block; }
-        @keyframes fade { from { opacity: 0.3; } to { opacity: 1; } }
-        .card {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px 25px;
-            margin-bottom: 25px;
-            border-left: 5px solid #ffca00;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        .card h2 { font-size: 1.5rem; font-weight: 600; color: #0b3b5c; margin-bottom: 12px; }
-        .card h3 { font-size: 1.2rem; margin: 15px 0 8px 0; color: #1e293b; }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-        .stat-box {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-        }
-        th {
-            background: #e2e8f0;
-            color: #0b3b5c;
-            font-weight: 600;
-            padding: 8px 12px;
-            text-align: left;
-        }
-        td {
-            padding: 6px 12px;
-            border-bottom: 1px solid #e9edf2;
-        }
-        .highlight { background: #fff3cd; font-weight: 600; }
-        .badge {
-            display: inline-block;
-            background: #ffca00;
-            color: #0b3b5c;
-            border-radius: 20px;
-            padding: 0 12px;
-            font-size: 0.8rem;
-            line-height: 1.8;
-            font-weight: 600;
-        }
-        .badge-gold { background: #ffca00; color: #0b3b5c; }
-        .badge-silver { background: #a8b5c0; }
-        .badge-bronze { background: #c67c4a; }
-        .match-list {
-            list-style: none;
-            padding: 0;
-        }
-        .match-list li {
-            padding: 4px 0;
-            border-bottom: 1px dashed #dee4ec;
-            display: flex;
-            justify-content: space-between;
-        }
-        .match-list li span:last-child {
-            font-weight: 500;
-            color: #0b3b5c;
-        }
-        .footnote {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin-top: 10px;
-        }
-        .year-block {
-            margin-bottom: 20px;
-            border: 1px solid #dde4ec;
-            border-radius: 12px;
-            padding: 15px;
-            background: white;
-            transition: box-shadow 0.2s;
-        }
-        .year-block:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .year-block .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            flex-wrap: wrap;
-            user-select: none;
-        }
-        .year-block .header .title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .year-block .header .title .venue {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.9rem;
-            color: #475569;
-        }
-        .year-block .header h3 { margin: 0; }
-        .year-detail {
-            margin-top: 15px;
-            display: none;
-        }
-        .year-block.open .year-detail {
-            display: block;
-        }
-        .year-block .arrow {
-            display: inline-block;
-            transition: transform 0.2s ease;
-            font-size: 1.2rem;
-        }
-        .year-block.open .arrow {
-            transform: rotate(180deg);
-        }
-        .podium {
-            background: #f1f5f9;
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px 40px;
-        }
-        .podium-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .podium-item .medal {
-            font-size: 1.4rem;
-        }
-        .podium-item .team {
-            font-weight: 600;
-        }
-        .footer {
-            margin-top: 40px;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 20px;
-            font-size: 0.9rem;
-            color: #64748b;
-            text-align: center;
-        }
-        .footer a {
-            color: #0b3b5c;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .footer a:hover { text-decoration: underline; }
-        .donate-button {
-            display: inline-block;
-            background: #ffca00;
-            color: #0b3b5c;
-            font-size: 1.5rem;
-            font-weight: 700;
-            padding: 15px 40px;
-            border-radius: 50px;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .donate-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-            color: #0b3b5c;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>K4TV · Краевые сельские спортивные игры</title>
 
-        @media (max-width: 700px) {
-            body { padding: 10px; }
-            .container { padding: 15px; border-radius: 16px; }
-            h1 { font-size: 1.6rem; padding-left: 10px; }
-            .subhead { font-size: 0.95rem; padding-left: 10px; margin-bottom: 20px; }
-            .nav-tabs { gap: 6px; padding-bottom: 8px; }
-            .nav-tabs button { font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; }
-            .card { padding: 15px; }
-            .card h2 { font-size: 1.3rem; }
-            .grid-2 { grid-template-columns: 1fr; gap: 12px; }
-            table { font-size: 0.85rem; }
-            th, td { padding: 6px 8px; }
-            .podium { gap: 10px 20px; padding: 10px 12px; }
-            .year-block { padding: 10px; }
-            .year-block .header .title { gap: 6px; }
-            .year-block .header h3 { font-size: 1.1rem; }
-            .match-list li { font-size: 0.85rem; }
-            .donate-button { font-size: 1.2rem; padding: 12px 30px; }
-        }
-    </style>
+<!-- Подключение локального VK Bridge -->
+<script src="vk-bridge.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; padding: 20px; color: #1e293b; }
+#app { display: none; }
+.container { max-width: 1300px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; }
+h1 { font-size: 2.2rem; font-weight: 700; color: #0b3b5c; border-left: 6px solid #ffca00; padding-left: 15px; margin-bottom: 10px; }
+.subhead { color: #475569; margin-bottom: 25px; font-size: 1.1rem; padding-left: 21px; }
+
+.group-switch { display: flex; gap: 10px; margin-bottom: 25px; }
+.group-switch button { flex: 1; padding: 14px 10px; border-radius: 16px; border: 2px solid #e2e8f0; background: #f8fafc; font-weight: 700; font-size: 1.05rem; color: #1e293b; cursor: pointer; transition: 0.2s; font-family: inherit; }
+.group-switch button .g-sub { display: block; font-size: 0.75rem; font-weight: 500; color: #64748b; margin-top: 3px; }
+.group-switch button:hover { background: #eef2f7; }
+.group-switch button.active { background: #0b3b5c; color: white; border-color: #0b3b5c; box-shadow: 0 4px 12px rgba(11,59,92,0.25); }
+.group-switch button.active .g-sub { color: #cbd5e1; }
+
+.nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+.nav-tabs button { background: #f1f5f9; border: none; padding: 8px 18px; border-radius: 30px; font-weight: 600; font-size: 0.9rem; color: #1e293b; cursor: pointer; transition: 0.2s; font-family: inherit; }
+.nav-tabs button:hover { background: #d9e2ef; }
+.nav-tabs button.active { background: #0b3b5c; color: white; }
+
+.section { display: none; animation: fade 0.3s ease; }
+.section.active { display: block; }
+@keyframes fade { from { opacity: 0.3; } to { opacity: 1; } }
+
+.sport-banner { background: #0b3b5c; color: white; border-radius: 16px; padding: 18px 22px; margin-bottom: 20px; }
+.sport-banner h2 { color: white; margin: 0; font-size: 1.4rem; }
+.sport-banner .sport-sub { color: #cbd5e1; font-size: 0.95rem; margin-top: 5px; }
+
+.card { background: #f8fafc; border-radius: 16px; padding: 20px 25px; margin-bottom: 25px; border-left: 5px solid #ffca00; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.card h2 { font-size: 1.5rem; font-weight: 600; color: #0b3b5c; margin-bottom: 12px; }
+.card h3 { font-size: 1.2rem; margin: 15px 0 8px 0; color: #1e293b; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.stat-box { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+th { background: #e2e8f0; color: #0b3b5c; font-weight: 600; padding: 8px 12px; text-align: left; }
+td { padding: 6px 12px; border-bottom: 1px solid #e9edf2; }
+.highlight { background: #fff3cd; font-weight: 600; }
+.badge { display: inline-block; background: #ffca00; color: #0b3b5c; border-radius: 20px; padding: 0 12px; font-size: 0.8rem; line-height: 1.8; font-weight: 600; }
+.badge-gold { background: #ffca00; color: #0b3b5c; }
+.badge-silver { background: #a8b5c0; }
+.badge-bronze { background: #c67c4a; }
+.badge-muted { background: #e2e8f0; color: #475569; }
+.match-list { list-style: none; padding: 0; }
+.match-list li { padding: 4px 0; border-bottom: 1px dashed #dee4ec; display: flex; justify-content: space-between; }
+.match-list li span:last-child { font-weight: 500; color: #0b3b5c; }
+.footnote { font-size: 0.9rem; color: #64748b; margin-top: 10px; }
+
+.year-block { margin-bottom: 20px; border: 1px solid #dde4ec; border-radius: 12px; padding: 15px; background: white; transition: box-shadow 0.2s; }
+.year-block:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.year-block .header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; flex-wrap: wrap; user-select: none; }
+.year-block .header .title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.year-block .header .title .venue { display: inline-flex; align-items: center; gap: 4px; font-size: 0.9rem; color: #475569; }
+.year-block .header h3 { margin: 0; }
+.year-detail { margin-top: 15px; display: none; }
+.year-block.open .year-detail { display: block; }
+.year-block .arrow { display: inline-block; transition: transform 0.2s ease; font-size: 1.2rem; }
+.year-block.open .arrow { transform: rotate(180deg); }
+
+.podium { background: #f1f5f9; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 20px 40px; }
+.podium-item { display: flex; align-items: center; gap: 8px; }
+.podium-item .medal { font-size: 1.4rem; }
+.podium-item .team { font-weight: 600; }
+
+.place-medal { font-weight: 700; white-space: nowrap; }
+.no-part { color: #94a3b8; font-style: italic; }
+.not-held { color: #b6c2cf; font-style: italic; }
+.year-note { font-size: 0.85rem; color: #b45309; background: #fffbeb; border-radius: 8px; padding: 6px 10px; margin-top: 10px; display: inline-block; }
+.app-select { padding: 10px 15px; border-radius: 30px; border: 1px solid #cbd5e1; width: 100%; max-width: 340px; font-size: 0.95rem; background: white; color: #1e293b; font-family: inherit; }
+.info-box { margin-top: 15px; background: #f1f5f9; border-radius: 12px; padding: 15px; min-height: 80px; }
+.champions-flex { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px; }
+
+.footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 0.9rem; color: #64748b; text-align: center; }
+.footer a { color: #0b3b5c; text-decoration: none; font-weight: 600; }
+.footer a:hover { text-decoration: underline; }
+.donate-button { display: inline-block; background: #ffca00; color: #0b3b5c; font-size: 1.5rem; font-weight: 700; padding: 15px 40px; border-radius: 50px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.donate-button:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); color: #0b3b5c; }
+
+@media (max-width: 700px) {
+body { padding: 10px; }
+.container { padding: 15px; border-radius: 16px; }
+h1 { font-size: 1.6rem; padding-left: 10px; }
+.subhead { font-size: 0.95rem; padding-left: 10px; margin-bottom: 15px; }
+.group-switch { gap: 8px; }
+.group-switch button { font-size: 0.95rem; padding: 10px 6px; }
+.nav-tabs { gap: 6px; padding-bottom: 8px; }
+.nav-tabs button { font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; }
+.card { padding: 15px; }
+.card h2 { font-size: 1.3rem; }
+.grid-2 { grid-template-columns: 1fr; gap: 12px; }
+table { font-size: 0.85rem; }
+th, td { padding: 6px 8px; }
+.podium { gap: 10px 20px; padding: 10px 12px; }
+.year-block { padding: 10px; }
+.year-block .header .title { gap: 6px; }
+.year-block .header h3 { font-size: 1.1rem; }
+.match-list li { font-size: 0.85rem; }
+.donate-button { font-size: 1.2rem; padding: 12px 30px; }
+.sport-banner { padding: 14px 16px; }
+.sport-banner h2 { font-size: 1.2rem; }
+.app-select { max-width: 100%; }
+}
+.season-link {
+    display: block;
+    width: 100%;
+    padding: 14px 10px;
+    border-radius: 16px;
+    border: 2px solid #ffca00;
+    background: #ffca00;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #0b3b5c;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 25px;
+    font-family: inherit;
+    box-shadow: 0 4px 12px rgba(255, 202, 0, 0.3);
+}
+.season-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(255, 202, 0, 0.45);
+    background: #ffd633;
+    border-color: #ffd633;
+    color: #0b3b5c;
+}
+.season-link:active {
+    transform: translateY(0);
+}
+@media (max-width: 700px) {
+    .season-link { font-size: 0.95rem; padding: 10px 6px; }
+}
+</style>
 </head>
 <body>
 
 <div class="container" id="app">
 
-    <h1>🏆 Сельские спортивные игры по футболу</h1>
-    <div class="subhead">Группа 2 · Финальные турниры (1997–2026) — известные данные</div>
+    <h1>🏆 Краевые сельские спортивные игры</h1>
+    <div class="subhead" id="subhead">База знаний · Пермский край</div>
 
-    <!-- Навигация -->
-    <div class="nav-tabs">
-        <button class="active" data-target="overview">Обзор</button>
-        <button data-target="years">По годам</button>
-        <button data-target="teams">По командам</button>
-        <button data-target="matches">Матчи</button>
-        <button data-target="video">Видео</button>
-        <button data-target="stats">Статистика</button>
-        <button data-target="donate">Донаты</button>
+    <div class="group-switch" id="groupSwitch">
+        <button type="button" data-group="g1" class="active">ГРУППА 1<span class="g-sub">Свыше 25 тыс. жителей</span></button>
+        <button type="button" data-group="g2">ГРУППА 2<span class="g-sub">Менее 25 тыс. жителей</span></button>
     </div>
 
-    <!-- Секции -->
-    <div id="overview" class="section active">
-        <div class="card">
-            <h2>📋 Общая информация</h2>
-            <p>Финальные соревнования краевых Cельских Спортивных Игр по футболу среди команд II группы проводятся ежегодно (кроме 2020–2021). В турнире участвуют сборные муниципальных образований Пермского края.</p>
-            <br>
-            <div class="grid-2">
-                <div class="stat-box"><strong>Период</strong><br>1997 – 2026 (с перерывами)</div>
-                <div class="stat-box"><strong>Всего чемпионов</strong><br>5 разных команд (плюс 2022 – не определён)</div>
-                <div class="stat-box"><strong>Наибольшее число побед</strong><br><span class="badge badge-gold">Берёзовский – 13</span></div>
-                <div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">Куединский (2024, 2025, 2026)</span></div>
-            </div>
-        </div>
-        <div class="card">
-            <h2>🏅 Список чемпионов (по годам)</h2>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px;">
-                <span><strong>1997–2005</strong> Берёзовский (9 раз)</span>
-                <span><strong>2006</strong> Чердынский</span>
-                <span><strong>2007–2010</strong> Берёзовский (4 раза)</span>
-                <span><strong>2011</strong> Чердынский</span>
-                <span><strong>2012–2013</strong> Кунгурский (2 раза)</span>
-                <span><strong>2014–2017</strong> Куединский (4 раза)</span>
-                <span><strong>2018</strong> Карагайский</span>
-                <span><strong>2019</strong> Куединский</span>
-                <span><strong>2020–2021</strong> не проводились</span>
-                <span><strong>2022</strong> аннулирован</span>
-                <span><strong>2023</strong> Карагайский</span>
-                <span><strong>2024–2026</strong> Куединский (3 раза)</span>
-            </div>
-        </div>
-    </div>
+    <a href="https://disk.yandex.ru/i/SSXzWrnmDxZoLg" target="_blank" class="season-link">СЕЗОН 2026</a>
 
-    <div id="years" class="section">
-        <!-- Контент рендерится JS -->
-    </div>
+    <div class="nav-tabs" id="mainTabs"></div>
 
-    <div id="teams" class="section">
-        <!-- Контент рендерится JS -->
-    </div>
+    <div class="nav-tabs" id="mainTabs"></div>
 
-    <div id="matches" class="section">
-        <!-- Контент рендерится JS -->
-    </div>
+    <div id="content"></div>
 
-    <div id="video" class="section">
-        <!-- Контент рендерится JS -->
-    </div>
-
-    <div id="stats" class="section">
-        <!-- Контент рендерится JS -->
-    </div>
-
-    <div id="donate" class="section">
-        <div class="card" style="text-align: center;">
-            <h2>💛 Поддержать автора</h2>
-            <p>Сказать спасибо за труд автору приложения:</p>
-            <div style="margin: 25px 0;">
-                <a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="donate-button">ЗАДОНАТИТЬ</a>
-            </div>
-            <p style="color: #64748b;">Любая сумма будет приятна 🌟</p>
-        </div>
-    </div>
-
-    <!-- Подвал с ссылкой -->
     <div class="footer">
-        Автор базы знаний — <a href="https://vk.ru/karagatchtv" target="_blank">Карагатч ТВ</a> · Все данные собраны из архивов и уточнены в 2026 году.
+        Автор — Артур Миков <a href="https://vk.ru/karagatchtv" target="_blank">Карагатч ТВ (K4TV)</a> · Все данные собраны из архивов и уточнены в 2026 году.
+		<a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="button">Поддержать автора</a></div>'
     </div>
 
-</div> <!-- .container -->
+</div>
 
-<!-- Логика инициализации VK Bridge -->
+<!-- Логика инициализации VK Bridge (из index1) -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof vkBridge === 'undefined') {
-            console.error('Ошибка: VK Bridge не найден! Показываю приложение без интеграции ВК.');
-            document.getElementById('app').style.display = 'block';
-            return;
-        }
-
-        try {
-            vkBridge.send('VKWebAppInit')
-                .then(function(data) {
-                    console.log('VK Web App инициализирован:', data);
-                    document.getElementById('app').style.display = 'block';
-                    return vkBridge.send('VKWebAppGetLaunchParams');
-                })
-                .then(function(launchParams) {
-                    console.log('Параметры запуска получены:', launchParams);
-                    if (launchParams && launchParams.scheme) {
-                        applyTheme(launchParams.scheme);
-                    }
-                })
-                .catch(function(error) {
-                    console.error('Ошибка инициализации VK Bridge:', error);
-                    document.getElementById('app').style.display = 'block';
-                });
-
-            vkBridge.subscribe(function(event) {
-                if (event.detail && event.detail.type === 'VKWebAppUpdateConfig') {
-                    const scheme = event.detail.data.scheme;
-                    applyTheme(scheme);
-                }
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof vkBridge === 'undefined') {
+        console.error('Ошибка: VK Bridge не найден! Показываю приложение без интеграции ВК.');
+        document.getElementById('app').style.display = 'block';
+        return;
+    }
+    try {
+        vkBridge.send('VKWebAppInit')
+            .then(function(data) {
+                console.log('VK Web App инициализирован:', data);
+                document.getElementById('app').style.display = 'block';
+                return vkBridge.send('VKWebAppGetLaunchParams');
+            })
+            .then(function(launchParams) {
+                console.log('Параметры запуска получены:', launchParams);
+                if (launchParams && launchParams.scheme) applyTheme(launchParams.scheme);
+            })
+            .catch(function(error) {
+                console.error('Ошибка инициализации VK Bridge:', error);
+                document.getElementById('app').style.display = 'block';
             });
-        } catch (e) {
-            console.error('Критическая ошибка при инициализации VK Bridge:', e);
-            document.getElementById('app').style.display = 'block';
-        }
-
-        function applyTheme(scheme) {
-            console.log('Применяется тема:', scheme);
-            document.documentElement.style.setProperty('--vk-color-scheme', scheme);
-            if (scheme === 'vkcom_dark' || scheme === 'space_gray') {
-                document.body.classList.add('dark-theme');
-            } else {
-                document.body.classList.remove('dark-theme');
+        vkBridge.subscribe(function(event) {
+            if (event.detail && event.detail.type === 'VKWebAppUpdateConfig') {
+                applyTheme(event.detail.data.scheme);
             }
-        }
-    });
+        });
+    } catch (e) {
+        console.error('Критическая ошибка при инициализации VK Bridge:', e);
+        document.getElementById('app').style.display = 'block';
+    }
+    function applyTheme(scheme) {
+        console.log('Применяется тема:', scheme);
+        document.documentElement.style.setProperty('--vk-color-scheme', scheme);
+        if (scheme === 'vkcom_dark' || scheme === 'space_gray') document.body.classList.add('dark-theme');
+        else document.body.classList.remove('dark-theme');
+    }
+});
 </script>
 
 <!-- Логика приложения -->
 <script>
-    // ============================================================
-    // НОРМАЛИЗАЦИЯ НАЗВАНИЙ КОМАНД
-    // ============================================================
-    const teamAliases = {
-        'Карагай': 'Карагайский',
-        'Карагайский': 'Карагайский',
-        'Барда': 'Бардымский',
-        'Бардымский': 'Бардымский',
-        'Елово': 'Еловский',
-        'Еловский': 'Еловский',
-        'Красновишерск': 'Красновишерский',
-        'Красношиерский': 'Красновишерский',
-        'Красношиверский': 'Красновишерский',
-        'Оханск': 'Оханский',
-        'Оханский': 'Оханский',
-        'Суксун': 'Суксунский',
-        'Суксунский': 'Суксунский',
-        'Чердынь': 'Чердынский',
-        'Чердынский': 'Чердынский',
-        'Куеда': 'Куединский',
-        'Куединский': 'Куединский',
-        'Кудымкарский': 'Кудымкарский',
-        'Октябрьский': 'Октябрьский',
-        'Ильинский': 'Ильинский',
-        'Кунгур': 'Кунгурский',
-        'Кунгурский': 'Кунгурский',
-        'Коса': 'Косинский',
-        'Косинский': 'Косинский',
-        'Майский': 'Майский',
-        'Частинский': 'Частинский',
-        'Ординский': 'Ординский',
-        'Юрлинский': 'Юрлинский',
-        'Берёзовка': 'Берёзовский',
-        'Березовский': 'Берёзовский'
-    };
+(function () {
+'use strict';
 
-    function normalizeTeam(name) {
-        let n = name.replace(/\s*(р-н|МО|ГО)\s*/gi, '').trim();
-        return teamAliases[n] || n;
-    }
+/* ============================================================
+   1. МЕТАДАННЫЕ ДИСЦИПЛИН — единая точка управления программой
+   ------------------------------------------------------------
+   id     — ключ в данных (НЕ зависит от порядка!)
+   label  — отображаемое название
+   since  — первый год в программе
+   until  — последний год в программе. НЕ указывайте, если
+            дисциплина действует; укажите год, если её исключили
+            из программы (после этого года — «не проводилась»).
 
-    // ============================================================
-    // СЫРЫЕ ДАННЫЕ
-    // ============================================================
-    const rawYearsData = {
-        1997: { champion: 'Берёзовка', places: { 'Берёзовка': 1 } },
-        1998: { champion: 'Берёзовка', places: { 'Берёзовка': 1 } },
-        1999: { champion: 'Берёзовка', places: { 'Берёзовка': 1 } },
-        2000: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Оханск' },
-        2001: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Берёзовка' },
-        2002: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Чердынь' },
-        2003: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Куеда' },
-        2004: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 3 }, venue: 'Оханск' },
-        2005: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Чердынь': 2, 'Октябрьский': 3, 'Куеда': 4 }, venue: 'Берёзовка' },
-        2006: { champion: 'Чердынь', places: { 'Чердынь': 1, 'Кунгур': 2, 'Куеда': 3, 'Ильинский': 4, 'Октябрьский': 5, 'Берёзовка': 6 }, venue: 'Чердынь' },
-        2007: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Ильинский': 2, 'Чердынь': 3, 'Суксун': 4, 'Оханск': 5, 'Карагай': 6, 'Октябрьский': 7, 'Куеда': 8 }, venue: 'п. Ильинский' },
-        2008: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Октябрьский': 2, 'Оханск': 3, 'Барда': 4, 'Ильинский': 5, 'Кунгур': 6 }, venue: 'с. Барда' },
-        2009: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Карагай': 2, 'Куеда': 3, 'Барда': 4, 'Оханск': 5, 'Чердынь': 6 }, venue: 'Куеда' },
-        2010: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Кунгур': 2, 'Карагай': 3, 'Чердынь': 4, 'Ильинский': 5, 'Октябрьский': 6, 'Оханск': 7 } },
-        2011: { champion: 'Чердынь', places: { 'Чердынь': 1, 'Берёзовка': 2, 'Карагай': 3, 'Коса': 4, 'Куеда': 5, 'Оханск': 6 }, venue: 'г. Кудымкар' },
-        2012: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Куеда': 2, 'Чердынь': 3, 'Карагай': 4, 'Коса': 5, 'Майский': 6 }, venue: 'Чердынь' },
-        2013: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Чердынь': 2, 'Карагай': 3, 'Октябрьский': 4, 'Оханск': 5, 'Суксун': 6 }, venue: 'г. Кудымкар' },
-        2014: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксун': 2, 'Карагай': 3, 'Барда': 4, 'Ильинский': 5, 'Чердынь': 6, 'Берёзовка': 7, 'Коса': 8 }, venue: 'г. Чайковский' },
-        2015: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Чердынь': 3, 'Суксун': 4, 'Октябрьский': 5, 'Кудымкарский': 6, 'Берёзовка': 7, 'Майский': 8 }, venue: 'г. Чайковский' },
-        2016: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Чердынь': 3, 'Суксун': 4, 'Барда': 5, 'Оханск': 6, 'Берёзовка': 7, 'Кудымкарский': 8 }, venue: 'п. Суксун' },
-        2017: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Суксун': 3, 'Оханск': 4, 'Бардымский': 5, 'Ординский': 6, 'Чердынский': 7, 'Октябрьский': 8 }, venue: 'п. Суксун' },
-        2018: { champion: 'Карагай', places: { 'Карагай': 1, 'Куеда': 2, 'Частинский': 3, 'Суксун': 4, 'Октябрьский': 5, 'Оханск': 6, 'Еловский': 7, 'Кудымкарский': 8 }, venue: 'г. Чайковский' },
-        2019: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Октябрьский': 3, 'Ординский': 4, 'Чердынский': 5, 'Карагайский': 6, 'Частинский': 7, 'Оханский': 8 }, venue: 'п. Суксун' },
-        2020: { champion: null, note: 'Не проводились (COVID-19)' },
-        2021: { champion: null, note: 'Не проводились (COVID-19)' },
-        2022: { champion: 'Результат финала аннулирован. Утверждено два вторых места', note: 'Аннулирован (чемпион не определён).', places: { 'Суксунский': 2, 'Куеда': 2, 'Октябрьский': 3, 'Карагайский': 4, 'Кудымкарский': 5, 'Чердынский': 6, 'Частинский': 7, 'Еловский': 8 }, venue: 'п. Суксун' },
-        2023: { champion: 'Карагай', places: { 'Карагай': 1, 'Куеда': 2, 'Октябрьский': 3, 'Ординский': 4, 'Красновишерск': 5, 'Косинский': 6 }, venue: 'г. Кудымкар' },
-        2024: { champion: 'Куеда', places: { 'Куеда': 1, 'Чердынь': 2, 'Ординский': 3, 'Карагай': 4, 'Октябрьский': 5, 'Юрлинский': 6 }, venue: 'г. Чердынь' },
-        2025: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Карагай': 3, 'Ординский': 4, 'Красношиерский': 5, 'Чердынский': 6 }, venue: 'г. Чердынь' },
-        2026: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Оханск': 3, 'Октябрьский': 4, 'Барда': 5, 'Еловский': 6 }, venue: 'с. Барда' }
-    };
+   ПОРЯДОК массива = порядок отображения во всех таблицах.
 
-    // ============================================================
-    // ОБНОВЛЕННЫЕ ДАННЫЕ МАТЧЕЙ (добавлены матчи 2016 и 2017)
-    // ============================================================
-    const rawMatchesData = {
-        2000: [
-            ['Оханский р-н', 'Куединский р-н', '1:2'],
-            ['Березовский р-н', 'Куединский р-н', '1:1'],
-            ['Куединский р-н', 'Чердынский р-н', '1:1']
-        ],
-        2001: [
-            ['Куединский р-н', 'Карагайский р-н', '3:3'],
-            ['Березовский р-н', 'Куединский р-н', '8:1'],
-            ['Куединский р-н', 'Чердынский р-н', '3:0']
-        ],
-        2002: [
-            ['Куединский р-н', 'Березовский р-н', '2:5'],
-            ['Чердынский р-н', 'Куединский р-н', '1:3'],
-            ['Куединский р-н', 'Карагайский р-н', '3:0']
-        ],
-        2003: [
-            ['Куединский р-н', 'Карагайский р-н', '4:0'],
-            ['Куединский р-н', 'Чердынский р-н', '4:2'],
-            ['Куединский р-н', 'Березовский р-н', '1:4']
-        ],
-        2004: [
-            ['Березовский р-н', 'Куединский р-н', '2:1'],
-            ['Ильинский р-н', 'Куединский р-н', '1:5'],
-            ['Оханский р-н', 'Куединский р-н', '5:2']
-        ],
-        2005: [
-            ['Куединский р-н', 'Чердынский р-н', '4:4'],
-            ['Куединский р-н', 'Октябрьский р-н', '1:2'],
-            ['Березовский р-н', 'Куединский р-н', '1:0']
-        ],
-        2006: [
-            ['Куединский р-н', 'Кунгурский р-н', '0:1'],
-            ['Березовский р-н', 'Куединский р-н', '2:3'],
-            ['Куединский р-н', 'Ильинский р-н', '3:1']
-        ],
-        2007: [
-            ['Куединский р-н', 'Оханский р-н', '2:3'],
-            ['Чердынский р-н', 'Куединский р-н', '2:1'],
-            ['Куединский р-н', 'Ильинский р-н', '0:0'],
-            ['Октябрьский р-н', 'Куединский р-н', '3:0']
-        ],
-        2009: [
-            ['Куединский р-н', 'Бардымский р-н', '0:0'],
-            ['Оханский р-н', 'Куединский р-н', '1:2'],
-            ['Куединский р-н', 'Карагайский р-н', '0:3'],
-            ['Березовский р-н', 'Куединский р-н', '2:2']
-        ],
-        2011: [
-            ['Куединский р-н', 'Карагайский р-н', '1:2'],
-            ['Березовский р-н', 'Куединский р-н', '1:1'],
-            ['Куединский р-н', 'Оханский р-н', '3:0 (тех.)']
-        ],
-        2012: [
-            ['Куединский р-н', 'Косинский р-н', '1:0'],
-            ['Кунгурский р-н', 'Куединский р-н', '2:2'],
-            ['Куединский р-н', 'Карагайский р-н', '2:1'],
-            ['Чердынский р-н', 'Куединский р-н', '0:1']
-        ],
-        2013: [
-            ['Кунгурский', 'Чердынский', '2:1'],
-            ['Кунгурский', 'Суксунский', '2:1'],
-            ['Чердынский', 'Суксунский', '3:2'],
-            ['Карагайский', 'Октябрьский', '1:0'],
-            ['Карагайский', 'Оханский', '2:0'],
-            ['Оханский', 'Октябрьский', '0:2'],
-            ['Суксунский', 'Оханский', '2:4'],
-            ['Кунгурский', 'Чердынский', '2:1'],
-            ['Кунгурский', 'Карагайский', '3:0'],
-            ['Кунгурский', 'Октябрьский', '3:1'],
-            ['Чердынский', 'Карагайский', '0:0'],
-            ['Чердынский', 'Октябрьский', '1:0'],
-            ['Карагайский', 'Октябрьский', '1:0']
-        ],
-        2014: [
-            ['Чердынский', 'Карагайский', '1:3'],
-            ['Чердынский', 'Суксунский', '1:1'],
-            ['Чердынский', 'Берёзовский', '0:0'],
-            ['Карагайский', 'Суксунский', '1:2'],
-            ['Карагайский', 'Берёзовский', '2:1'],
-            ['Суксунский', 'Берёзовский', '3:1'],
-            ['Косинский', 'Ильинский', '0:3'],
-            ['Косинский', 'Куединский', '0:3'],
-            ['Косинский', 'Бардымский', '0:3'],
-            ['Ильинский', 'Куединский', '0:0'],
-            ['Ильинский', 'Бардымский', '1:2'],
-            ['Куединский', 'Бардымский', '3:0'],
-            ['Берёзовский', 'Косинский', '3:0'],
-            ['Чердынский', 'Ильинский', '0:3'],
-            ['Карагайский', 'Бардымский', '3:1'],
-            ['Суксунский', 'Куединский', '0:3']
-        ],
-        2015: [
-            ['Берёзовский', 'Куединский', '0:4'],
-            ['Берёзовский', 'Чердынский', '2:4'],
-            ['Берёзовский', 'Кудымкарский', '0:0'],
-            ['Куединский', 'Чердынский', '2:1'],
-            ['Куединский', 'Кудымкарский', '2:1'],
-            ['Чердынский', 'Кудымкарский', '0:0'],
-            ['Карагайский', 'Майский', '3:0'],
-            ['Карагайский', 'Суксунский', '2:2'],
-            ['Карагайский', 'Октябрьский', '5:0'],
-            ['Майский', 'Суксунский', '1:5'],
-            ['Майский', 'Октябрьский', '1:2'],
-            ['Суксунский', 'Октябрьский', '5:2'],
-            ['Берёзовский', 'Майский', '3:0'],
-            ['Кудымкарский', 'Октябрьский', '5:6'],
-            ['Чердынский', 'Суксунский', '3:1'],
-            ['Куединский', 'Карагайский', '1:1 (4:2 пен.)']
-        ],
-        // ===== ОБНОВЛЕННЫЕ ДАННЫЕ 2016 =====
-        2016: [
-            ['Куединский', 'Суксунский', '2:0'],
-            ['Бардымский', 'Куединский', '0:0'],
-            ['Куединский', 'Березовский', '4:0'],
-            ['Карагайский', 'Куединский', '1:3'],
-            // Добавленные матчи:
-            ['Суксунский', 'Бардымский', '3:0'],          // 03.09.16
-            ['Карагайский', 'Кудымкарский', '3:0 (тех.)'], // 02.09.2016 тех. поражение
-            ['Суксунский', 'Березовский', '2:0']           // 02.09.2016
-        ],
-        // ===== ОБНОВЛЕННЫЕ ДАННЫЕ 2017 (добавлен матч) =====
-        2017: [
-            ['Суксунский', 'Карагайский', '2:4'],
-            ['Ординский', 'Чердынский', '2:2'],
-            ['Карагайский', 'Чердынский', '5:2'],
-            ['Суксунский', 'Ординский', '3:3'],
-            ['Ординский', 'Карагайский', '0:3'],
-            ['Чердынский', 'Суксунский', '0:3'],
-            ['Куединский', 'Оханский', '0:2'],
-            ['Октябрьский', 'Бардымский', '0:3 (тех.)'],
-            ['Оханский', 'Бардымский', '1:1'],
-            ['Куединский', 'Октябрьский', '1:1'],
-            ['Октябрьский', 'Оханский', '3:1'],
-            ['Бардымский', 'Куединский', '0:4'],
-            ['Чердынский', 'Октябрьский', '3:0'],
-            ['Ординский', 'Бардымский', '1:3'],
-            ['Суксунский', 'Оханский', '1:1 (пен.5:4)'],
-            ['Карагайский', 'Куединский', '2:3'],
-            // Добавленный матч:
-            ['Суксунский', 'Бардымский', '3:0']
-        ],
-        2018: [
-            ['Оханский', 'Карагайский', '0:2'],
-            ['Частинский', 'Кудымкарский', '4:1'],
-            ['Оханский', 'Частинский', '0:0'],
-            ['Частинский', 'Карагайский', '0:0'],
-            ['Кудымкарский', 'Оханский', '2:4'],
-            ['Карагайский', 'Кудымкарский', '10:1'],
-            ['Куединский', 'Суксунский', '1:1'],
-            ['Октябрьский', 'Еловский', '1:0'],
-            ['Суксунский', 'Еловский', '3:1'],
-            ['Куединский', 'Октябрьский', '4:1'],
-            ['Октябрьский', 'Суксунский', '1:5'],
-            ['Еловский', 'Куединский', '0:4'],
-            ['Кудымкарский', 'Еловский', '1:3'],
-            ['Оханский', 'Октябрьский', '0:3'],
-            ['Частинский', 'Суксунский', '1:1 (пен.4:3)'],
-            ['Карагайский', 'Куединский', '3:1']
-        ],
-        2019: [
-            ['Карагайский', 'Оханский', '4:0'],
-            ['Суксунский', 'Ординский', '2:1'],
-            ['Оханский', 'Ординский', '2:4'],
-            ['Карагайский', 'Суксунский', '0:1'],
-            ['Суксунский', 'Оханский', '2:0'],
-            ['Ординский', 'Карагайский', '2:1'],
-            ['Куединский', 'Октябрьский', '1:0'],
-            ['Чердынский', 'Частинский', '2:2'],
-            ['Октябрьский', 'Частинский', '2:0'],
-            ['Куединский', 'Чердынский', '1:1'],
-            ['Чердынский', 'Октябрьский', '1:3'],
-            ['Частинский', 'Куединский', '0:5'],
-            ['Оханский', 'Частинский', '0:3'],
-            ['Карагайский', 'Чердынский', '0:3'],
-            ['Ординский', 'Октябрьский', '1:3'],
-            ['Суксунский', 'Куединский', '1:2']
-        ],
-        2022: [
-            ['Карагайский', 'Чердынский', '5:3'],
-            ['Карагайский', 'Еловский', '3:2'],
-            ['Карагайский', 'Суксунский', '2:3'],
-            ['Чердынский', 'Еловский', '3:2'],
-            ['Чердынский', 'Суксунский', '3:5'],
-            ['Еловский', 'Суксунский', '0:4'],
-            ['Куединский', 'Октябрьский', '2:0'],
-            ['Куединский', 'Частинский', '7:0'],
-            ['Куединский', 'Кудымкарский', '6:0'],
-            ['Октябрьский', 'Частинский', '2:0'],
-            ['Октябрьский', 'Кудымкарский', '0:0'],
-            ['Частинский', 'Кудымкарский', '0:4'],
-            ['Чердынский', 'Кудымкарский', '0:3'],
-            ['Еловский', 'Частинский', '1:4'],
-            ['Карагайский', 'Октябрьский', '2:2 (пен.3:4)'],
-            ['Суксунский', 'Куединский', '1:1 (пен.4:2)']
-        ],
-        2023: [
-            ['Красношиверский', 'Куединский', '1:2'],
-            ['Красношиверский', 'Ординский', '0:1'],
-            ['Куединский', 'Ординский', '6:0'],
-            ['Октябрьский', 'Карагайский', '1:1'],
-            ['Октябрьский', 'Косинский', '5:0'],
-            ['Карагайский', 'Косинский', '4:0'],
-            ['Куединский', 'Ординский', '6:0'],
-            ['Куединский', 'Октябрьский', '1:0'],
-            ['Куединский', 'Карагайский', '0:5'],
-            ['Ординский', 'Октябрьский', '1:2'],
-            ['Ординский', 'Карагайский', '1:6'],
-            ['Октябрьский', 'Карагайский', '1:1'],
-            ['Красновишерск', 'Косинский', '3:0']
-        ],
-        2024: [
-            ['Карагайский', 'Октябрьский', '4:0'],
-            ['Карагайский', 'Ординский', '3:0'],
-            ['Октябрьский', 'Ординский', '1:2'],
-            ['Куединский', 'Юрлинский', '7:0'],
-            ['Куединский', 'Чердынский', '5:0'],
-            ['Юрлинский', 'Чердынский', '0:3'],
-            ['Карагайский', 'Чердынский', '0:0 (пен.4:5)'],
-            ['Куединский', 'Ординский', '6:0'],
-            ['Октябрьский', 'Юрлинский', '6:1'],
-            ['Карагайский', 'Ординский', '1:2'],
-            ['Куединский', 'Чердынский', '3:0']
-        ],
-        2025: [
-            ['Куединский', 'Карагайский', '6:2'],
-            ['Куединский', 'Красновишерский', '6:0'],
-            ['Карагайский', 'Красновишерский', '5:2'],
-            ['Чердынский', 'Ординский', '0:1'],
-            ['Чердынский', 'Суксунский', '1:1'],
-            ['Ординский', 'Суксунский', '1:2'],
-            ['Куединский', 'Ординский', '6:0'],
-            ['Суксунский', 'Карагайский', '1:0'],
-            ['Красновишерский', 'Чердынский', '5:2'],
-            ['Карагайский', 'Ординский', '7:0'],
-            ['Куединский', 'Суксунский', '3:0']
-        ],
-        2026: [
-            ['Куединский', 'Оханский', '10:0'],
-            ['Еловский', 'Куединский', '1:4'],
-            ['Оханский', 'Еловский', '4:3'],
-            ['Карагайский', 'Октябрьский', '3:0'],
-            ['Бардымский', 'Карагайский', '0:5'],
-            ['Октябрьский', 'Бардымский', '3:1'],
-            ['Куединский', 'Октябрьский', '7:0'],
-            ['Оханский', 'Карагайский', '0:2'],
-            ['Еловский', 'Бардымский', '2:2 (1:3 пен.)'],
-            ['Октябрьский', 'Оханский', '1:3'],
-            ['Куединский', 'Карагайский', '2:1']
-        ]
-    };
+   ДОБАВИТЬ ВИД:  допишите объект в нужное место массива.
+   ИСЧЕЗ ВИД:     допишите until: <год>.
+   ============================================================ */
+const DISCIPLINES = [
+    { id: 'ski',    label: 'Лыжные гонки',            since: 2006 },
+    { id: 'vbm',    label: 'Волейбол (мужчины)',      since: 2006 },
+    { id: 'vbw',    label: 'Волейбол (женщины)',      since: 2006 },
+    { id: 'weight', label: 'Гиревой спорт',           since: 2006 },
+    { id: 'gto',    label: 'Многоборье ГТО',          since: 2023 },
+    { id: 'fb',     label: 'Футбол',                  since: 2006 },
+    { id: 'run',    label: 'Лёгкоатлетический кросс', since: 2006 },
+    { id: 'tt',     label: 'Настольный теннис',       since: 2006 },
+    { id: 'chess',  label: 'Шахматы',                 since: 2006 },
+    { id: 'bb',     label: 'Баскетбол (мужчины)',     since: 2006 }
+    /* Пример исчезнувшего вида:
+       { id: 'xyz', label: '…', since: 2006, until: 2016 }  */
+];
+const DISC_BY_ID = {};
+DISCIPLINES.forEach(function (d) { DISC_BY_ID[d.id] = d; });
 
-    // ============================================================
-    // ОБНОВЛЕННЫЕ ВИДЕО-ССЫЛКИ (добавлены для 2017)
-    // ============================================================
-    const videoLinks = {
-        2023: [
-            { team1: 'Ординский', team2: 'Карагайский', score: '1:6', url: 'https://vkvideo.ru/video-205419678_456239045' }
-        ],
-        2024: [
-            { team1: 'Октябрьский', team2: 'Юрлинский', score: '6:1', url: 'https://vkvideo.ru/video-210048215_456239149' },
-            { team1: 'Карагайский', team2: 'Ординский', score: '1:2', url: 'https://vkvideo.ru/video-210048215_456239155' },
-            { team1: 'Куединский', team2: 'Чердынский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239157' },
-            { team1: 'Карагайский', team2: 'Октябрьский', score: '4:0', url: 'https://vkvideo.ru/video-210048215_456239140' },
-            { team1: 'Юрлинский', team2: 'Чердынский', score: '0:3', url: 'https://vkvideo.ru/video-210048215_456239139' },
-            { team1: 'Куединский', team2: 'Юрлинский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239142' },
-            { team1: 'Карагайский', team2: 'Ординский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239144' },
-            { team1: 'Куединский', team2: 'Чердынский', score: '5:0', url: 'https://vkvideo.ru/video-210048215_456239145' },
-            { team1: 'Карагайский', team2: 'Чердынский', score: '0:0 (пен.4:5)', url: 'https://vkvideo.ru/video-210048215_456239148' },
-            { team1: 'Куединский', team2: 'Ординский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239149' }
-        ],
-        2025: [
-            { team1: 'Красношиверский', team2: 'Чердынский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239316' },
-            { team1: 'Карагайский', team2: 'Ординский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239317' },
-            { team1: 'Куединский', team2: 'Суксунский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239319' },
-            { team1: 'Куединский', team2: 'Карагайский', score: '6:2', url: 'https://vkvideo.ru/video-210048215_456239306' },
-            { team1: 'Куединский', team2: 'Красношиверский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239311' },
-            { team1: 'Карагайский', team2: 'Красношиверский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239304' },
-            { team1: 'Чердынский', team2: 'Ординский', score: '0:1', url: 'https://vkvideo.ru/video-210048215_456239307' },
-            { team1: 'Чердынский', team2: 'Суксунский', score: '1:1', url: 'https://vkvideo.ru/video-210048215_456239312' },
-            { team1: 'Ординский', team2: 'Суксунский', score: '1:2', url: 'https://vkvideo.ru/video-210048215_456239305' },
-            { team1: 'Куединский', team2: 'Ординский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239314' },
-            { team1: 'Суксунский', team2: 'Карагайский', score: '1:0', url: 'https://vkvideo.ru/video-210048215_456239315' }
-        ],
-        2026: [
-            { team1: 'Куединский', team2: 'Карагайский', score: '2:1', url: 'https://vkvideo.ru/live-210048215_456239486' },
-            { team1: 'Октябрьский', team2: 'Оханский', score: '1:3', url: 'https://vkvideo.ru/live-210048215_456239485' },
-            { team1: 'Еловский', team2: 'Бардымский', score: '2:2 (1:3 пен.)', url: 'https://vkvideo.ru/live-210048215_456239484' },
-            { team1: 'Куединский', team2: 'Оханский', score: '10:0', url: 'https://vkvideo.ru/live-210048215_456239463' },
-            { team1: 'Еловский', team2: 'Куединский', score: '1:4', url: 'https://vkvideo.ru/live-210048215_456239465' },
-            { team1: 'Оханский', team2: 'Еловский', score: '4:3', url: 'https://vkvideo.ru/video-210048215_456239478' },
-            { team1: 'Карагайский', team2: 'Октябрьский', score: '3:0', url: 'https://vkvideo.ru/live-210048215_456239480' },
-            { team1: 'Бардымский', team2: 'Карагайский', score: '0:5', url: 'https://vkvideo.ru/live-210048215_456239466' },
-            { team1: 'Октябрьский', team2: 'Бардымский', score: '3:1', url: 'https://vkvideo.ru/live-210048215_456239462' },
-            { team1: 'Куединский', team2: 'Октябрьский', score: '7:0', url: 'https://vkvideo.ru/live-210048215_456239482' },
-            { team1: 'Оханский', team2: 'Карагайский', score: '0:2', url: 'https://vkvideo.ru/live-210048215_456239483' }
-        ],
-        // ===== ДОБАВЛЕНЫ ВИДЕО ДЛЯ 2017 =====
-        2017: [
-            { team1: 'Суксунский', team2: 'Бардымский', score: '3:0', url: 'https://vkvideo.ru/video-5224183_456239059?list=ln-jL7qgAzcZhBjONKHEV' },
-            { team1: 'Суксунский', team2: 'Оханский', score: '1:1 (пен.5:4)', url: 'https://vkvideo.ru/video172519179_456239017' }
-        ]
-    };
+/* Колонки «старого» формата строк (массивов) — схема данных
+   2006–2014, введённых дословно из index2. Менять НЕЛЬЗЯ:
+   позиция значения в массиве = дисциплина из BASE_COLS. */
+const BASE_COLS = ['ski', 'vbm', 'vbw', 'weight', 'fb', 'run', 'tt', 'chess', 'bb'];
 
-    // ============================================================
-    // НОРМАЛИЗАЦИЯ ДАННЫХ
-    // ============================================================
-    function normalizeData(rawYears, rawMatches) {
-        const years = {};
-        for (const [year, data] of Object.entries(rawYears)) {
-            const newData = { ...data };
-            if (data.places) {
-                const newPlaces = {};
-                for (const [team, place] of Object.entries(data.places)) {
-                    const norm = normalizeTeam(team);
-                    newPlaces[norm] = place;
-                }
-                newData.places = newPlaces;
-            }
-            if (data.champion) {
-                newData.champion = normalizeTeam(data.champion);
-            }
-            years[year] = newData;
-        }
-        const matches = {};
-        for (const [year, list] of Object.entries(rawMatches)) {
-            matches[year] = list.map(match => {
-                const t1 = normalizeTeam(match[0]);
-                const t2 = normalizeTeam(match[1]);
-                return [t1, t2, match[2]];
-            });
-        }
-        return { years, matches };
-    }
+function discHeldIn(d, year) {
+    const y = Number(year);
+    if (y < d.since) return false;
+    if (d.until !== undefined && d.until !== null && y > d.until) return false;
+    return true;
+}
 
-    const { years: yearsData, matches: matchesData } = normalizeData(rawYearsData, rawMatchesData);
+/* ============================================================
+   2. АЛИАСЫ КОМАНД (страховка: разные написания одного района)
+   ============================================================ */
+const MTEAM_ALIASES = {
+    'Б.-Сосновский': 'Большесосновский',
+    'Больше - Сосновский': 'Большесосновский',
+    'Коми-Перм. А.О.': 'Коми-Пермяцкий округ',
+    'Коми-Пермяцкий Округ': 'Коми-Пермяцкий округ',
+    'Очёрский': 'Очерский',
+    'Чернушенский': 'Чернушинский',
+    'Березовский': 'Берёзовский',
+    'п. Майский': 'Майский'
+};
+function normMTeam(name) {
+    const n = String(name).trim();
+    return MTEAM_ALIASES[n] || n;
+}
 
-    // ============================================================
-    // ДАННЫЕ ПО ГОЛАМ
-    // ============================================================
-    const goalsData = {
-        2013: 34,
-        2014: 44,
-        2015: 64,
-        2017: 57,
-        2018: 59,
-        2019: 50,
-        2022: 70,
-        2023: 48,
-        2024: 44,
-        2025: 51,
-        2026: 54
-    };
+/* ============================================================
+   3. ДАННЫЕ ОБЩИХ ЗАЧЁТОВ (источник — index2; проверено и сверено)
+   Поддерживаются ДВА формата строк:
 
-    // ============================================================
-    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-    // ============================================================
-    function getTeamAppearances(team) {
-        const appearances = [];
-        for (const [year, data] of Object.entries(yearsData)) {
-            let place = null;
-            if (data.places && data.places[team] !== undefined) {
-                place = data.places[team];
-            } else if (matchesData[year]) {
-                const participated = matchesData[year].some(m => m[0] === team || m[1] === team);
-                if (participated) {
-                    place = 'участник';
-                }
-            }
-            if (place !== null) {
-                appearances.push({ year, place });
-            }
-        }
-        return appearances;
-    }
+   а) МАССИВ (старые данные, дословно из index2):
+      ['Команда', лыжи, волейболМ, волейболЖ, гиря, футбол,
+       кросс, теннис, шахматы, баскетбол, очки, место]
+      null = не участвовала. ГТО сюда НЕ вписывается!
 
-    function getAllTeams() {
-        const set = new Set();
-        Object.values(yearsData).forEach(y => {
-            if (y.places) Object.keys(y.places).forEach(t => set.add(t));
-        });
-        Object.values(matchesData).forEach(list => {
-            list.forEach(m => { set.add(m[0]); set.add(m[1]); });
-        });
-        return Array.from(set).sort();
-    }
+   б) ОБЪЕКТ (рекомендуется для новых годов 2015+):
+      { team: 'Команда', disc: { ski: 1, gto: 2 }, points: 9, place: 1 }
+      Ключи disc — id из DISCIPLINES в любом порядке;
+      пропущенная дисциплина = «без участия».
+   ============================================================ */
+const G1_RAW = {
+2006: [
+['Пермский',1,1,2,3,1,2,1,5,1,9,1],
+['Осинский',5,2,1,1,2,3,4,1,5,14,2],
+['Коми-Пермяцкий округ',3,3,null,null,4,1,3,4,3,21,3],
+['Верещагинский',6,4,4,4,3,5,2,2,2,21,4],
+['Очерский',4,6,6,6,5,null,5,3,6,35,5],
+['Нытвенский',2,7,3,5,null,4,null,null,4,37,6],
+['Красновишерский',null,null,5,2,null,null,null,null,null,null,7],
+['Добрянский',null,5,null,null,null,null,null,null,null,null,8],
+['Чернушинский',null,null,null,null,null,null,null,null,null,null,null]
+],
+2007: [
+['Пермский',1,2,4,2,1,2,1,6,1,10,1],
+['Осинский',4,1,1,1,3,4,null,2,null,16,2],
+['Коми-Пермяцкий округ',2,5,5,null,2,1,3,4,2,19,3],
+['Верещагинский',5,3,7,3,5,5,2,1,4,23,4],
+['Нытвенский',3,4,3,5,null,null,7,5,3,30,5],
+['Очерский',7,10,9,null,4,3,null,3,null,null,6],
+['Краснокамский',9,6,10,null,null,7,4,null,5,null,7],
+['Чайковский',8,8,11,null,null,null,6,7,6,null,8],
+['Добрянский',null,7,2,null,null,6,5,8,null,null,9],
+['Красновишерский',6,11,6,4,null,null,null,null,null,null,10],
+['Чернушинский',null,9,8,null,null,null,null,null,null,null,11]
+],
+2008: [
+['Пермский',1,1,5,2,1,1,1,3,1,8,1],
+['Осинский',3,2,1,1,2,3,5,1,8,13,2],
+['Коми-Пермяцкий округ',2,3,null,6,3,2,4,2,2,18,3],
+['Верещагинский',5,4,2,4,4,4,6,5,3,26,4],
+['Нытвенский',6,5,4,null,null,6,7,4,4,36,5],
+['Очерский',4,9,8,3,6,5,8,6,7,39,6],
+['Добрянский',null,6,3,null,null,null,3,7,null,null,7],
+['Чайковский',7,7,null,null,null,null,9,null,6,null,8],
+['Краснокамский',null,null,null,null,5,null,2,null,5,null,9],
+['Красновишерский',null,8,7,5,null,null,null,null,null,null,10],
+['Чернушинский',null,null,6,null,null,null,null,null,null,null,11]
+],
+2009: [
+['Пермский',1,1,4,2,1,1,1,4,1,8,1],
+['Осинский',3,2,1,1,null,3,4,6,null,20,2],
+['Верещагинский',5,3,6,null,3,4,2,3,2,22,3],
+['Чернушинский',7,5,3,6,null,8,5,2,7,34,4],
+['Нытвенский',6,6,5,7,5,6,7,5,6,40,5],
+['Добрянский',null,4,2,8,null,9,8,7,3,41,6],
+['Очерский',4,9,null,3,7,5,9,8,null,45,7],
+['Коми-Пермяцкий округ',2,null,null,5,2,2,6,1,null,null,8],
+['Чайковский',9,8,null,null,4,7,null,null,4,null,9],
+['Краснокамский',null,7,7,null,6,10,3,null,5,null,10],
+['Красновишерский',8,null,8,4,null,null,null,null,null,null,11]
+],
+2010: [
+['Пермский',1,1,3,2,1,1,1,2,1,8,1],
+['Верещагинский',3,3,7,5,4,3,3,8,2,23,2],
+['Осинский',2,5,1,1,null,4,6,5,null,24,3],
+['Чернушинский',8,2,4,7,2,9,2,1,7,25,4],
+['Добрянский',6,4,2,8,null,8,4,3,3,30,5],
+['Чайковский',4,7,8,9,5,5,5,9,4,38,6],
+['Нытвенский',5,6,5,6,6,7,null,6,5,39,7],
+['Очерский',7,9,null,3,null,6,7,4,8,44,8],
+['Коми-Пермяцкий округ',null,8,6,null,3,2,null,7,6,'6 видов',9],
+['Красновишерский',null,null,null,4,null,null,null,null,null,'1 вид',10]
+/* Краснокамский в источнике 2010 помечен «Не участ» — не включён */
+],
+2011: [
+['Пермский',1,2,1,3,3,1,1,1,1,8,1],
+['Осинский',2,3,2,1,null,2,8,4,null,22,2],
+['Верещагинский',3,5,null,8,5,4,3,2,2,24,3],
+['Добрянский',8,1,3,4,null,8,2,8,3,29,4],
+['Коми-Пермяцкий округ',7,6,9.5,null,1,3,6,6,4,33,5],
+['Нытвенский',5,4,5,9,null,6,5,5,6,36,6],
+['Чернушинский',6,7.5,7.5,7,2,null,4,3,8,37,7],
+['Очерский',null,7.5,6,2,6,null,10,7,5,43.5,8],
+['Краснокамский',9,9.5,4,null,4,7,7,9,7,47,9],
+['Чайковский',4,9.5,9.5,6,7,5,9,null,9,49.5,10],
+['Красновишерский',10,11,7.5,5,null,null,null,null,null,'4 вида',11]
+],
+2012: [
+['Пермский',1,1,1,2,1,1,1,2,1,7,1],
+['Осинский',2,2,2,9,6,3,7,null,4,26,2],
+['Верещагинский',4,5,null,5,4,4,3,3,3,26,3],
+['Коми-Пермяцкий округ',8,6,8,null,2,2,6,1,5,30,4],
+['Чернушинский',6,9,null,6,3,7,2,9,2,35,5],
+['Чайковский',5,4,6,4,9,6,5,6,null,36,6],
+['Добрянский',7,3,3,7,null,9,4,4,null,37,7],
+['Нытвенский',3,8,4,8,5,5,null,5,7,37,8],
+['Очерский',9,7,5,1,8,null,null,7,8,45,9],
+['Красновишерский',10,10,7,3,7,8,8,8,6,47,10]
+],
+2013: [
+['Пермский',1,1,2,1,1,1,1,1,1,7,1],
+['Осинский',3,2,1,4,4,2,3,null,4,19,2],
+['Верещагинский',8,3,null,7,3,6,2,2,2,25,3],
+['Нытвенский',2,7,3,8,6,7,6,3,3,30,4],
+['Очерский',4,4,4,2,7,8,null,5,5,31,5],
+['Чайковский',6,5,5,6,9,4,4,6,null,36,6],
+['Красновишерский',7,8,null,3,5,5,null,4,6,38,7],
+['Чернушинский',9,9,6,5,8,9,5,7,null,49,8],
+['г. Кудымкар',5,6,null,null,2,3,null,null,null,'4 вида',9],
+['Добрянский',null,null,null,9,null,null,null,null,null,'1 вид',10]
+],
+2014: [
+['Пермский',1,1,8,1,1,1,1,null,1,7,1],
+['Осинский',4,4,1,5,3,5,7,2,null,24,2],
+['Кунгурский',2,3,4,7,4,2,null,8,3,25,3],
+['Верещагинский',7,5,null,2,5,7,2,5,2,28,4],
+['г. Кудымкар',8,null,3,null,2,4,6,3,4,30,5],
+['Чернушинский',6,2,5,4,9,10,3,4,8,32,6],
+['Чайковский',3,7,8,6,10,3,5,null,9,41,7],
+['Красновишерский',5,null,9,3,8,6,8,null,5,44,8],
+['Очерский',9,8,6,10,7,8,4,7,7,47,9],
+['Нытвенский',10,6,7,8,6,9,null,6,6,48,10],
+['Добрянский',null,null,null,9,null,null,null,null,null,'1 вид',11]
+],
+2015:  [
+  ['Верещагинский', 4, 6, 7, 3, 6, 6, 3, 2, 3, 27, 4],
+  ['г. Кудымкар', 7, null, 3, null, 2, 4, 7, 5, 4, 32, 5],
+  ['Красновишерский', 9, null, 6, 3, 7, 7, null, 6, 7, 45, 7],
+  ['Кунгурский', 2, 3, 4, null, 4, 2, 4, null, 2, 21, 3],
+  ['Нытвенский', 3, 8, 8, 7, 5, 3, null, 7, 6, 39, 6],
+  ['Осинский', 5, 2, 2, 2, 3, 5, 2, 3, null, 19, 2],
+  ['Очерский', 6, 7, 5, null, 8, 8, 6, 8, 8, 45, 9],
+  ['Пермский', 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1],
+  ['Чайковский', 10, 5, 10, 5, 10, null, null, null, null, '5 видов', 10],
+  ['Чернушинский', 8, 4, 9, 6, 9, 9, 5, 4, null, 45, 8]
+],
+2016: [
+  ['Верещагинский', 7, 4, null, 4, 7, 4, 5, 2, 2, 28, 4],
+  ['г. Кудымкар', 3, null, null, null, 3, null, 6, 4, 4, '5 видов', 10],
+  ['Красновишерский', 4, null, 5, 5, 8, 8, 8, 5, null, 43, 8],
+  ['Кунгурский', 2, 2, 3, null, 2, 2, 3, 3, null, 17, 2],
+  ['Нытвенский', 9, 6, 6, 8, 1, 3, null, 7, 7, 38, 5],
+  ['Осинский', 6, 3, 1, 3, 5, 5, 4, 9, 6, 27, 3],
+  ['Очерский', 8, 8, 4, 2, 6, 6, 7, 8, 5, 38, 6],
+  ['Пермский', 1, 1, 2, 1, 4, 1, 1, 1, 1, 7, 1],
+  ['Чайковский', 5, 7, 8, 6, 9, 7, 9, 8, null, 50, 9],
+  ['Чернушинский', 10, 5, 7, 6, 10, 9, 2, 6, 3, 38, 7]
+],
+2017: [
+  ['Верещагинский', 5, 6, 6, 6, 8, 4, 2, 2, 3, 28, 4],
+  ['г. Кудымкар', 3, null, 8, 8, 5, null, null, 5, null, '5 видов (29)', 10],
+  ['Красновишерский', 10, null, 7, 2, 6, 8, 5, 7, null, 45, 7],
+  ['Кунгурский', 2, 2, 4, null, 2, 2, 4, null, 2, 18, 2],
+  ['Нытвенский', 6, 5, 5, 4, 1, 5, null, 6, 4, 30, 5],
+  ['Осинский', 4, 3, 1, 3, 7, 3, 6, 3, 6, 23, 3],
+  ['Очерский', 8, 7, 3, null, 10, 7, 7, 9, 7, 48, 8],
+  ['Пермский', 1, 1, 2, 1, 4, 1, 1, 1, 1, 7, 1],
+  ['Чайковский', 9, 8, 10, 7, 9, 8, 8, 8, null, 57, 9],
+  ['Чернушинский', 7, 4, 9, 5, 3, 6, 3, 4, 5, 30, 6]
+],
+2018: [
+  ['Верещагинский', 4, 7, 6, 9, 7, 7, 2, 3, 2, 31, 5],
+  ['г. Кудымкар', null, null, null, null, 5, null, null, 3, null, '2 видов (8)', 10],
+  ['Красновишерский', 5, null, 5, 3, null, null, null, null, null, '3 видов (13)', 9],
+  ['Кунгурский', 2, 2, 3, 6, 4, 2, 5, 2, null, 20, 2],
+  ['Нытвенский', 8, 8, 7, 8, 3, 8, null, 4, null, 46, 8],
+  ['Осинский', 6, 3, 1, 2, 6, 4, 4, 4, 6, 24, 4],
+  ['Очерский', 9, 5, 4, 7, 8, 5, 6, 6, null, 41, 6],
+  ['Пермский', 1, 1, 2, 1, 2, 1, 1, 1, 1, 7, 1],
+  ['Чайковский', 7, 6, 8, 5, 9, 6, 7, null, 5, 44, 7],
+  ['Чернушинский', 3, 4, 9, 4, 1, 3, 3, 5, 7, 23, 3]
+],
+2019: [
+  ['Верещагинский', 2, 6, 4, 9, 9, 4, 5, 3, 3, 27, 4],
+  ['г. Кудымкар', 6, null, null, 6, 3, null, null, 2, null, '17 (4)', 10],
+  ['Красновишерский', null, 7, 7, 7, 5, 5, null, null, null, '31 (5)', 9],
+  ['Кунгурский', 8, 2, 6, null, 2, 2, 2, 7, 2, 23, 3],
+  ['Нытвенский', 4, 5, 3, 8, 7, 8, 8, 5, 4, 36, 6],
+  ['Осинский', 3, 3, 2, 2, 4, 3, 6, 4, 7, 21, 2],
+  ['Очерский', 5, 4, 5, 3, 10, 7, 4, 6, 8, 34, 5],
+  ['Пермский', 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1],
+  ['Чайковский', 9, 8, 8, 4, 8, 9, 7, 9, 5, 49, 8],
+  ['Чернушинский', 7, null, 9, 5, 6, 6, 3, 8, 6, 41, 7]
+],
+2020: [
+  ['Пермский', 1, 1, 1, 1, null, 1, 1, 1, 1, 6, 1],
+  ['Осинский', 3, 3, 2, 2, null, 2, 6, 5, null, 17, 2],
+  ['Кунгурский', 2, 2, null, 3, null, 7, 2, 6, 3, 18, 3],
+  ['Верещагинский', 4, 4, 3, 4, null, 5, 3, 3, 2, 19, 4],
+  ['Чернушинский', 6, 9, 6, 6, 5, 3, 4, 2, 5, 25, 5],
+  ['Чайковский', 7, 5, 5, 7, null, 6, 5, null, null, 35, 6],
+  ['Нытвенский', 5, null, 5, null, null, 4, 7, null, 4, '25 (5)', 7],
+  ['г. Кудымкар', null, null, 4, null, null, null, null, 4, null, '8 (2)', 8]
+],
+2021: [
+  ['Пермский', 1, 1, 2, 1, null, 1, 1, 1, 2, 6, 1],
+  ['Кунгурский', 3, 2, 4, 4, null, 2, 4, 5, 1, 16, 2],
+  ['Осинский', 4, 4, 1, 3, null, 3, 5, 3, 5, 18, 3],
+  ['Верещагинский', 6, 3, 3, null, null, 4, 2, 4, 3, 19, 4],
+  ['Чернушинский', 5, 5, 5, 2, null, 5, 3, 2, null, 22, 5],
+  ['Чайковский', 7, 6, 6, 5, null, 6, null, null, 4, 34, 6],
+  ['Нытвенский', 2, 7, null, null, null, null, null, null, null, '9 (2)', 7]
+],
+2022:  [
+  ['Пермский', 1, 1, 1, 1, 2, 1, 1, 1, 1, 7, 1],
+  ['Кунгурский', 2, 2, 6, 4, 1, 4, 4, 5, 2, 19, 2],
+  ['Верещагинский', null, 4, 4, null, 3, 2, 3, 2, 3, 21, 3],
+  ['Осинский', 4, 3, 2, 2, 4, 3, 5, 4, 4, 22, 4],
+  ['Нытвенский', 3, 5, 3, null, null, null, 7, 3, 5, '26 (6)', 5],
+  ['Чернушинский', 5, 7, 5, 3, null, 5, 2, null, null, '27 (6)', 6],
+  ['Чайковский', 6, 6, 7, null, 5, null, 6, 6, null, '36 (6)', 7],
+  ['г. Кудымкар', 7, null, null, null, null, null, null, null, null, '7 (1)', 8]
+],
+2023: [
+  ['Пермский', 1, 1, 1, 1, 2, 1, 1, 1, 1, 8, 1],
+  ['Кунгурский', 3, 2, 2, 5, 1, 6, 4, 6, 2, 24, 2],
+  ['Осинский', 2, 3, 2, 2, 5, 7, 6, 5, 7, 27, 3],
+  ['Верещагинский', 4, 4, 4, null, 6, 3, 2, 4, 3, 29, 4],
+  ['Нытвенский', 6, 5, 5, 6, 7, 4, null, 7, 8, 43, 5],
+  ['Чернушинский', 5, null, 6, 4, 8, 5, 3, 2, 6, 39, 6],
+  ['Кудымкарский', null, null, null, 3, 4, 2, 5, 3, 4, '21 (6)', 7],
+  ['Чайковский', 7, 6, 7, null, 3, null, null, null, 5, '28 (5)', 8]
+],
+2024: [
+  ['Пермский', 1, 1, 1, 1, 1, 1, 1, 1, 1, 8, 1],
+  ['Кудымкарский', 3, null, 3, 4, 2, 2, 5, 3, 4, 23, 2],
+  ['Верещагинский', 4, 5, 4, null, 4, 3, 3, 5, 2, 28, 3],
+  ['Чернушинский', 7, 4, 7, 5, 3, 6, 2, 2, 5, 33, 4],
+  ['Кунгурский', 5, 2, 8, 3, 5, 5, 8, 6, 3, 33, 5],
+  ['Осинский', 6, 3, 2, 2, null, 4, 6, null, 6, 34, 6],
+  ['Нытвенский', 2, null, 5, null, null, null, 7, 4, null, '18 (4)', 7],
+  ['Чайковский', null, 6, 6, null, 6, null, 4, null, null, '22 (4)', 8]
+],
+2025: [
+  ['Пермский', 1, 1, 1, 1, 1, 1, 1, 1, 2, 8, 1],
+  ['Кудымкарский', 4, 8, 4, 2, 2, 2, 5, 2, 1, 19, 2],
+  ['Осинский', 6, 2, 2, 3, 3, 6, 6, null, 5, 30, 3],
+  ['Верещагинский', 3, 4, 3, null, 5, 5, 2, 4, 4, 30, 4],
+  ['Кунгурский', 5, 3, 7, 4, 6, 3, 8, 5, 3, 33, 5],
+  ['Чернушинский', null, 6, 8, null, 7, 4, 3, null, null, '34 (6)', 6],
+  ['Нытвенский', 2, 5, 5, null, 4, null, 7, 3, null, '26 (6)', 7],
+  ['Чайковский', null, 7, 6, null, null, null, 4, null, null, '17 (3)', 8]
+]
+/* >>> СЮДА ДОПИСЫВАЮТСЯ ГОДЫ 2015–2025 (ГРУППА 1) <<<
+   Рекомендуемый формат — объектные строки:
 
-    function getVideoLink(year, team1, team2, score) {
-        if (!videoLinks[year]) return null;
-        const found = videoLinks[year].find(v => 
-            v.team1 === team1 && v.team2 === team2 && v.score === score
-        );
-        return found ? found.url : null;
-    }
+   2023: [
+       { team: 'Пермский',   disc: { ski: 1, vbm: 1, gto: 2 }, points: 9,  place: 1 },
+       { team: 'Осинский',   disc: { ski: 3, weight: 1 },      points: 14, place: 2 },
+       { team: 'Кунгурский', disc: { vbm: 3 },                 points: 20, place: 3 }
+   ],
 
-    // ============================================================
-    // ФУНКЦИЯ: подсчёт сезонов участия
-    // ============================================================
-    function getTeamSeasonsCount() {
-        const allTeams = getAllTeams();
-        const result = {};
-        allTeams.forEach(team => {
-            const yearsSet = new Set();
-            for (const year of Object.keys(yearsData)) {
-                const data = yearsData[year];
-                if (data.places && data.places[team] !== undefined) {
-                    yearsSet.add(year);
-                }
-            }
-            for (const year of Object.keys(matchesData)) {
-                const matches = matchesData[year];
-                if (matches && matches.some(m => m[0] === team || m[1] === team)) {
-                    yearsSet.add(year);
-                }
-            }
-            result[team] = yearsSet.size;
-        });
-        return result;
-    }
+   Ключи disc — id из DISCIPLINES (ski, vbm, vbw, weight, gto, fb,
+   run, tt, chess, bb), порядок любой. Пропущенное = «без участия».
+   Формат-массив тоже поддерживается — тогда ГТО остаётся пустым
+   и заполняется через GTO_G1_RAW. */
+};
 
-    // ============================================================
-    // ФУНКЦИЯ: "сухие" сезоны (команда не пропустила ни одного гола во всех матчах года)
-    // ============================================================
-    function getCleanSheetsFullSeason() {
-        const cleanMap = {}; // team -> Set of years
-        const yearsRange = Object.keys(matchesData).filter(y => parseInt(y) >= 2013 && parseInt(y) <= 2026);
-        for (const year of yearsRange) {
-            const matches = matchesData[year];
-            if (!matches) continue;
-            const teamsInYear = new Set();
-            const teamGoalsConceded = {};
-            matches.forEach(m => {
-                const [team1, team2, scoreStr] = m;
-                teamsInYear.add(team1);
-                teamsInYear.add(team2);
-                const parts = scoreStr.match(/(\d+)\s*:\s*(\d+)/);
-                if (!parts) return;
-                const goals1 = parseInt(parts[1]);
-                const goals2 = parseInt(parts[2]);
-                if (!teamGoalsConceded[team1]) teamGoalsConceded[team1] = 0;
-                teamGoalsConceded[team1] += goals2;
-                if (!teamGoalsConceded[team2]) teamGoalsConceded[team2] = 0;
-                teamGoalsConceded[team2] += goals1;
-            });
-            for (const team of teamsInYear) {
-                if (teamGoalsConceded[team] === 0) {
-                    if (!cleanMap[team]) cleanMap[team] = new Set();
-                    cleanMap[team].add(year);
-                }
-            }
-        }
-        const result = {};
-        for (const [team, yearsSet] of Object.entries(cleanMap)) {
-            result[team] = Array.from(yearsSet).sort((a,b)=>a-b);
-        }
-        return result;
-    }
+const G2_RAW = {
+2006: [
+['Соликамский',null,4,3,2,null,1,1,5,null,16,1],
+['Кунгурский',4,3,4,8,2,4,null,6,1,18,2],
+['Бардымский',null,1,12.5,1,8,8,6,1,6,23,3],
+['Карагайский',3,2,2,null,8,3,10,null,5,23,4],
+['Большесосновский',1,12.5,16,3,null,10.5,9,null,3,26.5,5],
+['Ильинский',8,6,1,null,4,7,2,8,null,28,6],
+['Чердынский',5,8.5,8.5,7,1,6,5,10,4,28,7],
+['Оханский',9,8.5,6,9,null,9,3,2,2,30.5,8],
+['Частинский',2,5,12.5,4,11,2,12,null,null,36,9],
+['Куединский',6,12.5,8.5,null,3,10.5,7,7,9,40.5,10],
+['Сивинский',7,16,8.5,5,null,5,11,11,7,43.5,11],
+['Суксунский',null,null,null,null,13,12,8,4,8,65,12],
+['Кишертский',null,12.5,8.5,null,8,null,4,13,null,66,13],
+['Еловский',null,8.5,5,null,11,null,null,9,null,73.5,14],
+['Берёзовский',null,16,12.5,null,6,null,null,3,null,77.5,15],
+['Ординский',null,8.5,16,6,11,null,null,null,null,81.5,16],
+['Уинский',null,16,16,10,null,null,null,12,null,94,17],
+['Усольский',null,12.5,12.5,null,null,null,null,null,null,null,18],
+['Октябрьский',null,null,null,null,5,null,null,null,null,null,19]
+],
+2007: [
+['Соликамский',null,2,2,1,null,3,2,1,null,11,1],
+['Чердынский',4,9,9,7,3,13,3,2,3,22,2],
+['Карагайский',3,1,1,null,6,6,11,null,6,23,3],
+['Оханский',7,6,4,6,5,7,4,3,2,24,4],
+['Кунгурский',5,5,6,null,9.5,2,15,7,1,26,5],
+['Ильинский',8,9,5,11,2,9,6,6,5,32,6],
+['Куединский',6,9,3,8,8,4,10,null,8.5,37.5,7],
+['Частинский',2,9,9,5,12,1,12,null,null,38,8],
+['Бардымский',null,3,13,2,9.5,12,7,10,7,38.5,9],
+['Большесосновский',1,14,13,3,null,5,13,null,4,39,10],
+['Сивинский',9,14,9,9,null,11,14,8,11,57,11],
+['Кишертский',10,18,13,12,14,8,1,null,null,58,12],
+['Суксунский',null,14,17,null,4,10,8,5,null,58,13],
+['Уинский',11,14,15.5,4,null,14,17,null,11,69.5,14],
+['Ординский',null,17,15.5,null,12,null,16,4,11,75.5,15],
+['Берёзовский',null,9,9,null,1,null,5,null,8.5,null,16],
+['Еловский',null,4,9,null,12,null,null,9,null,null,17],
+['Октябрьский',null,null,null,null,7,null,9,null,null,null,18],
+['Усольский',null,14,null,10,null,null,null,null,null,null,19]
+],
+2008: [
+['Соликамский',null,1,2,4,null,2,1,3,null,13,1],
+['Оханский',4,5,8.5,null,3,3,2,2,2,16,2],
+['Карагайский',2,2,1,null,8,4,9,12,4,21,3],
+['Кунгурский',3,3,8.5,7,6,3,null,7,1,23,4],
+['Частинский',1,6,4,3,13.5,1,11,13,14,26,5],
+['Бардымский',null,4,12,1,4,null,6,6,6,27,6],
+['Ильинский',9,8.5,5,null,5,8,3,null,10.5,38.5,7],
+['Куединский',7,8.5,8.5,null,11,5,7,5,7,39.5,8],
+['Большесосновский',5,12.5,12,2,null,7,null,null,3,41.5,9],
+['Берёзовский',null,16,3,null,1,null,4,4,14,42,10],
+['Кишертский',6,18.5,12,9,11,6,5,10,8,44,11],
+['Чердынский',null,12.5,8.5,8,11,9,15,8,5,49.5,12],
+['Сивинский',8,16,15,5,null,10,12,null,10.5,60.5,13],
+['Уинский',10,12.5,15,6,null,null,14,null,10.5,68,14],
+['Ординский',null,12.5,15,null,13.5,null,16,11,10.5,78.5,15],
+['Еловский',null,16,6,null,8,null,13,9,null,null,16],
+['Суксунский',11,8.5,null,null,8,null,10,null,14,null,17],
+['Октябрьский',null,18.5,null,null,2,null,8,1,null,null,18],
+['Усольский',null,8.5,17,null,null,null,null,null,null,null,19]
+],
+2009: [
+['Карагайский',2,1,1,null,2,5,null,null,4,15,1],
+['Соликамский',null,2,9,1,null,4,1,1,null,18,2],
+['Кунгурский',4,3,3,null,null,2,null,10,1,23,3],
+['Оханский',6,9,9,4,5,8,4,3,2,24,4],
+['Бардымский',10,5,4,3,4,null,3,6,9.5,25,5],
+['Частинский',1,6,6,2,13,1,10,11,null,26,6],
+['Куединский',5,4,5,null,3,6,6,null,11.5,29,7],
+['Кудымкарский',7,14,9,5,10.5,3,8,7,11.5,39,8],
+['Чердынский',11,9,14,6,6,null,5,null,6,43,9],
+['Ильинский',9,18,14,9,7.5,9,7,8,9.5,49.5,10],
+['Сивинский',8,9,17.5,7,null,10,14,null,7.5,55.5,11],
+['Еловский',null,9,9,8,10.5,null,12,9,null,57.5,12],
+['Октябрьский',null,18,17.5,null,7.5,null,11,2,14,70,13],
+['Берёзовский',null,14,9,null,1,null,null,5,5,null,14],
+['Большесосновский',3,14,14,null,null,7,null,null,3,null,15],
+['Суксунский',null,null,null,null,10.5,12,9,4,7.5,null,16],
+['Усольский',null,14,2,null,10.5,13,null,null,13,null,17],
+['Кишертский',null,18,null,10,null,11,2,12,null,null,18],
+['Уинский',12,14,14,null,null,null,14,13,null,null,19],
+['Ординский',null,9,14,null,null,null,null,null,null,null,20]
+],
+2010: [
+['Кунгурский',6,1,9,7,2,1,null,4,2,16,1],
+['Карагайский',2,2,2,null,3,5,null,null,4,18,2],
+['Соликамский',null,3,9,1,null,4,2,1,10,20,3],
+['Частинский',1,6,3,3,9,10,12,8,null,30,4],
+['Оханский',7,9,9,12,7,6,null,5,1,35,5],
+['Берёзовский',14,18,6,null,1,13,3,3,null,40,6],
+['Косинский',15,5,5,4,9,null,8,12,null,43,7],
+['Бардымский',null,14,9,2,12,null,4,10,7,44,8],
+['Кудымкарский',10,14,9,10,12,3,6,11,10,48,9],
+['Сивинский',4,14,14,5,12,8,15,null,5,48,10],
+['Ильинский',11,9,14,null,5,7,7,null,null,52,11],
+['Куединский',8,4,18.5,null,9,8,null,null,10,57.5,12],
+['Ординский',13,9,14,6,null,11,14,9,15,62,13],
+['Кочевский',5,null,18.5,9,null,2,16,13,null,63.5,14],
+['Еловский',null,9,14,11,14,14,13,6,13,67,15],
+['Чердынский',null,9,14,null,4,null,5,null,8,'5 видов',16],
+['Усольский',9,14,1,null,null,12,null,null,13,'5 видов',17],
+['Уинский',12,18,4,8,null,null,10,null,null,'5 видов',18],
+['Суксунский',null,14,21,null,null,null,11,7,6,'5 видов',19],
+['Октябрьский',null,null,null,null,6,null,9,2,13,'4 вида',20],
+['Большесосновский',3,18,18.5,null,null,null,null,null,3,'4 вида',21],
+['Кишертский',null,20,18.5,null,null,null,1,null,null,'3 вида',22]
+],
+2011: [
+['Карагайский',2,3,1,null,3,2,null,null,5,16,1],
+['Кунгурский',4,1,4,null,8.5,4,null,null,1,22.5,2],
+['Оханский',8,14,14,null,6,7,4,2,2,29,3],
+['Кудымкарский',10,18.5,14,3,8.5,3,9,1,12.5,34.5,4],
+['Ильинский',11,9,9,null,8.5,5,6,null,3,40.5,5],
+['Бардымский',null,9,19,1,12.5,null,8,6,6,42.5,6],
+['Большесосновский',1,18.5,19,2,null,14,13,9,4,43,7],
+['Берёзовский',12,9,14,null,2,9,3,8,12.5,43,8],
+['Сивинский',7,5,9,6,16.5,8,null,null,8,43,9],
+['Частинский',3,9,3,8,12.5,10,null,12,14.5,45,10],
+['Куединский',9,4,9,null,5,11,11,null,10.5,48.5,11],
+['Чердынский',null,18.5,19,10,1,13,5,null,10.5,58,12],
+['Суксунский',15,6,null,null,12.5,null,7,3,14.5,58,13],
+['Ординский',13,14,9,7,null,15,15,null,null,65,14],
+['Кочевский',5,null,14,12,16.5,6,12,null,null,65.5,15],
+['Еловский',null,21,14,14,16.5,16,14,11,null,85.5,16],
+['Октябрьский',null,18.5,null,null,8.5,null,2,5,7,'5 видов',17],
+['Кишертский',null,null,19,null,16.5,null,1,4,9,'5 видов',18],
+['Уинский',null,14,5,11,null,null,10,10,null,'5 видов',19],
+['Юсьвенский',14,14,19,9,12.5,null,null,null,null,'5 видов',20],
+['Соликамский',null,2,9,4,null,1,null,null,null,'4 вида',21],
+['Усольский',6,9,2,null,null,12,null,null,null,'4 вида',22],
+['Косинский',null,14,6,5,4,null,null,null,null,'4 вида',23],
+['Гайнский',null,null,null,13,null,null,null,null,null,'1 вид',24]
+],
+2012: [
+['Кунгурский',3,2,2,null,1,3,null,1,null,12,1],
+['Карагайский',1,1,1,null,4,4,null,17,null,28,2],
+['Оханский',7,20.5,5,5,14,7,7,2,2,30,3],
+['Чердынский',11,8.5,13,6,3,10,5,4,null,36.5,4],
+['Кудымкарский',8,8.5,6,10,9,5,11,9.5,4,40.5,5],
+['Ильинский',9,4,13,null,9,6,8,5,null,41,6],
+['Бардымский',16,17.5,8.5,1,9,18,6,12,8,44.5,7],
+['Большесосновский',4,null,null,4,null,9,14,8,10,49,8],
+['Суксунский',null,13,19.5,null,9,null,4,6,1,52.5,9],
+['Берёзовский',13,17.5,13,null,6,13,3,7,9,54,10],
+['Ординский',15,8.5,8.5,3,14,8,null,null,14,56,11],
+['Косинский',null,6,8.5,8,5,null,13,null,16,56.5,12],
+['Соликамский',null,13,8.5,2,18.5,2,null,15,18,58.5,13],
+['Еловский',17,8.5,4,6,18.5,16,10,null,11,58.5,14],
+['Кишертский',null,null,17,11,18.5,14,2,9.5,7,60.5,15],
+['Майский',10,5,null,null,6,15,null,3,15,64,16],
+['Куединский',12,13,17,null,2,11,15,15,13,66,17],
+['Сивинский',6,13,17,7,18.5,8.5,null,12,null,73.5,18],
+['Частинский',2,17.5,19.5,null,14,null,null,15,17,85,19],
+['Кочевский',5,null,null,5,null,1,16,null,6,'5 видов',20],
+['Усольский',14,null,3,null,null,12,9,null,3,'5 видов',21],
+['Уинский',null,3,13,null,null,null,1,null,12,'4 вида',22],
+['Октябрьский',null,20.5,null,null,14,null,12,null,5,'4 вида',23],
+['Юсьвенский',null,17.5,13,null,14,null,null,null,null,'3 вида',24],
+['Гайнский',null,13,null,null,null,null,null,null,null,'2 вида',25],
+['Юрлинский',null,null,null,null,null,17,null,null,null,'1 вид',26]
+],
+2013: [
+['Кунгурский',2,1,3,null,1,2,null,1,null,10,1],
+['Оханский',7,21.5,6,null,5,8,null,2,2,30,2],
+['Кудымкарский',3,14,9,4,14,3,8,8,5,31,3],
+['Карагайский',1,2,1,null,3,7,null,18.5,null,32.5,4],
+['Большесосновский',4,9,22,3,null,6,12,4,11,37,5],
+['Бардымский',null,18.5,9,1,9,null,2,10.5,8,39.5,6],
+['Ильинский',9,14,9,null,9,5,11,5,null,48,7],
+['Чердынский',null,9,9,9,2,13,9,10.5,null,48.5,8],
+['Усольский',5,14,14,13,null,4,4,14.5,9,49,9],
+['Кишертский',null,21.5,18.5,14,9,null,1,7,1,50.5,10],
+['Ординский',11,9,9,5,18.5,10,null,18.5,7,51,11],
+['Косинский',null,3,2,2,18.5,null,13,null,15,53.5,12],
+['Октябрьский',13,null,22,null,4,null,6,6,3,54,13],
+['Кочевский',6,null,14,6,null,1,15,null,14,56,14],
+['Майский',null,4,null,15,9,14,14,3,null,59,15],
+['Уинский',15,5,14,7,null,null,5,null,13,59,16],
+['Соликамский',14,6,5,null,14,9,null,14.5,null,62.5,17],
+['Берёзовский',12,18.5,14,null,14,15,3,14.5,6,63.5,18],
+['Суксунский',null,14,22,null,6,null,7,10.5,4,63.5,19],
+['Куединский',null,9,4,null,14,11,16,18.5,null,72.5,20],
+['Еловский',null,14,18.5,10,18.5,16,10,14.5,12,76.5,21],
+['Частинский',10,18.5,18.5,null,14,12,17,18.5,null,90,22],
+['Сивинский',8,23,14,11,18.5,null,null,null,null,'5 видов',23],
+['Гайнский',null,9,18.5,12,9,null,null,null,null,'4 вида',24],
+['Юсьвенский',null,null,null,8,null,null,null,10.5,10,'3 вида',25],
+['Юрлинский',null,18.5,null,null,null,null,null,null,null,'1 вид',26]
+],
+2014: [
+  ['Бардымский', 15, 19, 14, 1, 4, 12, 2, 3, 10.5, 32.5, 3],
+  ['Березовский', 12, 14, 9, null, 7, null, null, 4, 8, 54, 14],
+  ['Большесосновский', 2, 23, 14, null, null, 6, null, 10, 3, 58, 15],
+  ['Гайнский', null, 9, 19, 15, 17, null, null, null, 10.5, '5 видов (70.5)', 23],
+  ['Еловский', 13, 4, 3, null, 17, 10, 13, 16, 10.5, 53.5, 12],
+  ['Ильинский', 9, 19, 14, 4, 5, 5, 9, 13, 4, 36, 4],
+  ['Карагайский', 1, 1, 1, null, 3, 3, null, null, 5, 14, 1],
+  ['Кишертский', null, 19, 14, 14, 17, null, 3, 9, null, 76, 19],
+  ['Косинский', null, 2, 5, 3, 8, null, 16, 17, null, 51, 11],
+  ['Кочевский', 6, 23, 14, 8, null, null, null, 11, null, '5 видов (62)', 22],
+  ['Кудымкарский', 3, 19, 9, 2, 13, 2, 7, 2, 6, 22, 2],
+  ['Куединский', null, 9, 19, null, 1, 9, 10, 6, 15, 50, 10],
+  ['п. Майский', 8, 5, 23, null, 13, 14, 12, null, 2, 54, 13],
+  ['Октябрьский', null, 23, 23, 12, 13, null, 8, 1, 15, 72, 17],
+  ['Ординский', 11, 9, 4, 6, 13, 8, null, 7, null, 45, 8],
+  ['Оханский', 4, 14, 2, null, 13, 13, 11, 8, 1, 39, 5],
+  ['Сивинский', 7, 9, 9, 13, null, null, 14, null, 15, 67, 16],
+  ['Соликамский', null, 3, 19, 5, null, 1, null, 14, null, '5 видов (42)', 20],
+  ['Суксунский', null, 6, 19, null, 2, null, 4, 5, 7, 41, 6],
+  ['Уинский', null, 14, 9, 9, null, null, null, 15, 15, '5 видов (48)', 21],
+  ['Усольский', 5, 14, 6, 11, null, 4, 6, 12, null, 44, 7],
+  ['Частинский', 10, 19, 19, null, 9.5, 7, 15, null, 15, 75.5, 18],
+  ['Чердынский', 14, 9, 9, 10, 6, 11, 5, null, 10.5, 49.5, 9],
+  ['Юрлинский', null, 14, null, null, null, null, null, null, null, '1 вид (14)', 25],
+  ['Юсьвинский', null, 25, 23, 7, 9.5, null, null, null, 15, '5 видов (79.5)', 24]
+],
+2015: [
+  ['Бардымский', 10, 23, 21.5, 1, 10.5, 12, 3, 8, 14.5, 44.5, 11],
+  ['Березовский', null, 14, 9, 14, 7, 11, 9, 1, 7, 44, 10],
+  ['Большесосновский', 3, 19, 18.5, 12, null, null, null, null, 4, '5 видов', 19],
+  ['Гайнский', null, 9, 14, null, 14.5, null, null, null, null, '3 вида', 23],
+  ['Еловский', 15, 14, 14, null, 14.5, null, 13, 12, null, 82.5, 17],
+  ['Ильинский', 8, 19, 14, 5, 10.5, 6, 5, 14, 3, 37.5, 5],
+  ['Карагайский', 1, 1, 1, 16, 2, 3, null, null, 10.5, 18.5, 1],
+  ['Кишертский', null, 19, null, null, 17, null, 4, 9, 14.5, '5 видов', 20],
+  ['Косинский', null, 3, 3, 3, 10.5, null, 15, null, null, '5 видов', 18],
+  ['Кочевский', 7, 25, 18.5, 7, null, 2, null, 15, null, 74.5, 16],
+  ['Кудымкарский', 2, 23, 9, 2, 6, 1, 10, 3, 5, 19, 2],
+  ['Куединский', 11, 9, 5, null, 1, 5, 14, 5, 10.5, 35.5, 4],
+  ['п. Майский', 13, 23, 21.5, null, 8, null, null, null, 2, '5 видов', 21],
+  ['Октябрьский', 12, 19, 18.5, 9, 5, null, 2, 4, 10.5, 42.5, 8],
+  ['Ординский', null, 4, 6, 10, 14.5, 8, null, 7, null, 49.5, 12],
+  ['Оханский', 9, 14, 9, null, 10.5, 4, 1, 6, 1, 30, 3],
+  ['Сивинский', 6, 6, 4, 4, null, 10, null, 13, 10.5, 40.5, 6],
+  ['Соликамский', 14, 5, 9, 6, null, null, null, null, null, '4 вида', 22],
+  ['Суксунский', null, 9, 14, null, 4, null, 7, 2, 6, 42, 7],
+  ['Уинский', 16, 2, 9, 15, null, null, 6, 11, null, 59, 13],
+  ['Усольский', 5, 14, 2, 8, null, 7, 11, 10, null, 43, 9],
+  ['Частинский', 4, 9, 14, null, 14.5, 9, 12, null, 14.5, 62.5, 15],
+  ['Чердынский', null, 9, 18.5, 13, 3, null, 8, null, 8, 59.5, 14],
+  ['Юрлинский', null, 14, null, null, null, null, null, null, null, '1 вид', 25],
+  ['Юсьвенский', null, 19, null, 11, null, null, null, null, 14.5, '3 вида', 24]
+],
+2016: [
+  ['Бардымский', 14, null, 18, 2, 5, 12, 1, 5, 9, 34, 5],
+  ['Березовский', 10, 4, 6, null, 7, null, null, null, null, '4 вида', 20],
+  ['Большесосновский', 3, 17.5, 20.5, 9, null, null, null, 10, null, '5 видов', 18],
+  ['Гайнский', null, 17.5, 14, null, 14.5, null, null, null, null, '3 вида', 23],
+  ['Еловский', 11, 13.5, 9, null, 14.5, 11, 13, null, null, 86.5, 16],
+  ['Ильинский', 8, 13.5, 18, 3, 10.5, 3, 7, 3, 10, 34, 6],
+  ['Карагайский', 1, 3, 1, 10, 2, 4, null, 6, null, 17, 1],
+  ['Кишертский', 16, 17.5, 14, null, 14.5, 10, 2, 10, 2, 52.5, 10],
+  ['Косинский', null, 1, 2, 7, 10.5, null, null, null, null, '4 вида', 19],
+  ['Кочевский', 7, 22.5, null, 4, null, null, null, null, null, '3 вида', 21],
+  ['Кудымкарский', 5, 9, 9, 1, 8, 1, 10, 10, 1, 25, 2],
+  ['Куединский', 15, 9, 14, null, 1, 5, 11, 13, 5, 44, 8],
+  ['п. Майский', 9, 22.5, 22, null, null, 9, 14, 2, 8, 64, 15],
+  ['Октябрьский', 17, 17.5, 20.5, 8, 10.5, null, 5, null, 4, 62, 14],
+  ['Ординский', 13, 9, 9, null, 10.5, 7, null, null, 11, 59.5, 13],
+  ['Оханский', 12, 20.5, 9, null, 6, 6, 4, 1, 3, 29, 4],
+  ['Сивинский', 2, 5, 5, 6, null, null, 12, 7, null, 37, 7],
+  ['Соликамский', null, null, 9, null, null, null, null, null, null, '1 вид', 24],
+  ['Суксунский', null, 13.5, 18, null, 4, null, 6, 4, 6, 51.5, 9],
+  ['Уинский', 18, 2, 4, null, null, null, 8, null, 7, '5 видов', 17],
+  ['Усольский', 6, 9, 3, 5, null, 2, 3, null, 12, 28, 3],
+  ['Частинский', 4, 9, 14, null, 14.5, 8, 15, 13, null, 52.5, 11],
+  ['Чердынский', null, 6, 14, null, 3, 13, 9, 13, null, 58, 12],
+  ['Юрлинский', null, 20.5, null, null, null, null, null, null, null, '1 вид', 25],
+  ['Юсьвенский', null, 13.5, null, null, null, null, 16, 8, null, '3 вида', 22]
+],
+2017: [
+  ['Бардымский', null, 18.5, 17, 1, 5, 12, 3, 7, 10, 38, 6],
+  ['Березовский', 16, 4, 9, null, 11.5, null, null, 6, null, '5 видов (46.5)', 19],
+  ['Большесосновский', 2, 18.5, 19.5, null, null, null, null, 6, null, '4 вида (46)', 21],
+  ['Еловский', 15, 14, 13.5, null, 11.5, 15, 11, 13, null, 78, 16],
+  ['Ильинский', 7, 23, null, 4, 11.5, 3, 9, 8, 3, 34, 4],
+  ['Карагайский', 1, 1, 1, 10, 2, 4, null, null, 10, 19, 1],
+  ['Кишертский', 13, 14, 13.5, 14, 14.5, 10, 2, 4, 7, 49.5, 9],
+  ['Косинский', null, 2, 4, 3, null, 14, 13, null, null, '5 видов (36)', 17],
+  ['Кочевский', 6, 18.5, null, 6, null, 2, null, null, null, '4 вида (32.5)', 20],
+  ['Кудымкарский', 5, 14, 9, 2, 11.5, 1, 6, 5, 4, 23, 2],
+  ['Куединский', 10, 3, 9, null, 1, 6, 10, null, 12, 39, 7],
+  ['п. Майский', 12, 21.5, 17, null, null, 10, 12, 9, 1, 57, 13],
+  ['Октябрьский', 14, 21.5, 19.5, 11, 8, null, 1, 1, null, 54.5, 12],
+  ['Ординский', 11, 9, 6, 13, 6, 9, null, 2, null, 43, 8],
+  ['Оханский', 9, 14, 5, null, 4, 5, 5, 3, 2, 24, 3],
+  ['Сивинский', 3, 6, 9, 5, 14.5, null, null, null, null, '5 видов (37.5)', 18],
+  ['Соликамский', null, 5, 9, 9, null, null, null, null, null, '3 вида (23)', 22],
+  ['Суксунский', null, 18.5, 17, 8, 3, null, 8, 10, 8, 54, 11],
+  ['Уинский', 17, 9, 3, 15, null, null, 7, 12, null, 63, 14],
+  ['Усольский', 8, 9, 2, 7, null, 7, 4, 11, null, 37, 5],
+  ['Частинский', 4, 9, 13.5, null, 9, 8, null, 14, 10, 53.5, 10],
+  ['Чердынский', null, 14, 13.5, 12, 7, 13, null, null, 5, 64.5, 15],
+  ['Юрлинский', null, 9, null, null, null, null, null, null, null, '1 вид (9)', 23]
+],
+2018: [
+  ['Бардымский', null, 18.5, 14, 1, 17, null, 3, 8, 7, 50, 8],
+  ['Березовский', null, 9, 6, null, 17, null, null, 1, null, '4 видов (39)', 20],
+  ['Гайнский', null, 14, 14, null, 12, null, null, null, null, '3 видов (40)', 22],
+  ['Еловский', 14, 4, 9, 11, 7, 12, null, 10, null, 53, 12],
+  ['Ильинский', 10, 14, 14, 4, 17, 4, 6, 9, 3, 36, 4],
+  ['Карагайский', 6, 1, 1, 9, 1, 3, null, null, 11.5, 21, 2],
+  ['Кишертский', 16, 18.5, 14, null, 12, 14, 2, 6, 9.5, 57.5, 13],
+  ['Косинский', null, 2, 3, 3, null, 15, null, null, null, '4 видов (23)', 19],
+  ['Кочевский', 4, 22, null, 8, null, 2, null, 12, null, '5 видов (48)', 17],
+  ['Кудымкарский', 1, 18.5, 9, 2, 8, 1, 11, 4, 4, 20, 1],
+  ['Куединский', 11, 9, null, null, 2, 13, 5, null, null, '5 видов (40)', 16],
+  ['Краснокамский', 8, 22, null, null, 17, 11, 13, null, 2, 73, 14],
+  ['Октябрьский', 12, 22, 18.5, null, 5, null, 1, 3, 11.5, 51, 11],
+  ['Ординский', 9, 3, 9, 10, 12, 8, null, 5, null, 44, 6],
+  ['Оханский', 5, 18.5, 9, null, 6, 7, 7, 2, 1, 28, 3],
+  ['Сивинский', 3, 6, 2, 6, 12, null, null, null, null, '5 видов (29)', 15],
+  ['Соликамский', null, 9, 4, null, null, null, null, null, null, '2 видов (13)', 24],
+  ['Суксунский', null, 14, 18.5, null, 4, 9, 10, 7, 6, 50, 9],
+  ['Уинский', 15, 14, 5, null, null, null, 4, 11, null, '5 видов (49)', 18],
+  ['Усольский', 7, 14, 9, 5, null, 5, 9, null, null, 49, 7],
+  ['Частинский', 2, 9, 18.5, null, 3, 6, 12, null, 8, 40, 5],
+  ['Чердынский', 13, 5, 14, null, 9, 10, 8, null, 5, 50, 10],
+  ['Юрлинский', null, 9, null, 7, 12, null, null, null, 13, '4 видов (41)', 21],
+  ['Юсьвенский', null, null, 18.5, null, 17, null, null, null, 9.5, '3 видов (45)', 23]
+],
+2019: [
+  ['Бардымский', 9, 18.5, 17, 1, 10, 8, 1, 6, 12, 35, 4],
+  ['Березовский', null, 9, 9, null, 17, null, null, 2, null, '37 (4)', 21],
+  ['Березниковский ГО', 5, 5, 9, 8, null, 6, 9, null, null, 42, 6],
+  ['Большесосновский', 3, 14, null, null, null, null, null, null, 8, '25 (3)', 22],
+  ['Гайнский', null, 14, null, null, 13, null, null, null, null, '27 (2)', 24],
+  ['Еловский', 15, 9, 9, 13, 13, 10, 13, 12, null, 66, 15],
+  ['Ильинский', 7, 22, 13.5, 5, 17, 3, 6, 4, 3, 28, 2],
+  ['Карагайский', null, 3, 1, 9, 6, null, null, 14, 12, 43, 7],
+  ['Кишертский', 10, 18.5, 13.5, 11, 17, 11, 7, 9, 6, 54, 13],
+  ['Косинский', null, 1, 3, 3, null, 9, null, null, null, '16 (4)', 20],
+  ['Кочевский', 2, 18.5, null, 4, null, 2, 10, 13, 15, 46, 8],
+  ['Кудымкарский', 1, 22, 9, 2, 10, 1, 12, 8, 4, 25, 1],
+  ['Куединский', 12, 14, 13.5, 6, 1, null, 2, null, null, 48.5, 9],
+  ['Краснокамский', 8, 24, null, null, 17, 12, null, null, 1, '62 (5)', 19],
+  ['Октябрьский', 11, 22, 19, null, 3, null, 3, 3, 15, 54, 12],
+  ['Ординский', 13, 4, 4, null, 4, 13, null, 11, null, 49, 10],
+  ['Оханский', 6, 18.5, 9, null, 8, 4, 4, 5, 2, 29, 3],
+  ['Сивинский', null, 9, 6, 7, 13, null, 14, null, 9.5, 58.5, 14],
+  ['Соликамский', 16, 14, 5, null, null, 14, 15, 10, 15, 73, 16],
+  ['Суксунский', null, 14, 17, null, 2, 5, 11, 1, 5, 38, 5],
+  ['Уинский', null, 2, 2, 10, null, null, 5, 7, null, '36 (5)', 17],
+  ['Частинский', 4, 6, 17, null, 7, null, null, null, 12, '46 (5)', 18],
+  ['Чердынский', 14, 9, 13.5, null, 5, 7, 8, null, 7, 49.5, 11],
+  ['Юрлинский', null, 9, null, null, 10, null, null, null, 9.5, '28.5 (3)', 23]
+],
+2020: [
+  ['Кудымкарский', 1, null, null, 5, null, 1, 13, 2, null, 9, 1],
+  ['Бардымский', 10, 19, 19, 1, null, 17, 1, 3, null, 15, 2],
+  ['Уинский', null, 2, 4, 13, null, 13, 5, 8, null, 19, 3],
+  ['Ильинский', 3, 23.5, 6, 8, null, 3, 9, 14, null, 20, 4],
+  ['Сивинский', 2, 14, 6, 4, null, 9, null, null, null, 21, 5],
+  ['Оханский', 8, 19, 9, null, null, 12, 4, 1, null, 22, 6],
+  ['Куединский', 9, 6, 13.5, 12, null, 8, 2, 6, null, 22, 7],
+  ['Кочевский', 4, 19, null, 7, null, 2, 14, 12, null, 25, 8],
+  ['Красновишерский', 11, 6, 13.5, 3, null, null, null, 5, null, 25, 9],
+  ['Косинский', null, 4, 2, 2, null, 18, null, null, null, 26, 10],
+  ['Очерский', 7, 9, 6, 9, null, 4, 9, 13, null, 26, 11],
+  ['Березниковский ГО', 5, 9, 9, 6, null, 11, 8, 11, null, 28, 12],
+  ['Ординский', 12, 9, 5, null, null, 14, null, 7, null, 33, 13],
+  ['Еловский', 15, 14, 9, 11, null, 9, 10, 15, null, 39, 14],
+  ['Суксунский', null, 14, null, 10, null, 7, 11, null, null, 42, 15],
+  ['Октябрьский', 13, 23.5, 17, null, null, null, 3, 10, null, 43, 16],
+  ['Кишертский', 14, 23.5, 13.5, null, null, null, 7, 9, null, 43.5, 17],
+  ['Краснокамский', null, 5, 13.5, null, null, null, 12, 16, null, 46.5, 18],
+  ['Чердынский', 16, 14, 17, null, null, 16, null, null, null, 63, 19],
+  ['Добрянский', 9, null, null, 14, null, null, null, 4, null, '27 (3)', 20],
+  ['Березовский', null, 1, 17, null, null, null, null, 17, null, '35 (3)', 21],
+  ['Соликамский', null, 19, 3, null, null, 15, null, null, null, '37 (3)', 22],
+  ['Карагайский', null, 3, 1, null, null, null, null, null, null, '4 (2)', 23],
+  ['Гайнский', null, 14, null, null, null, 10, null, null, null, '24 (2)', 24],
+  ['Частинский', null, 23.5, null, null, null, 5, null, null, null, '28.5 (2)', 25],
+  ['Юрлинский', null, 9, null, null, null, null, null, null, null, '9 (1)', 26],
+  ['Большесосновский', null, null, 19, null, null, null, null, null, null, '19 (1)', 27]
+],
+2021:  [
+  ['Кудымкарский', 2, null, null, 6, null, 3, 7, 4, 6, 21, 1],
+  ['Уинский', 14, 3, 3, null, null, 8, 1, null, 10, 25, 2],
+  ['Бардымский', 8, 9, 20, 2, null, 10, 3, 11, 3, 25, 3],
+  ['Оханский', 10, 22.5, 13.5, null, null, 7, 8, 1, 2, 28, 4],
+  ['Кочевский', 3, 22.5, null, 5, null, 1, 10, 11, 9, 28, 5],
+  ['Очерский', 4, 9, 13.5, 1, null, 4, 11, null, 13, 29, 6],
+  ['Ильинский', 9, 22.5, 17, 13, null, 2, 4, 3, 12, 30, 7],
+  ['Березниковский ГО', 5, 14, 9, 8, null, 6, null, null, 4, 32, 8],
+  ['Сивинский', 7, 25, 6, 4, null, null, 12, 11, null, 40, 9],
+  ['Чердынский', 13, 6, 13.5, 10, null, 5, null, 8, null, 42, 10],
+  ['Кишертский', 17, 22.5, 9, 14, null, null, 2, 11, 7, 43, 11],
+  ['Ординский', 12, 9, 5, 9, null, 9, null, null, null, 44, 12],
+  ['Октябрьский', 11, 14, 17, null, null, null, 6, 14, 5, 52, 13],
+  ['Куединский', 6, 14, 17, 7, null, null, 9, null, null, 53, 14],
+  ['Краснокамский', null, 5, 20, null, null, null, 15, 6, 8, 54, 15],
+  ['Частинский', null, 14, 9, null, null, 12, 13, 7, null, 55, 16],
+  ['Еловский', 15, 18.5, 9, 12, null, null, 14, null, 11, 61, 17],
+  ['Суксунский', null, 18.5, null, null, null, 11, 5, 5, null, '39.5 (4)', 18],
+  ['Большесосновский', 1, 18.5, 20, null, null, null, null, 2, null, '41.5 (4)', 19],
+  ['Косинский', null, 1, 2, 3, null, null, null, null, null, '6 (3)', 20],
+  ['Березовский', null, 2, 13.5, null, null, null, null, null, 1, '16.5 (3)', 21],
+  ['Юсьвенский', null, 14, 9, 11, null, null, null, null, null, '34 (3)', 22],
+  ['Юрлинский', 16, 9, null, null, null, null, null, 11, null, '36 (3)', 23],
+  ['Карагайский', null, 4, 1, null, null, null, null, null, null, '5 (2)', 24],
+  ['Соликамский', null, 9, 4, null, null, null, null, null, null, '13 (2)', 25],
+  ['Добрянский', null, null, null, 15, null, null, null, null, null, '15 (1)', 26],
+  ['Гайнский', null, 18.5, null, null, null, null, null, null, null, '18.5 (1)', 27]
+],
+2022: [
+  ['Кудымкарский', 1, 14, null, 7, 5, 1, 9, 3, 1, 18, 1],
+  ['Ильинский', 7, 19, null, 5, 9.5, 5, 1, 8, 5, 31, 2],
+  ['Очерский', 2, 9, 9, 2, 13, 3, 8, 11, null, 33, 3],
+  ['Бардымский', 13, 23, 17, 1, 17.5, 14, 2, 7, 6, 43, 4],
+  ['Кочевский', 4, 9, 9, 8, 13, 2, 11, 12, null, 43, 5],
+  ['Куединский', 8, 14, 13.5, 14, 2, 11, 3, 6, null, 43.5, 6],
+  ['Сивинский', 5, 14, 6, 4, null, 9, 16, 15, 8, 46, 7],
+  ['Оханский', 6, 19, null, null, 13, 15, 7, 4, 4, 49, 8],
+  ['Косинский', 18, 3, 1, 6, 9.5, 13, null, null, null, 50.5, 9],
+  ['Березниковский ГО', 11, 19, 3, 11, null, 6, null, 1, null, 51, 10],
+  ['Еловский', 16, 1, 4, 16, 8, 10, 14, 16, null, 53, 11],
+  ['Кишертский', 12, 23, 9, null, 13, null, 6, 2, 11, 53, 12],
+  ['Октябрьский', 15, 14, 13.5, null, 3, null, 4, 10, 11, 55.5, 13],
+  ['Ординский', 14, 4, 5, 10, 13, 12, null, 14, null, 58, 14],
+  ['Краснокамский', 10, 19, null, 13, 17.5, 7, null, 13, 3, 63.5, 15],
+  ['Красновишерский', 9, 14, 13.5, 3, null, null, 15, 9, null, 63.5, 16],
+  ['Чердынский', 17, 5, 17, null, 6, 8, 12, 17, null, 65, 17],
+  ['Суксунский', 19, null, null, 9, 2, 16, 10, null, 11, 67, 18],
+  ['Карагайский', 3, 2, 2, null, 4, 4, null, null, null, '15 (5)', 19],
+  ['Березовский', null, 9, 17, null, 17.5, null, null, 5, 7, '55.5 (5)', 20],
+  ['Уинский', null, 9, 9, 12, null, null, 5, null, null, '35 (4)', 21],
+  ['Частинский', null, 23, null, null, 7, null, 13, null, 11, '54 (4)', 22],
+  ['Юрлинский', 20, 6, null, null, 17.5, null, null, null, 15, '58.5 (4)', 23],
+  ['Гайнский', null, 19, 13.5, null, null, null, null, null, 11, '43.5 (3)', 24],
+  ['Соликамский', null, 9, 9, null, null, null, null, null, null, '18 (2)', 25],
+  ['Юсьвенский', null, null, null, 15, null, null, null, null, 14, '29 (2)', 26],
+  ['Большесосновский', null, null, null, null, null, null, null, null, 2, '2 (1)', 27]
+],
+2023: [
+  ['Очерский', 2, 9, 9, 2, null, 3, 8, 5, null, 30, 1],
+  ['Карагайский', 3, 1, 2, 14, 1, null, null, 11, 6, 34, 2],
+  ['Ильинский', 9, null, null, 8, 13, 2, 1, 10, 3, 37, 3],
+  ['Оханский', 5, 19, 19, null, 13, 7, 6, 1, 2, 37, 4],
+  ['Бардымский', 11, 14, 22, 1, 8.5, 10, 2, 7, 4, 43.5, 5],
+  ['Ординский', 12, 9, 1, 9, 4, 4, 10, 13, null, 45, 6],
+  ['Кочевский', 4, 9, 9, 3, 13, 1, null, 8, 14, 47, 7],
+  ['Куединский', 7, 9, 14, null, 2, 9, 4, 6, 14, 51, 8],
+  ['Березниковский ГО', 6, 19, 19, 4, null, 6, 12, 4, null, 56, 9],
+  ['Октябрьский', 16, 14, 14, null, 3, null, 3, 3, 14, 57, 10],
+  ['Красновишерский', 10, 9, 3, 5, 5, 11, null, null, null, 59, 11],
+  ['Чердынский', 14, 6, 14, 10, 8.5, null, null, null, 7, 66.5, 12],
+  ['Еловский', 13, 5, 9, null, 13, 14, 7, 16, null, 70, 13],
+  ['Юсьвенский', 17, 22.5, 6, 13, 8.5, 12, 11, 15, 9.5, 75, 14],
+  ['Суксунский', 15, 19, null, 7, 13, null, 9, null, 5, 85, 15],
+  ['Частинский', 18, 19, 19, 12, 8.5, 13, null, null, 14, 103.5, 16],
+  ['Косинский', 21, 3, 5, 6, 6, null, null, null, null, '43 (6)', 17],
+  ['Краснокамский', 20, 22.5, null, null, null, 15, 13, 14, null, '97.5 (6)', 18],
+  ['Березовский', 8, 2, 19, null, 17, null, null, 2, 9.5, '57.5 (6)', 19],
+  ['Кишертский', 19, null, 9, null, 17, null, 5, 12, 9.5, '71.5 (6)', 20],
+  ['Уинский', null, 4, 4, 11, null, null, null, 9, null, '43 (5)', 21],
+  ['Сивинский', 1, 14, 14, null, null, 5, null, null, null, '45 (5)', 22],
+  ['Гайнский', null, 14, 14, null, null, 8, null, null, 9.5, '65.5 (5)', 23],
+  ['Юрлинский', null, 19, 19, null, 17, null, null, null, 14, '100 (5)', 24],
+  ['Соликамский', null, 14, 9, null, null, null, null, null, null, '23 (2)', 25],
+  ['Большесосновский', null, 24, null, null, null, null, null, null, 1, '25 (2)', 26]
+],
+2024: [
+  ['Оханский', 4, 14, null, null, 8, 2, 5, 7, 1, 29, 1],
+  ['Очерский', 2, 5, 14, 5, null, 3, 8, 5, null, 29, 2],
+  ['Бардымский', 5, 21.5, 18.5, 1, 11.5, 12, 3, 3, 3, 29.5, 3],
+  ['Ординский', 8, 9, 4, 6, 3, 7, 13, null, null, 45, 4],
+  ['Ильинский', 13, 18.5, null, 2, null, 4, 7, 9, 5, 47, 5],
+  ['Куединский', 6, 14, 9, 8, 1, null, 1, 11, 11.5, 47.5, 6],
+  ['Октябрьский', null, 14, 6, null, 5, null, 2, 8, 9, 49, 7],
+  ['Березниковский ГО', 9, 9, 9, 9, null, 8, null, 1, null, 51, 8],
+  ['Сивинский', 3, null, 9, 4, 15, 5, 14, 14, null, 64, 9],
+  ['Кочевский', 10, 18.5, 14, null, 15, 1, 10, null, 11.5, 72.5, 10],
+  ['Кишертский', 15, 18.5, 14, null, null, 11, 4, 4, 7, 73.5, 11],
+  ['Еловский', 16, 3, 14, null, 8, 6, 15, 16, null, 74, 12],
+  ['Чердынский', 14, 6, 18.5, 10, 2, null, 16, null, null, 79.5, 13],
+  ['Краснокамский', 18, 18.5, null, 14, null, 14, 9, 6, 6, 82, 14],
+  ['Юсьвенский', 17, null, 9, 13, null, null, 11, 15, 9, 84, 15],
+  ['Частинский', 12, 9, 18.5, 7, 11.5, 10, 17, null, 9, 75.5, 16],
+  ['Карагайский', 1, 1, 1, null, 4, null, null, 12, null, '37 (6)', 17],
+  ['Красновишерский', 11, 14, 3, null, null, 13, 12, null, null, '57 (6)', 18],
+  ['Уинский', null, 9, 5, 12, null, null, 6, 10, null, '62 (6)', 19],
+  ['Суксунский', null, null, null, 11, 11.5, 9, null, 13, 4, '64.5 (6)', 20],
+  ['Косинский', null, 4, 2, 3, 8, null, null, null, null, '26 (5)', 21],
+  ['Березовский', 7, 2, 9, null, 15, null, null, 2, null, '35 (5)', 22],
+  ['Гайнский', null, 14, 18.5, 15, 11.5, null, 18, null, null, '77 (5)', 23],
+  ['Юрлинский', null, 9, null, null, 6, null, null, null, null, '34 (3)', 24],
+  ['Большесосновский', null, 21.5, null, null, null, null, null, 2, null, '23.5 (2)', 25],
+  ['Соликамский', null, null, 14, null, null, null, null, null, null, '14 (1)', 26]
+],
+2025: [
+  ['Карагайский', 2, 1, 2, 11, 3, 4, 16, 9, 10.5, 25, 1],
+  ['Оханский', 6, 19, null, null, 11.5, 3, 2, 3, 4, 31.5, 2],
+  ['Очерский', 1, 6, 9, 12, null, 7, 7, 6, null, 37, 3],
+  ['Бардымский', 9, 19, 19, 3, 11.5, 13, 4, 7, 2, 39.5, 4],
+  ['Ильинский', 11, 23, null, 2, null, 2, 5, 12, 3, 41, 5],
+  ['Куединский', 12, 14, 9, 14, 1, 8, 1, 5, null, 50, 6],
+  ['Красновишерский', 8, 5, 14, 9, 5, 10, null, null, null, 56, 7],
+  ['Березниковский ГО', 10, 14, 9, 6, null, 6, 10, 2, null, 57, 8],
+  ['Сивинский', 4, 9, 3, 8, 15, 5, 15, null, null, 58, 9],
+  ['Кочевский', 3, 14, 9, null, 16.5, 1, 11, 13, null, 60, 10],
+  ['Косинский', 19, 2, 1, 1, 11.5, 16, null, null, null, 61.5, 11],
+  ['Еловский', 16, 3, 6, null, 8, 9, 13, null, null, 62, 12],
+  ['Частинский', 7, 14, 19, 7, 8, 11, 12, null, 8, 63, 13],
+  ['Чердынский', 14, 9, 19, 5, 6, null, null, null, 8, 69, 14],
+  ['Кишертский', 13, 14, 9, null, null, 15, 8, 8, 5, 72, 15],
+  ['Юсьвенский', 17, 23, 9, 4, 16.5, null, 14, null, 8, 89.5, 16],
+  ['Октябрьский', null, 19, 19, null, 15, null, 6, 4, 10.5, 92.5, 17],
+  ['Краснокамский', 18, 23, null, 16, null, 12, 9, 11, null, 101, 18],
+  ['Березовский', 5, null, 14, null, 11.5, null, null, 1, 12, '58.5 (6)', 19],
+  ['Уинский', null, 9, 14, 13, null, null, 3, 10, null, '65 (6)', 20],
+  ['Суксунский', null, 9, null, 10, 2, null, null, null, 6, '44 (5)', 21],
+  ['Ординский', 15, 4, 4, null, 4, 14, null, null, null, '41 (5)', 22],
+  ['Юрлинский', null, 19, 22, null, 8, null, null, null, null, '62 (4)', 23],
+  ['Гайнский', null, 9, 14, null, 15, null, null, null, null, '38 (3)', 24],
+  ['Большесосновский', null, 25, 14, null, null, null, null, 1, null, '40 (3)', 25],
+  ['Соликамский', 20, 19, 5, null, null, null, null, null, null, '44 (3)', 26],
+  ['Добрянский', null, null, null, 15, null, null, null, null, null, '15 (1)', 27]
+]
 
-    // ============================================================
-    // ОТРИСОВКА
-    // ============================================================
-    function renderYears() {
-        const container = document.getElementById('years');
-        let html = `
-            <div class="card">
-                <h2>📅 Турниры по годам</h2>
-                <p>Нажмите на год, чтобы раскрыть детали.</p>
-                <div style="margin: 15px 0;">
-                    <input type="text" id="yearFilter" placeholder="Фильтр по году (например, 2015)" style="padding: 8px 15px; border-radius: 30px; border: 1px solid #ccc; width: 200px;">
-                </div>
-                <div id="yearContainer"></div>
-            </div>
-        `;
-        container.innerHTML = html;
+/* >>> СЮДА ДОПИСЫВАЮТСЯ ГОДЫ 2015–2025 (ГРУППА 2) <<<
+   Формат — объектные строки, см. комментарий в G1_RAW. */
+};
 
-        const yearContainer = document.getElementById('yearContainer');
-        let innerHtml = '';
-        const sortedYears = Object.keys(yearsData).sort((a,b)=>a-b);
-        sortedYears.forEach((year) => {
-            const data = yearsData[year];
-            if (!data.places && !data.note && !matchesData[year]) return;
+/* ============================================================
+   МНОГОБОРЬЕ ГТО — отдельные таблицы (в программе с 2023 года).
+   Альтернатива объектным строкам: если годы добавлены
+   форматом-массивом, результаты ГТО вносятся сюда.
+   Формат: год -> { команда: место }. Команды, не указанные
+   в году, получают «без участия». Годы до 2023 заполнять
+   не нужно — они трактуются как «не проводилась».
+   Имена команд — как в G1_RAW/G2_RAW соответствующей группы.
+   ============================================================ */
+const GTO_G1_RAW = {
+    2023: { 'Пермский': 1,  'Кунгурский': 4,  'Осинский': 2,  'Верещагинский': 5,  'Нытвенский': 3 },
+    2024: { 'Пермский': 1,  'Кудымкарский': 2,  'Верещагинский': 3,  'Чернушинский': 6,  'Кунгурский': 4,  'Осинский': 5},
+    2025: { 'Пермский': 1,  'Кудымкарский': 2,  'Осинский': 3,  'Верещагинский': 5,  'Кунгурский': 4,  'Чернушинский': 6 }
+};
+const GTO_G2_RAW = {
+     2023: { 'Очерский': 1,  'Карагайский': 10,  'Ильинский': 4,  'Оханский': 3,  'Бардымский': 12,  'Ординский': 8,  'Кочевский': 18,  'Куединский': 14,  'Березниковский ГО': 5,  'Октябрьский': 6,  'Красновишерский': 16,  'Чердынский': 7,  'Еловский': 9,  'Юсьвенский': 19,  'Суксунский': 17,  'Косинский': 2,
+  'Краснокамский': 13,  'Уинский': 15,  'Сивинский': 11,  'Гайнский': 20,  'Юрлинский': 21 },
+     2024: {'Оханский': 2,  'Очерский': 1,  'Бардымский': 3,  'Ординский': 8,  'Ильинский': 7,  'Куединский': 14,  'Октябрьский': 5,  'Березниковский ГО': 6,  'Сивинский': 17,  'Кочевский': 11,  'Кишертский': 21,  'Еловский': 12,  'Чердынский': 13,  'Краснокамский': 15,
+  'Юсьвенский': 10,  'Карагайский': 18,  'Красновишерский': 4,  'Уинский': 20,  'Суксунский': 16,  'Косинский': 9,  'Юрлинский': 19},
+     2025: { 'Карагайский': 4,  'Оханский': 2,  'Очерский': 1,  'Бардымский': 3,  'Ильинский': 6,  'Куединский': 18,  'Красновишерский': 5,  'Березниковский ГО': 22,  'Сивинский': 14,  'Кочевский': 9,  'Косинский': 11,  'Еловский': 7,  'Частинский': 10,  'Чердынский': 8,
+  'Кишертский': 20,  'Юсьвенский': 21,  'Октябрьский': 19,  'Краснокамский': 12,  'Березовский': 15,  'Уинский': 16,  'Суксунский': 17,  'Юрлинский': 13}  
+};
 
-            let titleHtml = `<span class="title">`;
-            titleHtml += `<h3>${year}</h3>`;
-            if (data.venue) {
-                titleHtml += `<span class="venue">🏁 ${data.venue}</span>`;
-            }
-            if (data.champion) {
-                titleHtml += ` <span class="badge badge-gold">🏆 ${data.champion}</span>`;
-            }
-            if (data.note && !data.places) {
-                titleHtml += ` <span style="font-size:0.9rem; color:#b91c1c;">⚠️ ${data.note}</span>`;
-            }
-            titleHtml += `</span>`;
+const YEAR_NOTES = {
+    g1: {},
+    g2: {}
+};
 
-            let detailHtml = '';
-
-            if (data.places) {
-                const entries = Object.entries(data.places);
-                const sorted = entries.sort((a,b) => a[1] - b[1]);
-                const top3 = sorted.filter(([team, pos]) => pos <= 3);
-                if (top3.length > 0) {
-                    detailHtml += `<div class="podium">`;
-                    const medals = ['🥇', '🥈', '🥉'];
-                    top3.forEach(([team, pos], idx) => {
-                        detailHtml += `<div class="podium-item"><span class="medal">${medals[idx]}</span><span class="team">${team}</span></div>`;
-                    });
-                    detailHtml += `</div>`;
-                }
-            }
-
-            const placeMap = data.places ? { ...data.places } : {};
-            if (matchesData[year]) {
-                matchesData[year].forEach(m => {
-                    const t1 = m[0], t2 = m[1];
-                    if (!placeMap[t1]) placeMap[t1] = null;
-                    if (!placeMap[t2]) placeMap[t2] = null;
+/* ============================================================
+   4. КОМПИЛЯТОР: исходные данные -> рабочая модель
+   Массив строк и объектные строки сводятся к одной модели:
+   data[год][команда] = { points, place, disc: { id: место|null } }
+   ============================================================ */
+function buildData(raw, extras) {
+    const ext = extras || {};
+    const data = {};
+    Object.entries(raw).forEach(function (entry) {
+        const year = entry[0];
+        data[year] = {};
+        entry[1].forEach(function (row) {
+            let team, discIn, points, place;
+            if (Array.isArray(row)) {
+                team = row[0];
+                discIn = {};
+                BASE_COLS.forEach(function (id, i) {
+                    discIn[id] = (row[i + 1] === undefined) ? null : row[i + 1];
                 });
-            }
-            const entries = Object.entries(placeMap);
-            entries.sort((a,b) => {
-                if (a[1] === null && b[1] === null) return 0;
-                if (a[1] === null) return 1;
-                if (b[1] === null) return -1;
-                return a[1] - b[1];
-            });
-
-            detailHtml += '<table><tr><th>Место</th><th>Команда</th></tr>';
-            entries.forEach(([team, pos]) => {
-                let cls = (pos === 1) ? 'highlight' : '';
-                let displayPos = (pos !== null) ? pos : 'нет данных';
-                detailHtml += `<tr class="${cls}"><td>${displayPos}</td><td>${team}</td></tr>`;
-            });
-            detailHtml += '</table>';
-
-            if (matchesData[year]) {
-                detailHtml += `<h4 style="margin-top:15px;">Матчи:</h4><ul class="match-list">`;
-                matchesData[year].forEach(m => {
-                    const videoUrl = getVideoLink(year, m[0], m[1], m[2]);
-                    let videoIcon = '';
-                    if (videoUrl) {
-                        videoIcon = `<a href="${videoUrl}" target="_blank" style="text-decoration:none; margin-left:8px;" title="Смотреть видео">▶️</a>`;
-                    }
-                    detailHtml += `<li><span>${m[0]} ${m[2]} ${m[1]}${videoIcon}</span></li>`;
-                });
-                detailHtml += `</ul>`;
-            }
-
-            innerHtml += `
-                <div class="year-block" data-year="${year}">
-                    <div class="header" onclick="toggleYear(this)">
-                        ${titleHtml}
-                        <span class="arrow">▼</span>
-                    </div>
-                    <div class="year-detail">
-                        ${detailHtml}
-                    </div>
-                </div>
-            `;
-        });
-        yearContainer.innerHTML = innerHtml;
-
-        document.getElementById('yearFilter').addEventListener('input', function(e) {
-            const val = e.target.value.trim().toLowerCase();
-            document.querySelectorAll('.year-block').forEach(block => {
-                const year = block.dataset.year;
-                block.style.display = year.includes(val) ? 'block' : 'none';
-            });
-        });
-    }
-
-    window.toggleYear = function(el) {
-        const block = el.closest('.year-block');
-        if (block) {
-            block.classList.toggle('open');
-        }
-    };
-
-    function renderTeamSelect() {
-        const container = document.getElementById('teams');
-        const teamList = getAllTeams();
-        container.innerHTML = `
-            <div class="card">
-                <h2>🏁 Результаты команд</h2>
-                <p>Выберите команду, чтобы увидеть её историю выступлений.</p>
-                <div style="margin: 15px 0;">
-                    <select id="teamSelect" style="padding: 8px 15px; border-radius: 30px; border: 1px solid #ccc; width: 250px;">
-                        <option value="">-- Выберите команду --</option>
-                        ${teamList.map(t => `<option value="${t}">${t}</option>`).join('')}
-                    </select>
-                </div>
-                <div id="teamInfo" style="margin-top: 15px; background: #f1f5f9; border-radius: 12px; padding: 15px; min-height: 80px;">
-                    Выберите команду для отображения.
-                </div>
-            </div>
-        `;
-        document.getElementById('teamSelect').addEventListener('change', function() {
-            const team = this.value;
-            const info = document.getElementById('teamInfo');
-            if (!team) { info.innerHTML = 'Выберите команду для отображения.'; return; }
-            let html = `<h3>${team}</h3>`;
-            const appearances = getTeamAppearances(team);
-            if (appearances.length === 0) {
-                html += '<p>Нет данных об участии.</p>';
+                points = (row[BASE_COLS.length + 1] === undefined) ? null : row[BASE_COLS.length + 1];
+                place = (row[BASE_COLS.length + 2] === undefined || row[BASE_COLS.length + 2] === '') ? null : row[BASE_COLS.length + 2];
             } else {
-                const sortedAppearances = appearances.slice().sort((a,b) => a.year - b.year);
-                html += '<table><tr><th>Год</th><th>Место</th></tr>';
-                sortedAppearances.forEach(a => {
-                    const displayPlace = (a.place === 'участник') ? 'нет данных' : a.place;
-                    const placeHtml = (typeof a.place === 'number' && a.place >= 1 && a.place <= 3) 
-                        ? `<strong>${displayPlace}</strong>` 
-                        : displayPlace;
-                    html += `<tr><td>${a.year}</td><td>${placeHtml}</td></tr>`;
-                });
-                html += '</table>';
-
-                const numeric = sortedAppearances.filter(a => typeof a.place === 'number');
-                if (numeric.length > 0) {
-                    const bestPlace = Math.min(...numeric.map(a => a.place));
-                    const bestYears = numeric
-                        .filter(a => a.place === bestPlace)
-                        .map(a => a.year)
-                        .sort((a, b) => a - b);
-
-                    html += `<p><strong>Лучший результат:</strong> ${bestPlace}-е место (${bestYears[0]})</p>`;
-                    if (bestYears.length > 1) {
-                        html += `<p><strong>Повторения лучшего результата:</strong> ${bestYears.slice(1).join(', ')}</p>`;
-                    }
-
-                    const prizeCounts = { 1: 0, 2: 0, 3: 0 };
-                    numeric.forEach(a => {
-                        if (a.place >= 1 && a.place <= 3) {
-                            prizeCounts[a.place]++;
-                        }
-                    });
-                    const totalPrizes = prizeCounts[1] + prizeCounts[2] + prizeCounts[3];
-                    if (totalPrizes > 0) {
-                        html += `<p><strong>Призовые места:</strong> `;
-                        if (prizeCounts[1] > 0) html += `🥇 ${prizeCounts[1]} `;
-                        if (prizeCounts[2] > 0) html += ` 🥈 ${prizeCounts[2]} `;
-                        if (prizeCounts[3] > 0) html += ` 🥉 ${prizeCounts[3]}`;
-                        html += `</p>`;
-                    }
-                } else {
-                    html += `<p><strong>Лучший результат:</strong> только участие (без указания места)</p>`;
-                }
+                team = row.team;
+                discIn = row.disc || {};
+                points = (row.points === undefined || row.points === '') ? null : row.points;
+                place = (row.place === undefined || row.place === '') ? null : row.place;
             }
-            info.innerHTML = html;
-        });
-    }
-
-    function renderMatches() {
-        const container = document.getElementById('matches');
-        let html = `
-            <div class="card">
-                <h2>⚽ Результаты матчей (по годам)</h2>
-                <p>Полный перечень всех известных матчей с указанием счёта. Данные за 2000–2026.</p>
-                <div id="matchesContainer"></div>
-            </div>
-        `;
-        container.innerHTML = html;
-
-        const matchContainer = document.getElementById('matchesContainer');
-        let innerHtml = '';
-        const sortedYears = Object.keys(matchesData).sort((a,b)=>a-b);
-        sortedYears.forEach(year => {
-            const matches = matchesData[year];
-            if (!matches || matches.length === 0) return;
-            innerHtml += `<div style="margin-bottom: 25px;">
-                <h3 style="background: #e9edf2; padding: 8px 15px; border-radius: 10px;">${year}</h3>
-                <ul class="match-list">`;
-            matches.forEach(m => {
-                const videoUrl = getVideoLink(year, m[0], m[1], m[2]);
-                let videoIcon = '';
-                if (videoUrl) {
-                    videoIcon = `<a href="${videoUrl}" target="_blank" style="text-decoration:none; margin-left:8px;" title="Смотреть видео">▶️</a>`;
-                }
-                innerHtml += `<li><span>${m[0]} ${m[2]} ${m[1]}${videoIcon}</span></li>`;
+            team = normMTeam(team);
+            const disc = {};
+            DISCIPLINES.forEach(function (d) {
+                let v = null;
+                if (discIn[d.id] !== undefined && discIn[d.id] !== null) v = discIn[d.id];
+                else if (ext[d.id] && ext[d.id][year] && (team in ext[d.id][year])) v = ext[d.id][year][team];
+                disc[d.id] = v;
             });
-            innerHtml += `</ul></div>`;
-        });
-        matchContainer.innerHTML = innerHtml || 'Нет данных о матчах.';
-    }
-
-    function renderVideo() {
-        const container = document.getElementById('video');
-        let html = `
-            <div class="card">
-                <h2>📹 Видео матчей</h2>
-                <p>Доступные видеозаписи матчей.</p>
-                <div id="videoContainer"></div>
-            </div>
-        `;
-        container.innerHTML = html;
-        const videoContainer = document.getElementById('videoContainer');
-        let innerHtml = '';
-        const sortedYears = Object.keys(videoLinks).sort((a,b)=>a-b);
-        sortedYears.forEach(year => {
-            innerHtml += `<h3 style="background: #e9edf2; padding: 8px 15px; border-radius: 10px;">${year}</h3><ul class="match-list">`;
-            videoLinks[year].forEach(v => {
-                innerHtml += `<li><span>${v.team1} ${v.score} ${v.team2}</span><a href="${v.url}" target="_blank" style="text-decoration:none;" title="Смотреть видео">▶️</a></li>`;
-            });
-            innerHtml += `</ul>`;
-        });
-        videoContainer.innerHTML = innerHtml || 'Видео не добавлены.';
-    }
-
-    // ============================================================
-    // СТАТИСТИКА
-    // ============================================================
-    function renderStats() {
-        const container = document.getElementById('stats');
-
-        // ---- Вычисляем данные для "сухих" сезонов (пересчёт с новыми данными) ----
-        const cleanSheets = getCleanSheetsFullSeason();
-        let cleanHtml = '';
-        if (Object.keys(cleanSheets).length === 0) {
-            cleanHtml = 'Нет команд, которые не пропустили ни одного гола во всех матчах сезона.';
-        } else {
-            const sortedTeams = Object.keys(cleanSheets).sort();
-            const listItems = sortedTeams.map(team => {
-                const yearsStr = cleanSheets[team].join(', ');
-                return `<div><strong>${team}</strong>: ${yearsStr}</div>`;
-            });
-            cleanHtml = listItems.join('');
-        }
-
-        container.innerHTML = `
-            <div class="card">
-                <h2>📊 Статистика турниров</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 15px; margin-bottom: 20px;">
-                    <div class="stat-box"><strong>Всего матчей (известных)</strong><br>≈ 120+</div>
-                    <div class="stat-box"><strong>Самая крупная победа</strong><br><span class="badge">10:0</span> (2026, Куединский – Оханский)</div>
-                    <div class="stat-box"><strong>Самый крупный счёт</strong><br><span class="badge">10:1</span> (2018, Карагайский – Кудымкарский)</div>
-                    <div class="stat-box"><strong>Больше всего голов за турнир</strong><br>2022 – 70</div>
-                    <div class="stat-box"><strong>Меньше всего голов</strong><br>2024 – 44</div>
-                </div>
-                <h3>Топ-3 команды по количеству сезонов участия</h3>
-                <div id="topSeasons" style="margin: 10px 0 20px 0; background: #f1f5f9; border-radius: 12px; padding: 15px;"></div>
-                <h3>Розыгрышей на ноль (команды, не пропустившие ни одного гола во всех матчах сезона, 2013–2026)</h3>
-                <div style="margin: 10px 0 20px 0; background: #f1f5f9; border-radius: 12px; padding: 15px; max-height: 300px; overflow-y: auto;">
-                    ${cleanHtml}
-                </div>
-                <h3>Общее количество голов по годам (только основное время)</h3>
-                <table id="goalsTable">
-                    <thead><tr><th>Год</th><th>Голов</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-                <div class="footnote">* Данные за 2000–2016 не полные, указано только по известным матчам.</div>
-            </div>
-        `;
-
-        // ---- Топ-3 по сезонам ----
-        const seasonsCount = getTeamSeasonsCount();
-        const sorted = Object.entries(seasonsCount).sort((a, b) => b[1] - a[1]);
-        const top = [];
-        let i = 0;
-        while (i < sorted.length && top.length < 3) {
-            const currentCount = sorted[i][1];
-            const group = [];
-            while (i < sorted.length && sorted[i][1] === currentCount) {
-                group.push(sorted[i][0]);
-                i++;
-            }
-            top.push({ count: currentCount, teams: group });
-        }
-        if (top.length === 3) {
-            const thirdCount = top[2].count;
-            let idx = i;
-            while (idx < sorted.length && sorted[idx][1] === thirdCount) {
-                top[2].teams.push(sorted[idx][0]);
-                idx++;
-            }
-        }
-
-        let topHtml = '';
-        if (top.length === 0) {
-            topHtml = 'Нет данных.';
-        } else {
-            const medals = ['🥇', '🥈', '🥉'];
-            top.forEach((item, index) => {
-                const medal = medals[index] || '';
-                const teamsStr = item.teams.join(', ');
-                topHtml += `<div><strong>${medal} ${index+1} место:</strong> ${teamsStr} (${item.count} сезонов)</div>`;
-            });
-        }
-        document.getElementById('topSeasons').innerHTML = topHtml;
-
-        // ---- Таблица голов ----
-        const tbody = document.querySelector('#goalsTable tbody');
-        let rows = '';
-        const sortedYears = Object.keys(goalsData).sort((a,b)=>a-b);
-        sortedYears.forEach(year => {
-            rows += `<tr><td>${year}</td><td>${goalsData[year]}</td></tr>`;
-        });
-        tbody.innerHTML = rows;
-    }
-
-    // ============================================================
-    // НАВИГАЦИЯ
-    // ============================================================
-    document.querySelectorAll('.nav-tabs button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(this.dataset.target).classList.add('active');
+            data[year][team] = { points: points, place: place, disc: disc };
         });
     });
+    return data;
+}
 
-    // ============================================================
-    // ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
-    // ============================================================
-    renderYears();
-    renderTeamSelect();
-    renderMatches();
-    renderVideo();
-    renderStats();
+/* Валидатор: типовые ошибки ввода видны в консоли (F12).
+   На работу приложения не влияет — только console.warn. */
+function validateData(raw, name) {
+    const ids = DISCIPLINES.map(function (d) { return d.id; });
+    Object.entries(raw).forEach(function (entry) {
+        const year = entry[0];
+        const seen = {};
+        entry[1].forEach(function (row, i) {
+            const tag = '[K4TV/' + name + ' ' + year + ', строка ' + (i + 1) + ']';
+            let team = Array.isArray(row) ? row[0] : (row && row.team);
+            if (!team) { console.warn(tag + ' не указано название команды'); return; }
+            team = normMTeam(team);
+            if (seen[team]) console.warn(tag + ' команда «' + team + '» повторяется (уже встречалась в строке ' + seen[team] + ')');
+            seen[team] = i + 1;
+            if (Array.isArray(row)) {
+                if (row.length !== BASE_COLS.length + 3) {
+                    console.warn(tag + ' «' + team + '»: ожидается ' + (BASE_COLS.length + 3) + ' значений (команда + 9 дисциплин + очки + место), найдено ' + row.length + '. Если добавляете ГТО — используйте объектный формат строки.');
+                }
+            } else if (row && typeof row === 'object') {
+                Object.keys(row.disc || {}).forEach(function (k) {
+                    if (ids.indexOf(k) === -1) console.warn(tag + ' неизвестный id дисциплины «' + k + '» (допустимые: ' + ids.join(', ') + ')');
+                });
+            }
+        });
+    });
+}
+validateData(G1_RAW, 'G1');
+validateData(G2_RAW, 'G2');
+
+const G1 = buildData(G1_RAW, { gto: GTO_G1_RAW });
+const G2 = buildData(G2_RAW, { gto: GTO_G2_RAW });
+
+/* ============================================================
+   5. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   ============================================================ */
+function plural(n, one, few, many) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+}
+function medalFor(p) { return p === 1 ? '🥇' : (p === 2 ? '🥈' : (p === 3 ? '🥉' : null)); }
+function fmtNum(n) {
+    if (n === null || n === undefined) return '';
+    if (typeof n === 'string') return n;
+    return (typeof n === 'number' && n % 1 !== 0) ? String(n).replace('.', ',') : String(n);
+}
+function placeCell(p, emptyText) {
+    if (p === null || p === undefined) return '<span class="no-part">' + emptyText + '</span>';
+    const m = medalFor(p);
+    return m ? '<span class="place-medal">' + m + ' ' + fmtNum(p) + '</span>' : fmtNum(p);
+}
+function placeBadge(p) {
+    if (p === null || p === undefined) return '<span class="badge badge-muted">нет данных</span>';
+    const m = medalFor(p);
+    if (m) {
+        const cls = (p === 1) ? 'badge-gold' : ((p === 2) ? 'badge-silver' : 'badge-bronze');
+        return '<span class="badge ' + cls + '">' + m + ' ' + fmtNum(p) + ' место</span>';
+    }
+    return '<span class="badge badge-muted">' + fmtNum(p) + ' место</span>';
+}
+/* Место в дисциплине за конкретный год:
+   до включения в программу (или после исключения) — «не проводилась»,
+   иначе — обычное место («без участия», если null). */
+function discCell(d, year, value) {
+    if (!discHeldIn(d, year)) return '<span class="not-held">не проводилась</span>';
+    return placeCell(value, 'без участия');
+}
+function getPeriod(data) {
+    const years = Object.keys(data).map(Number).sort(function (a, b) { return a - b; });
+    if (!years.length) return '';
+    return (years[0] === years[years.length - 1]) ? String(years[0]) : (years[0] + '–' + years[years.length - 1]);
+}
+function getChampion(data, year) {
+    const w = Object.entries(data[year] || {}).find(function (e) { return e[1].place === 1; });
+    return w ? w[0] : null;
+}
+function computeChampionGroups(data) {
+    const years = Object.keys(data).map(Number).sort(function (a, b) { return a - b; });
+    const groups = [];
+    years.forEach(function (year) {
+        const champ = getChampion(data, year);
+        const last = groups[groups.length - 1];
+        if (last && last.team === champ) { last.to = year; last.count++; }
+        else groups.push({ team: champ, from: year, to: year, count: 1 });
+    });
+    return groups;
+}
+function getGroupTeams(data) {
+    const set = new Set();
+    Object.values(data).forEach(function (y) { Object.keys(y).forEach(function (t) { set.add(t); }); });
+    return Array.from(set).sort(function (a, b) { return a.localeCompare(b, 'ru'); });
+}
+function getTeamYears(team) {
+    const data = getGroupData();
+    const res = [];
+    Object.keys(data).map(Number).sort(function (a, b) { return a - b; }).forEach(function (year) {
+        const v = data[year][team];
+        if (!v) return;
+        const hasDisc = Object.values(v.disc).some(function (x) { return x !== null && x !== undefined; });
+        if (v.place === null && !hasDisc) return;
+        res.push({ year: year, place: v.place, disc: v.disc });
+    });
+    return res;
+}
+/* ============================================================
+   5.1 ТОП-3 КОМАНД ПО ЧИСЛУ ПОБЕД В ДИСЦИПЛИНАХ
+   Победа = 1-е место в дисциплине в конкретном году.
+   Равное число побед -> общее место (после двух первых
+   идёт третье: 1, 1, 3 — место не «уплотняется»).
+   ============================================================ */
+function computeDiscWins(data, discId) {
+    const wins = {};
+    Object.keys(data).forEach(function (year) {
+        Object.entries(data[year]).forEach(function (e) {
+            if (e[1].disc[discId] === 1) wins[e[0]] = (wins[e[0]] || 0) + 1;
+        });
+    });
+    return wins;
+}
+function rankWithTies(winsObj) {
+    const entries = Object.entries(winsObj);
+    if (!entries.length) return [];
+    entries.sort(function (a, b) {
+        if (b[1] !== a[1]) return b[1] - a[1];
+        return a[0].localeCompare(b[0], 'ru');
+    });
+    const groups = [];
+    let place = 0, prevWins = null;
+    entries.forEach(function (e, i) {
+        if (e[1] !== prevWins) { place = i + 1; prevWins = e[1]; }
+        const last = groups[groups.length - 1];
+        if (last && last.wins === e[1]) last.teams.push(e[0]);
+        else groups.push({ place: place, wins: e[1], teams: [e[0]] });
+    });
+    return groups;
+}
+function discTop3Html(discId) {
+    const groups = rankWithTies(computeDiscWins(getGroupData(), discId))
+        .filter(function (g) { return g.place <= 3; });
+    if (!groups.length) return '';
+    let html = '<div class="podium">';
+    groups.forEach(function (g) {
+        const m = g.place === 1 ? '🥇' : (g.place === 2 ? '🥈' : '🥉');
+        g.teams.forEach(function (t) {
+            html += '<div class="podium-item"><span class="medal">' + m + '</span>' +
+                '<span class="team">' + t + '</span>' +
+                '<span class="badge badge-muted">' + g.wins + ' ' + plural(g.wins, 'победа', 'победы', 'побед') + '</span></div>';
+        });
+    });
+    return html + '</div>';
+}
+function renderDiscTop3Card() {
+    const data = getGroupData();
+    let rows = '';
+    DISCIPLINES.forEach(function (d) {
+        const groups = rankWithTies(computeDiscWins(data, d.id))
+            .filter(function (g) { return g.place <= 3; });
+        if (!groups.length) return;
+        let cells = '';
+        [1, 2, 3].forEach(function (place) {
+            const grp = groups.filter(function (g) { return g.place === place; })[0];
+            cells += '<td>' + (grp
+                ? grp.teams.map(function (t) { return t + ' — ' + grp.wins + ' ' + plural(grp.wins, 'победа', 'победы', 'побед'); }).join('<br>')
+                : '<span class="no-part">—</span>') + '</td>';
+        });
+        rows += '<tr><td>' + d.label + '</td>' + cells + '</tr>';
+    });
+    if (!rows) return '';
+    return '<div class="card"><h2>🥇 Топ-3 команд по победам в дисциплинах</h2>' +
+        '<p>Число побед (1-х мест) в каждой дисциплине за всю известную историю. Команды с равным числом побед делят место.</p>' +
+        '<table><tr><th>Дисциплина</th><th>1-е место</th><th>2-е место</th><th>3-е место</th></tr>' + rows + '</table></div>';
+}
+
+/* ============================================================
+   6. СОСТОЯНИЕ И НАВИГАЦИЯ
+   ============================================================ */
+const state = { group: 'g1', tab: 'overview' };
+const TABS = {
+    g1: [
+        { id: 'overview', label: 'Общая информация' },
+        { id: 'years', label: 'По годам' },
+        { id: 'team', label: 'По команде' },
+        { id: 'disc', label: 'По дисциплинам' }
+    ],
+    g2: [
+        { id: 'overview', label: 'Общая информация' },
+        { id: 'years', label: 'По годам' },
+        { id: 'team', label: 'По команде' },
+        { id: 'disc', label: 'По дисциплинам' },
+        { id: 'football', label: '⚽ ФУТБОЛ' },
+        { id: 'volleyball', label: '🏐 ВОЛЕЙБОЛ' }
+    ]
+};
+function getGroupData() { return state.group === 'g1' ? G1 : G2; }
+
+function switchGroup(g) {
+    if (state.group === g) { renderGroupSwitch(); return; }
+    state.group = g;
+    state.tab = 'overview';
+    renderGroupSwitch(); renderSubhead(); renderTabs(); renderContent();
+}
+function renderGroupSwitch() {
+    document.querySelectorAll('#groupSwitch button').forEach(function (b) {
+        b.classList.toggle('active', b.dataset.group === state.group);
+    });
+    const sub1 = document.querySelector('#groupSwitch button[data-group="g1"] .g-sub');
+    if (sub1) sub1.textContent = 'Свыше 25 тыс. жителей';
+}
+function renderSubhead() {
+    const p = getPeriod(getGroupData());
+    document.getElementById('subhead').textContent = (state.group === 'g1')
+        ? 'Пермский край · Группа 1 · общий зачёт ' + p
+        : 'Пермский край · Группа 2 · общий зачёт ' + p + ' · ⚽ футбол (1997–2026) · 🏐 волейбол';
+}
+function renderTabs() {
+    document.getElementById('mainTabs').innerHTML = TABS[state.group].map(function (t) {
+        return '<button type="button" class="' + (t.id === state.tab ? 'active' : '') + '" data-tab="' + t.id + '">' + t.label + '</button>';
+    }).join('');
+}
+function renderContent() {
+    const c = document.getElementById('content');
+    if (state.tab === 'overview') c.innerHTML = renderOverview();
+    else if (state.tab === 'years') c.innerHTML = renderYearsView();
+    else if (state.tab === 'team') c.innerHTML = renderTeamView();
+    else if (state.tab === 'disc') c.innerHTML = renderDiscView();
+    else if (state.tab === 'football') { c.innerHTML = renderFootballShell(); fbRenderAll(); }
+    else if (state.tab === 'volleyball') c.innerHTML = renderVolleyballShell();
+}
+
+/* ============================================================
+   7. РАЗДЕЛ «ОБЩАЯ ИНФОРМАЦИЯ»
+   ============================================================ */
+function renderOverview() {
+    const data = getGroupData();
+    const years = Object.keys(data).map(Number).sort(function (a, b) { return a - b; });
+    const first = years[0], last = years[years.length - 1];
+    const champGroups = computeChampionGroups(data);
+    const wins = {};
+    champGroups.forEach(function (g) { if (g.team) wins[g.team] = (wins[g.team] || 0) + g.count; });
+    const winEntries = Object.entries(wins);
+    const maxWins = Math.max.apply(null, winEntries.map(function (e) { return e[1]; }));
+    const topTeams = winEntries.filter(function (e) { return e[1] === maxWins; })
+        .sort(function (a, b) { return a[0].localeCompare(b[0], 'ru'); });
+    const currentChampion = champGroups.length ? champGroups[champGroups.length - 1].team : null;
+    const groupName = state.group === 'g1' ? 'первой' : 'второй';
+
+    /* изменение программы дисциплин — считается автоматически */
+    const addedDisc = DISCIPLINES.filter(function (d) { return d.since > 2006; });
+    const removedDisc = DISCIPLINES.filter(function (d) { return d.until !== undefined && d.until !== null; });
+    let progNote = '';
+    if (addedDisc.length) progNote += 'В программу игр добавлены: ' + addedDisc.map(function (d) { return d.label + ' (с ' + d.since + ' г.)'; }).join(', ') + '. ';
+    if (removedDisc.length) progNote += 'Исключены из программы: ' + removedDisc.map(function (d) { return d.label + ' (последний раз — ' + d.until + ' г.)'; }).join(', ') + '.';
+
+    let html =
+        '<div class="card">' +
+            '<h2>📋 Общая информация</h2>' +
+            '<p>Информация по известным данным с 2006 года. Раздел содержит результаты общих зачётов краевых сельских спортивных игр среди команд ' + groupName + ' группы.</p>' +
+            '<br><div class="grid-2">' +
+                '<div class="stat-box"><strong>Период</strong><br>' + first + ' – ' + last + '</div>' +
+                '<div class="stat-box"><strong>Всего чемпионов</strong><br>' + winEntries.length + ' ' + plural(winEntries.length, 'команда', 'команды', 'команд') + '</div>' +
+                '<div class="stat-box"><strong>Наибольшее число побед</strong><br>' +
+                    topTeams.map(function (e) { return '<span class="badge badge-gold">' + e[0] + ' – ' + e[1] + '</span>'; }).join(' ') +
+                '</div>' +
+                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">' + currentChampion + ' (' + last + ')</span></div>' +
+            '</div>' +
+            (YEAR_NOTES[state.group][last] ? '<div class="year-note" style="margin-top:15px;">⚠️ ' + YEAR_NOTES[state.group][last] + '</div>' : '') +
+            (progNote ? '<div class="footnote" style="margin-top:12px;">ℹ️ ' + progNote + '</div>' : '') +
+        '</div>' +
+        '<div class="card">' +
+            '<h2>🏅 Список чемпионов (по годам)</h2>' +
+            '<div class="champions-flex">' +
+                champGroups.map(function (g) {
+                    const range = (g.from === g.to) ? String(g.from) : (g.from + '–' + g.to);
+                    const cnt = (g.count > 1) ? ' (' + g.count + ' ' + plural(g.count, 'раз', 'раза', 'раз') + ')' : '';
+                    return '<span><strong>' + range + '</strong> ' + (g.team || 'не определён') + cnt + '</span>';
+                }).join('') +
+            '</div>' +
+        '</div>';
+
+    if (state.group === 'g2') {
+        html += '<div class="card"><h2>🗂 Отдельные виды спорта</h2>' +
+            '<p>В рамках группы 2 доступны отдельные базы знаний: <strong>⚽ ФУТБОЛ</strong> (финальные турниры 1997–2026) и <strong>🏐 ВОЛЕЙБОЛ</strong> (раздел в разработке). Переключитесь на соответствующие вкладки выше.</p></div>';
+    }
+	html += renderDiscTop3Card();
+    return html;
+}
+
+/* ============================================================
+   8. РАЗДЕЛ «ПО ГОДАМ»
+   ============================================================ */
+function renderYearsView() {
+    const data = getGroupData();
+    const years = Object.keys(data).map(Number).sort(function (a, b) { return a - b; });
+
+    const blocks = years.map(function (year, idx) {
+        const rows = Object.entries(data[year]).map(function (e) { return { team: e[0], place: e[1].place }; });
+        rows.sort(function (a, b) {
+            if (a.place === null && b.place === null) return a.team.localeCompare(b.team, 'ru');
+            if (a.place === null) return 1;
+            if (b.place === null) return -1;
+            return a.place - b.place;
+        });
+        const champion = getChampion(data, year);
+        const top3 = rows.filter(function (r) { return r.place >= 1 && r.place <= 3; });
+
+        let header = '<span class="title"><h3>' + year + '</h3>' +
+            '<span class="venue">👥 ' + rows.length + ' ' + plural(rows.length, 'команда', 'команды', 'команд') + '</span>';
+        if (champion) header += ' <span class="badge badge-gold">🏆 ' + champion + '</span>';
+        header += '</span>';
+
+        let detail = '';
+        if (top3.length) {
+            detail += '<div class="podium">';
+            top3.forEach(function (r) {
+                detail += '<div class="podium-item"><span class="medal">' + medalFor(r.place) + '</span><span class="team">' + r.team + '</span></div>';
+            });
+            detail += '</div>';
+        }
+        detail += '<table><tr><th>Команда</th><th>Место в общем зачёте</th></tr>';
+        rows.forEach(function (r) {
+            detail += '<tr class="' + (r.place === 1 ? 'highlight' : '') + '"><td>' + r.team + '</td><td>' + placeCell(r.place, 'нет данных') + '</td></tr>';
+        });
+        detail += '</table>';
+        if (YEAR_NOTES[state.group][year]) detail += '<div class="year-note">⚠️ ' + YEAR_NOTES[state.group][year] + '</div>';
+
+        /* дисциплины, впервые появившиеся / исчезнувшие в этом году */
+        const firstHeld = DISCIPLINES.filter(function (d) { return d.since === year; });
+        const lastHeld = DISCIPLINES.filter(function (d) { return d.until === year; });
+        if (firstHeld.length) detail += '<div class="year-note">🆕 Впервые в программе: ' + firstHeld.map(function (d) { return d.label; }).join(', ') + '</div>';
+        if (lastHeld.length) detail += '<div class="year-note">📤 Последний год в программе: ' + lastHeld.map(function (d) { return d.label; }).join(', ') + '</div>';
+
+        return '<div class="year-block' + (idx === years.length - 1 ? ' open' : '') + '" data-year="' + year + '">' +
+            '<div class="header">' + header + '<span class="arrow">▼</span></div>' +
+            '<div class="year-detail">' + detail + '</div></div>';
+    }).join('');
+
+    return '<div class="card"><h2>📅 Результаты по годам</h2>' +
+        '<p>Общие зачёты по годам. Нажмите на год, чтобы раскрыть подробности.</p>' +
+        '<div style="margin:15px 0;"><input type="text" class="year-filter" placeholder="Фильтр по году (например, 2012)" style="padding:8px 15px;border-radius:30px;border:1px solid #ccc;width:220px;"></div>' +
+        blocks + '</div>';
+}
+
+/* ============================================================
+   9. РАЗДЕЛ «ПО КОМАНДЕ»
+   ============================================================ */
+function renderTeamView() {
+    const teams = getGroupTeams(getGroupData());
+    return '<div class="card"><h2>🏁 Результаты по команде</h2>' +
+        '<p>Выберите команду, чтобы увидеть её результаты по годам во всех дисциплинах.</p>' +
+        '<div style="margin:15px 0;"><select id="teamSelect" class="app-select"><option value="">-- Выберите команду --</option>' +
+        teams.map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('') +
+        '</select></div><div id="teamInfo" class="info-box">Выберите команду для отображения.</div></div>';
+}
+
+function renderTeamResultsUI(team) {
+    const el = document.getElementById('teamInfo');
+    if (!el) return;
+    if (!team) { el.innerHTML = 'Выберите команду для отображения.'; return; }
+    const rows = getTeamYears(team);
+    let html = '<h3>' + team + '</h3>';
+    if (!rows.length) { el.innerHTML = html + '<p>Нет данных об участии команды (по известным данным).</p>'; return; }
+
+    html += '<p style="margin-bottom:10px;"><strong>Сезонов участия:</strong> ' + rows.length + '</p>';
+    html += '<table><tr><th>Год</th><th>Место в общем зачёте</th></tr>';
+    rows.forEach(function (r) { html += '<tr><td>' + r.year + '</td><td>' + placeCell(r.place, 'нет данных') + '</td></tr>'; });
+    html += '</table>';
+
+    const numeric = rows.filter(function (r) { return typeof r.place === 'number'; });
+    if (numeric.length) {
+        const best = Math.min.apply(null, numeric.map(function (r) { return r.place; }));
+        const bestYears = numeric.filter(function (r) { return r.place === best; }).map(function (r) { return r.year; });
+        html += '<p style="margin-top:12px;"><strong>Лучший результат:</strong> ' + fmtNum(best) + '-е место (' + bestYears.join(', ') + ')</p>';
+        const c = { 1: 0, 2: 0, 3: 0 };
+        numeric.forEach(function (r) { if (c[r.place] !== undefined) c[r.place]++; });
+        html += '<p><strong>Медали:</strong> 🥇 × ' + c[1] + ' · 🥈 × ' + c[2] + ' · 🥉 × ' + c[3] + '</p>';
+    }
+
+    html += '<h4 style="margin:18px 0 10px;">Результаты по дисциплинам по годам:</h4>';
+    rows.forEach(function (r) {
+        let detail = '<table><tr><th>Дисциплина</th><th>Место в дисциплине</th></tr>';
+        DISCIPLINES.forEach(function (d) {
+            detail += '<tr><td>' + d.label + '</td><td>' + discCell(d, r.year, r.disc[d.id]) + '</td></tr>';
+        });
+        detail += '</table>';
+        if (YEAR_NOTES[state.group][r.year]) detail += '<div class="year-note">⚠️ ' + YEAR_NOTES[state.group][r.year] + '</div>';
+        html += '<div class="year-block"><div class="header"><span class="title"><h3>' + r.year + '</h3>' + placeBadge(r.place) + '</span><span class="arrow">▼</span></div>' +
+            '<div class="year-detail">' + detail + '</div></div>';
+    });
+    el.innerHTML = html;
+}
+
+/* ============================================================
+   10. РАЗДЕЛ «ПО ДИСЦИПЛИНАМ»
+   ============================================================ */
+function renderDiscView() {
+    return '<div class="card"><h2>🎽 Результаты по дисциплинам</h2>' +
+        '<p>Выберите дисциплину, чтобы увидеть результаты всех команд по годам.</p>' +
+        '<div style="margin:15px 0;"><select id="discSelect" class="app-select"><option value="">-- Выберите дисциплину --</option>' +
+        DISCIPLINES.map(function (d) {
+            const suffix = (d.since > 2006) ? ' (с ' + d.since + ' г.)' : '';
+            return '<option value="' + d.id + '">' + d.label + suffix + '</option>';
+        }).join('') +
+        '</select></div><div id="discInfo" class="info-box">Выберите дисциплину для отображения.</div></div>';
+}
+
+function renderDiscResultsUI(discId) {
+    const el = document.getElementById('discInfo');
+    if (!el) return;
+    if (!discId) { el.innerHTML = 'Выберите дисциплину для отображения.'; return; }
+    const d = DISC_BY_ID[discId];
+    const data = getGroupData();
+    const years = Object.keys(data).map(Number).sort(function (a, b) { return a - b; });
+
+    let html = '<h3>' + d.label + '</h3>';
+    if (d.since > 2006) {
+        html += '<div class="year-note">Дисциплина включена в программу игр с ' + d.since + ' года.</div>';
+    }
+    if (d.until !== undefined && d.until !== null) {
+        html += '<div class="year-note">Дисциплина исключена из программы после ' + d.until + ' года.</div>';
+    }
+	/* Топ-3 команд по числу побед в выбранной дисциплине */
+    const top3 = discTop3Html(discId);
+    if (top3) html += '<h3>🥇 Топ-3 команд по числу побед за всю историю</h3>' + top3;
+
+    /* только годы, где дисциплина была в программе И есть хоть один результат */
+    const activeYears = years.filter(function (y) {
+        if (!discHeldIn(d, y)) return false;
+        return Object.values(data[y]).some(function (v) { return v.disc[d.id] !== null; });
+    });
+
+    if (!activeYears.length) {
+        html += '<p style="margin-top:10px;">Данных по дисциплине за известные годы (' + years[0] + '–' + years[years.length - 1] + ') пока нет.</p>';
+        el.innerHTML = html;
+        return;
+    }
+
+    activeYears.forEach(function (year, idx) {
+        const rows = Object.entries(data[year]).map(function (e) { return { team: e[0], place: e[1].disc[d.id] }; });
+        rows.sort(function (a, b) {
+            if (a.place === null && b.place === null) return a.team.localeCompare(b.team, 'ru');
+            if (a.place === null) return 1;
+            if (b.place === null) return -1;
+            return a.place - b.place;
+        });
+        const champ = rows.find(function (r) { return r.place === 1; });
+
+        let header = '<span class="title"><h3>' + year + '</h3>';
+        if (champ) header += ' <span class="badge badge-gold">🏆 ' + champ.team + '</span>';
+        else header += ' <span class="badge badge-muted">чемпион не определён</span>';
+        header += '</span>';
+
+        let detail = '<table><tr><th>Команда</th><th>Место в дисциплине</th></tr>';
+        rows.forEach(function (r) {
+            detail += '<tr class="' + (r.place === 1 ? 'highlight' : '') + '"><td>' + r.team + '</td><td>' + placeCell(r.place, 'без участия') + '</td></tr>';
+        });
+        detail += '</table>';
+        if (YEAR_NOTES[state.group][year]) detail += '<div class="year-note">⚠️ ' + YEAR_NOTES[state.group][year] + '</div>';
+
+        html += '<div class="year-block' + (idx === activeYears.length - 1 ? ' open' : '') + '" data-year="' + year + '">' +
+            '<div class="header">' + header + '<span class="arrow">▼</span></div>' +
+            '<div class="year-detail">' + detail + '</div></div>';
+    });
+    el.innerHTML = html;
+}
+
+/* ============================================================
+   11. ФУТБОЛ (данные и логика из index1)
+   ============================================================ */
+const teamAliases = {
+    'Карагай':'Карагайский','Карагайский':'Карагайский','Барда':'Бардымский','Бардымский':'Бардымский',
+    'Елово':'Еловский','Еловский':'Еловский','Красновишерск':'Красновишерский','Красношиерский':'Красновишерский',
+    'Красношиверский':'Красновишерский','Оханск':'Оханский','Оханский':'Оханский','Суксун':'Суксунский',
+    'Суксунский':'Суксунский','Чердынь':'Чердынский','Чердынский':'Чердынский','Куеда':'Куединский',
+    'Куединский':'Куединский','Кудымкарский':'Кудымкарский','Октябрьский':'Октябрьский','Ильинский':'Ильинский',
+    'Кунгур':'Кунгурский','Кунгурский':'Кунгурский','Коса':'Косинский','Косинский':'Косинский','Майский':'Майский',
+    'Частинский':'Частинский','Ординский':'Ординский','Юрлинский':'Юрлинский','Берёзовка':'Берёзовский','Березовский':'Берёзовский'
+};
+function normalizeTeam(name) {
+    const n = name.replace(/\s*(р-н|МО|ГО)\s*/gi, '').trim();
+    return teamAliases[n] || n;
+}
+
+const rawYearsData = {
+    1997: { champion: 'Берёзовка', places: { 'Берёзовка': 1 } },
+    1998: { champion: 'Берёзовка', places: { 'Берёзовка': 1 } },
+    1999: { champion: 'Берёзовка', places: { 'Берёзовка': 1 } },
+    2000: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Оханск' },
+    2001: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Берёзовка' },
+    2002: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Чердынь' },
+    2003: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 2 }, venue: 'Куеда' },
+    2004: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Куеда': 3 }, venue: 'Оханск' },
+    2005: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Чердынь': 2, 'Октябрьский': 3, 'Куеда': 4 }, venue: 'Берёзовка' },
+    2006: { champion: 'Чердынь', places: { 'Чердынь': 1, 'Кунгур': 2, 'Куеда': 3, 'Ильинский': 4, 'Октябрьский': 5, 'Берёзовка': 6 }, venue: 'Чердынь' },
+    2007: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Ильинский': 2, 'Чердынь': 3, 'Суксун': 4, 'Оханск': 5, 'Карагай': 6, 'Октябрьский': 7, 'Куеда': 8 }, venue: 'п. Ильинский' },
+    2008: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Октябрьский': 2, 'Оханск': 3, 'Барда': 4, 'Ильинский': 5, 'Кунгур': 6 }, venue: 'с. Барда' },
+    2009: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Карагай': 2, 'Куеда': 3, 'Барда': 4, 'Оханск': 5, 'Чердынь': 6 }, venue: 'Куеда' },
+    2010: { champion: 'Берёзовка', places: { 'Берёзовка': 1, 'Кунгур': 2, 'Карагай': 3, 'Чердынь': 4, 'Ильинский': 5, 'Октябрьский': 6, 'Оханск': 7 } },
+    2011: { champion: 'Чердынь', places: { 'Чердынь': 1, 'Берёзовка': 2, 'Карагай': 3, 'Коса': 4, 'Куеда': 5, 'Оханск': 6 }, venue: 'г. Кудымкар' },
+    2012: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Куеда': 2, 'Чердынь': 3, 'Карагай': 4, 'Коса': 5, 'Майский': 6 }, venue: 'Чердынь' },
+    2013: { champion: 'Кунгур', places: { 'Кунгур': 1, 'Чердынь': 2, 'Карагай': 3, 'Октябрьский': 4, 'Оханск': 5, 'Суксун': 6 }, venue: 'г. Кудымкар' },
+    2014: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксун': 2, 'Карагай': 3, 'Барда': 4, 'Ильинский': 5, 'Чердынь': 6, 'Берёзовка': 7, 'Коса': 8 }, venue: 'г. Чайковский' },
+    2015: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Чердынь': 3, 'Суксун': 4, 'Октябрьский': 5, 'Кудымкарский': 6, 'Берёзовка': 7, 'Майский': 8 }, venue: 'г. Чайковский' },
+    2016: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Чердынь': 3, 'Суксун': 4, 'Барда': 5, 'Оханск': 6, 'Берёзовка': 7, 'Кудымкарский': 8 }, venue: 'п. Суксун' },
+    2017: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Суксун': 3, 'Оханск': 4, 'Бардымский': 5, 'Ординский': 6, 'Чердынский': 7, 'Октябрьский': 8 }, venue: 'п. Суксун' },
+    2018: { champion: 'Карагай', places: { 'Карагай': 1, 'Куеда': 2, 'Частинский': 3, 'Суксун': 4, 'Октябрьский': 5, 'Оханск': 6, 'Еловский': 7, 'Кудымкарский': 8 }, venue: 'г. Чайковский' },
+    2019: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Октябрьский': 3, 'Ординский': 4, 'Чердынский': 5, 'Карагайский': 6, 'Частинский': 7, 'Оханский': 8 }, venue: 'п. Суксун' },
+    2020: { champion: null, note: 'Не проводились (COVID-19)' },
+    2021: { champion: null, note: 'Не проводились (COVID-19)' },
+    2022: { champion: 'Результат финала аннулирован. Утверждено два вторых места', note: 'Аннулирован (чемпион не определён).', places: { 'Суксунский': 2, 'Куеда': 2, 'Октябрьский': 3, 'Карагайский': 4, 'Кудымкарский': 5, 'Чердынский': 6, 'Частинский': 7, 'Еловский': 8 }, venue: 'п. Суксун' },
+    2023: { champion: 'Карагай', places: { 'Карагай': 1, 'Куеда': 2, 'Октябрьский': 3, 'Ординский': 4, 'Красновишерск': 5, 'Косинский': 6 }, venue: 'г. Кудымкар' },
+    2024: { champion: 'Куеда', places: { 'Куеда': 1, 'Чердынь': 2, 'Ординский': 3, 'Карагай': 4, 'Октябрьский': 5, 'Юрлинский': 6 }, venue: 'г. Чердынь' },
+    2025: { champion: 'Куеда', places: { 'Куеда': 1, 'Суксунский': 2, 'Карагай': 3, 'Ординский': 4, 'Красношиерский': 5, 'Чердынский': 6 }, venue: 'г. Чердынь' },
+    2026: { champion: 'Куеда', places: { 'Куеда': 1, 'Карагай': 2, 'Оханск': 3, 'Октябрьский': 4, 'Барда': 5, 'Еловский': 6 }, venue: 'с. Барда' }
+};
+
+const rawMatchesData = {
+    2000: [['Оханский р-н','Куединский р-н','1:2'],['Березовский р-н','Куединский р-н','1:1'],['Куединский р-н','Чердынский р-н','1:1']],
+    2001: [['Куединский р-н','Карагайский р-н','3:3'],['Березовский р-н','Куединский р-н','8:1'],['Куединский р-н','Чердынский р-н','3:0']],
+    2002: [['Куединский р-н','Березовский р-н','2:5'],['Чердынский р-н','Куединский р-н','1:3'],['Куединский р-н','Карагайский р-н','3:0']],
+    2003: [['Куединский р-н','Карагайский р-н','4:0'],['Куединский р-н','Чердынский р-н','4:2'],['Куединский р-н','Березовский р-н','1:4']],
+    2004: [['Березовский р-н','Куединский р-н','2:1'],['Ильинский р-н','Куединский р-н','1:5'],['Оханский р-н','Куединский р-н','5:2']],
+    2005: [['Куединский р-н','Чердынский р-н','4:4'],['Куединский р-н','Октябрьский р-н','1:2'],['Березовский р-н','Куединский р-н','1:0']],
+    2006: [['Куединский р-н','Кунгурский р-н','0:1'],['Березовский р-н','Куединский р-н','2:3'],['Куединский р-н','Ильинский р-н','3:1']],
+    2007: [['Куединский р-н','Оханский р-н','2:3'],['Чердынский р-н','Куединский р-н','2:1'],['Куединский р-н','Ильинский р-н','0:0'],['Октябрьский р-н','Куединский р-н','3:0']],
+    2009: [['Куединский р-н','Бардымский р-н','0:0'],['Оханский р-н','Куединский р-н','1:2'],['Куединский р-н','Карагайский р-н','0:3'],['Березовский р-н','Куединский р-н','2:2']],
+    2011: [['Куединский р-н','Карагайский р-н','1:2'],['Березовский р-н','Куединский р-н','1:1'],['Куединский р-н','Оханский р-н','3:0 (тех.)']],
+    2012: [['Куединский р-н','Косинский р-н','1:0'],['Кунгурский р-н','Куединский р-н','2:2'],['Куединский р-н','Карагайский р-н','2:1'],['Чердынский р-н','Куединский р-н','0:1']],
+    2013: [['Кунгурский','Чердынский','2:1'],['Кунгурский','Суксунский','2:1'],['Чердынский','Суксунский','3:2'],['Карагайский','Октябрьский','1:0'],['Карагайский','Оханский','2:0'],['Оханский','Октябрьский','0:2'],['Суксунский','Оханский','2:4'],['Кунгурский','Чердынский','2:1'],['Кунгурский','Карагайский','3:0'],['Кунгурский','Октябрьский','3:1'],['Чердынский','Карагайский','0:0'],['Чердынский','Октябрьский','1:0'],['Карагайский','Октябрьский','1:0']],
+    2014: [['Чердынский','Карагайский','1:3'],['Чердынский','Суксунский','1:1'],['Чердынский','Берёзовский','0:0'],['Карагайский','Суксунский','1:2'],['Карагайский','Берёзовский','2:1'],['Суксунский','Берёзовский','3:1'],['Косинский','Ильинский','0:3'],['Косинский','Куединский','0:3'],['Косинский','Бардымский','0:3'],['Ильинский','Куединский','0:0'],['Ильинский','Бардымский','1:2'],['Куединский','Бардымский','3:0'],['Берёзовский','Косинский','3:0'],['Чердынский','Ильинский','0:3'],['Карагайский','Бардымский','3:1'],['Суксунский','Куединский','0:3']],
+    2015: [['Берёзовский','Куединский','0:4'],['Берёзовский','Чердынский','2:4'],['Берёзовский','Кудымкарский','0:0'],['Куединский','Чердынский','2:1'],['Куединский','Кудымкарский','2:1'],['Чердынский','Кудымкарский','0:0'],['Карагайский','Майский','3:0'],['Карагайский','Суксунский','2:2'],['Карагайский','Октябрьский','5:0'],['Майский','Суксунский','1:5'],['Майский','Октябрьский','1:2'],['Суксунский','Октябрьский','5:2'],['Берёзовский','Майский','3:0'],['Кудымкарский','Октябрьский','5:6'],['Чердынский','Суксунский','3:1'],['Куединский','Карагайский','1:1 (4:2 пен.)']],
+    2016: [['Куединский','Суксунский','2:0'],['Бардымский','Куединский','0:0'],['Куединский','Березовский','4:0'],['Карагайский','Куединский','1:3'],['Суксунский','Бардымский','3:0'],['Карагайский','Кудымкарский','3:0 (тех.)'],['Суксунский','Березовский','2:0']],
+    2017: [['Суксунский','Карагайский','2:4'],['Ординский','Чердынский','2:2'],['Карагайский','Чердынский','5:2'],['Суксунский','Ординский','3:3'],['Ординский','Карагайский','0:3'],['Чердынский','Суксунский','0:3'],['Куединский','Оханский','0:2'],['Октябрьский','Бардымский','0:3 (тех.)'],['Оханский','Бардымский','1:1'],['Куединский','Октябрьский','1:1'],['Октябрьский','Оханский','3:1'],['Бардымский','Куединский','0:4'],['Чердынский','Октябрьский','3:0'],['Ординский','Бардымский','1:3'],['Суксунский','Оханский','1:1 (пен.5:4)'],['Карагайский','Куединский','2:3'],['Суксунский','Бардымский','3:0']],
+    2018: [['Оханский','Карагайский','0:2'],['Частинский','Кудымкарский','4:1'],['Оханский','Частинский','0:0'],['Частинский','Карагайский','0:0'],['Кудымкарский','Оханский','2:4'],['Карагайский','Кудымкарский','10:1'],['Куединский','Суксунский','1:1'],['Октябрьский','Еловский','1:0'],['Суксунский','Еловский','3:1'],['Куединский','Октябрьский','4:1'],['Октябрьский','Суксунский','1:5'],['Еловский','Куединский','0:4'],['Кудымкарский','Еловский','1:3'],['Оханский','Октябрьский','0:3'],['Частинский','Суксунский','1:1 (пен.4:3)'],['Карагайский','Куединский','3:1']],
+    2019: [['Карагайский','Оханский','4:0'],['Суксунский','Ординский','2:1'],['Оханский','Ординский','2:4'],['Карагайский','Суксунский','0:1'],['Суксунский','Оханский','2:0'],['Ординский','Карагайский','2:1'],['Куединский','Октябрьский','1:0'],['Чердынский','Частинский','2:2'],['Октябрьский','Частинский','2:0'],['Куединский','Чердынский','1:1'],['Чердынский','Октябрьский','1:3'],['Частинский','Куединский','0:5'],['Оханский','Частинский','0:3'],['Карагайский','Чердынский','0:3'],['Ординский','Октябрьский','1:3'],['Суксунский','Куединский','1:2']],
+    2022: [['Карагайский','Чердынский','5:3'],['Карагайский','Еловский','3:2'],['Карагайский','Суксунский','2:3'],['Чердынский','Еловский','3:2'],['Чердынский','Суксунский','3:5'],['Еловский','Суксунский','0:4'],['Куединский','Октябрьский','2:0'],['Куединский','Частинский','7:0'],['Куединский','Кудымкарский','6:0'],['Октябрьский','Частинский','2:0'],['Октябрьский','Кудымкарский','0:0'],['Частинский','Кудымкарский','0:4'],['Чердынский','Кудымкарский','0:3'],['Еловский','Частинский','1:4'],['Карагайский','Октябрьский','2:2 (пен.3:4)'],['Суксунский','Куединский','1:1 (пен.4:2)']],
+    2023: [['Красношиверский','Куединский','1:2'],['Красношиверский','Ординский','0:1'],['Куединский','Ординский','6:0'],['Октябрьский','Карагайский','1:1'],['Октябрьский','Косинский','5:0'],['Карагайский','Косинский','4:0'],['Куединский','Ординский','6:0'],['Куединский','Октябрьский','1:0'],['Куединский','Карагайский','0:5'],['Ординский','Октябрьский','1:2'],['Ординский','Карагайский','1:6'],['Октябрьский','Карагайский','1:1'],['Красновишерск','Косинский','3:0']],
+    2024: [['Карагайский','Октябрьский','4:0'],['Карагайский','Ординский','3:0'],['Октябрьский','Ординский','1:2'],['Куединский','Юрлинский','7:0'],['Куединский','Чердынский','5:0'],['Юрлинский','Чердынский','0:3'],['Карагайский','Чердынский','0:0 (пен.4:5)'],['Куединский','Ординский','6:0'],['Октябрьский','Юрлинский','6:1'],['Карагайский','Ординский','1:2'],['Куединский','Чердынский','3:0']],
+    2025: [['Куединский','Карагайский','6:2'],['Куединский','Красновишерский','6:0'],['Карагайский','Красновишерский','5:2'],['Чердынский','Ординский','0:1'],['Чердынский','Суксунский','1:1'],['Ординский','Суксунский','1:2'],['Куединский','Ординский','6:0'],['Суксунский','Карагайский','1:0'],['Красновишерский','Чердынский','5:2'],['Карагайский','Ординский','7:0'],['Куединский','Суксунский','3:0']],
+    2026: [['Куединский','Оханский','10:0'],['Еловский','Куединский','1:4'],['Оханский','Еловский','4:3'],['Карагайский','Октябрьский','3:0'],['Бардымский','Карагайский','0:5'],['Октябрьский','Бардымский','3:1'],['Куединский','Октябрьский','7:0'],['Оханский','Карагайский','0:2'],['Еловский','Бардымский','2:2 (1:3 пен.)'],['Октябрьский','Оханский','1:3'],['Куединский','Карагайский','2:1']]
+};
+
+const videoLinks = {
+    2017: [
+        { team1: 'Суксунский', team2: 'Бардымский', score: '3:0', url: 'https://vkvideo.ru/video-5224183_456239059?list=ln-jL7qgAzcZhBjONKHEV' },
+        { team1: 'Суксунский', team2: 'Оханский', score: '1:1 (пен.5:4)', url: 'https://vkvideo.ru/video172519179_456239017' }
+    ],
+    2023: [
+        { team1: 'Ординский', team2: 'Карагайский', score: '1:6', url: 'https://vkvideo.ru/video-205419678_456239045' }
+    ],
+    2024: [
+        { team1: 'Октябрьский', team2: 'Юрлинский', score: '6:1', url: 'https://vkvideo.ru/video-210048215_456239149' },
+        { team1: 'Карагайский', team2: 'Ординский', score: '1:2', url: 'https://vkvideo.ru/video-210048215_456239155' },
+        { team1: 'Куединский', team2: 'Чердынский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239157' },
+        { team1: 'Карагайский', team2: 'Октябрьский', score: '4:0', url: 'https://vkvideo.ru/video-210048215_456239140' },
+        { team1: 'Юрлинский', team2: 'Чердынский', score: '0:3', url: 'https://vkvideo.ru/video-210048215_456239139' },
+        { team1: 'Куединский', team2: 'Юрлинский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239142' },
+        { team1: 'Карагайский', team2: 'Ординский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239144' },
+        { team1: 'Куединский', team2: 'Чердынский', score: '5:0', url: 'https://vkvideo.ru/video-210048215_456239145' },
+        { team1: 'Карагайский', team2: 'Чердынский', score: '0:0 (пен.4:5)', url: 'https://vkvideo.ru/video-210048215_456239148' },
+        { team1: 'Куединский', team2: 'Ординский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239149' }
+    ],
+    2025: [
+        { team1: 'Красношиверский', team2: 'Чердынский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239316' },
+        { team1: 'Карагайский', team2: 'Ординский', score: '7:0', url: 'https://vkvideo.ru/video-210048215_456239317' },
+        { team1: 'Куединский', team2: 'Суксунский', score: '3:0', url: 'https://vkvideo.ru/video-210048215_456239319' },
+        { team1: 'Куединский', team2: 'Карагайский', score: '6:2', url: 'https://vkvideo.ru/video-210048215_456239306' },
+        { team1: 'Куединский', team2: 'Красношиверский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239311' },
+        { team1: 'Карагайский', team2: 'Красношиверский', score: '5:2', url: 'https://vkvideo.ru/video-210048215_456239304' },
+        { team1: 'Чердынский', team2: 'Ординский', score: '0:1', url: 'https://vkvideo.ru/video-210048215_456239307' },
+        { team1: 'Чердынский', team2: 'Суксунский', score: '1:1', url: 'https://vkvideo.ru/video-210048215_456239312' },
+        { team1: 'Ординский', team2: 'Суксунский', score: '1:2', url: 'https://vkvideo.ru/video-210048215_456239305' },
+        { team1: 'Куединский', team2: 'Ординский', score: '6:0', url: 'https://vkvideo.ru/video-210048215_456239314' },
+        { team1: 'Суксунский', team2: 'Карагайский', score: '1:0', url: 'https://vkvideo.ru/video-210048215_456239315' }
+    ],
+    2026: [
+        { team1: 'Куединский', team2: 'Карагайский', score: '2:1', url: 'https://vkvideo.ru/live-210048215_456239486' },
+        { team1: 'Октябрьский', team2: 'Оханский', score: '1:3', url: 'https://vkvideo.ru/live-210048215_456239485' },
+        { team1: 'Еловский', team2: 'Бардымский', score: '2:2 (1:3 пен.)', url: 'https://vkvideo.ru/live-210048215_456239484' },
+        { team1: 'Куединский', team2: 'Оханский', score: '10:0', url: 'https://vkvideo.ru/live-210048215_456239463' },
+        { team1: 'Еловский', team2: 'Куединский', score: '1:4', url: 'https://vkvideo.ru/live-210048215_456239465' },
+        { team1: 'Оханский', team2: 'Еловский', score: '4:3', url: 'https://vkvideo.ru/video-210048215_456239478' },
+        { team1: 'Карагайский', team2: 'Октябрьский', score: '3:0', url: 'https://vkvideo.ru/live-210048215_456239480' },
+        { team1: 'Бардымский', team2: 'Карагайский', score: '0:5', url: 'https://vkvideo.ru/live-210048215_456239466' },
+        { team1: 'Октябрьский', team2: 'Бардымский', score: '3:1', url: 'https://vkvideo.ru/live-210048215_456239462' },
+        { team1: 'Куединский', team2: 'Октябрьский', score: '7:0', url: 'https://vkvideo.ru/live-210048215_456239482' },
+        { team1: 'Оханский', team2: 'Карагайский', score: '0:2', url: 'https://vkvideo.ru/live-210048215_456239483' }
+    ]
+};
+
+function normalizeData(rawYears, rawMatches) {
+    const years = {};
+    for (const [year, data] of Object.entries(rawYears)) {
+        const newData = Object.assign({}, data);
+        if (data.places) {
+            const newPlaces = {};
+            for (const [team, place] of Object.entries(data.places)) newPlaces[normalizeTeam(team)] = place;
+            newData.places = newPlaces;
+        }
+        if (data.champion) newData.champion = normalizeTeam(data.champion);
+        years[year] = newData;
+    }
+    const matches = {};
+    for (const [year, list] of Object.entries(rawMatches)) {
+        matches[year] = list.map(function (m) { return [normalizeTeam(m[0]), normalizeTeam(m[1]), m[2]]; });
+    }
+    return { years: years, matches: matches };
+}
+const normalized = normalizeData(rawYearsData, rawMatchesData);
+const yearsData = normalized.years;
+const matchesData = normalized.matches;
+
+const goalsData = { 2013: 34, 2014: 44, 2015: 64, 2017: 57, 2018: 59, 2019: 50, 2022: 70, 2023: 48, 2024: 44, 2025: 51, 2026: 54 };
+
+function getTeamAppearances(team) {
+    const appearances = [];
+    for (const [year, data] of Object.entries(yearsData)) {
+        let place = null;
+        if (data.places && data.places[team] !== undefined) place = data.places[team];
+        else if (matchesData[year] && matchesData[year].some(function (m) { return m[0] === team || m[1] === team; })) place = 'участник';
+        if (place !== null) appearances.push({ year: year, place: place });
+    }
+    return appearances;
+}
+function getAllTeams() {
+    const set = new Set();
+    Object.values(yearsData).forEach(function (y) { if (y.places) Object.keys(y.places).forEach(function (t) { set.add(t); }); });
+    Object.values(matchesData).forEach(function (list) { list.forEach(function (m) { set.add(m[0]); set.add(m[1]); }); });
+    return Array.from(set).sort();
+}
+function getVideoLink(year, team1, team2, score) {
+    if (!videoLinks[year]) return null;
+    const found = videoLinks[year].find(function (v) { return v.team1 === team1 && v.team2 === team2 && v.score === score; });
+    return found ? found.url : null;
+}
+function getTeamSeasonsCount() {
+    const result = {};
+    getAllTeams().forEach(function (team) {
+        const yearsSet = new Set();
+        for (const year of Object.keys(yearsData)) {
+            if (yearsData[year].places && yearsData[year].places[team] !== undefined) yearsSet.add(year);
+        }
+        for (const year of Object.keys(matchesData)) {
+            if (matchesData[year] && matchesData[year].some(function (m) { return m[0] === team || m[1] === team; })) yearsSet.add(year);
+        }
+        result[team] = yearsSet.size;
+    });
+    return result;
+}
+function getCleanSheetsFullSeason() {
+    const cleanMap = {};
+    const yearsRange = Object.keys(matchesData).filter(function (y) { return parseInt(y, 10) >= 2013 && parseInt(y, 10) <= 2026; });
+    for (const year of yearsRange) {
+        const matches = matchesData[year];
+        if (!matches) continue;
+        const teamGoalsConceded = {};
+        matches.forEach(function (m) {
+            const parts = m[2].match(/(\d+)\s*:\s*(\d+)/);
+            if (!parts) return;
+            const g1 = parseInt(parts[1], 10), g2 = parseInt(parts[2], 10);
+            teamGoalsConceded[m[0]] = (teamGoalsConceded[m[0]] || 0) + g2;
+            teamGoalsConceded[m[1]] = (teamGoalsConceded[m[1]] || 0) + g1;
+        });
+        for (const team of Object.keys(teamGoalsConceded)) {
+            if (teamGoalsConceded[team] === 0) {
+                if (!cleanMap[team]) cleanMap[team] = [];
+                cleanMap[team].push(year);
+            }
+        }
+    }
+    const result = {};
+    for (const [team, arr] of Object.entries(cleanMap)) result[team] = arr.sort(function (a, b) { return a - b; });
+    return result;
+}
+function fbYearChampion(year) {
+    const d = yearsData[year];
+    if (!d || !d.places) return null;
+    const w = Object.entries(d.places).find(function (e) { return e[1] === 1; });
+    return w ? w[0] : null;
+}
+
+/* ---------- Шаблоны футбола / волейбола ---------- */
+const donateCard =
+    '<div class="card" style="text-align:center;">' +
+        '<h2>💛 Поддержать автора</h2>' +
+        '<p>Сказать спасибо за труд автору приложения:</p>' +
+        '<div style="margin:25px 0;"><a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="donate-button">ЗАДОНАТИТЬ</a></div>' +
+        '<p style="color:#64748b;">Любая сумма будет приятна 🌟</p>' +
+    '</div>';
+
+function renderFootballShell() {
+    return '<div data-sport="fb">' +
+        '<div class="sport-banner"><h2>⚽ Сельские спортивные игры по футболу</h2><div class="sport-sub">Группа 2 · Финальные турниры (1997–2026) — известные данные</div></div>' +
+        '<div class="nav-tabs">' +
+            '<button type="button" class="active" data-fb="overview">Обзор</button>' +
+            '<button type="button" data-fb="years">По годам</button>' +
+            '<button type="button" data-fb="teams">По командам</button>' +
+            '<button type="button" data-fb="matches">Матчи</button>' +
+            '<button type="button" data-fb="video">Видео</button>' +
+            '<button type="button" data-fb="stats">Статистика</button>' +
+            '<button type="button" data-fb="donate">Донаты</button>' +
+        '</div>' +
+        '<div id="fb-overview" class="section active">' +
+            '<div class="card"><h2>📋 Общая информация</h2>' +
+            '<p>Финальные соревнования краевых Сельских Спортивных Игр по футболу среди команд II группы проводятся ежегодно (кроме 2020–2021). В турнире участвуют сборные муниципальных образований Пермского края.</p><br>' +
+            '<div class="grid-2">' +
+                '<div class="stat-box"><strong>Период</strong><br>1997 – 2026 (с перерывами)</div>' +
+                '<div class="stat-box"><strong>Всего чемпионов</strong><br>5 разных команд (плюс 2022 – не определён)</div>' +
+                '<div class="stat-box"><strong>Наибольшее число побед</strong><br><span class="badge badge-gold">Берёзовский – 13</span></div>' +
+                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">Куединский (2024, 2025, 2026)</span></div>' +
+            '</div></div>' +
+            '<div class="card"><h2>🏅 Список чемпионов (по годам)</h2><div class="champions-flex">' +
+                '<span><strong>1997–2005</strong> Берёзовский (9 раз)</span>' +
+                '<span><strong>2006</strong> Чердынский</span>' +
+                '<span><strong>2007–2010</strong> Берёзовский (4 раза)</span>' +
+                '<span><strong>2011</strong> Чердынский</span>' +
+                '<span><strong>2012–2013</strong> Кунгурский (2 раза)</span>' +
+                '<span><strong>2014–2017</strong> Куединский (4 раза)</span>' +
+                '<span><strong>2018</strong> Карагайский</span>' +
+                '<span><strong>2019</strong> Куединский</span>' +
+                '<span><strong>2020–2021</strong> не проводились</span>' +
+                '<span><strong>2022</strong> аннулирован</span>' +
+                '<span><strong>2023</strong> Карагайский</span>' +
+                '<span><strong>2024–2026</strong> Куединский (3 раза)</span>' +
+            '</div></div>' +
+        '</div>' +
+        '<div id="fb-years" class="section"></div>' +
+        '<div id="fb-teams" class="section"></div>' +
+        '<div id="fb-matches" class="section"></div>' +
+        '<div id="fb-video" class="section"></div>' +
+        '<div id="fb-stats" class="section"></div>' +
+        '<div id="fb-donate" class="section">' + donateCard + '</div>' +
+    '</div>';
+}
+
+function fbRenderAll() {
+    fbRenderYears(); fbRenderTeams(); fbRenderMatches(); fbRenderVideo(); fbRenderStats();
+}
+
+function fbRenderYears() {
+    const container = document.getElementById('fb-years');
+    if (!container) return;
+    let html = '<div class="card"><h2>📅 Турниры по годам</h2><p>Нажмите на год, чтобы раскрыть детали.</p>' +
+        '<div style="margin:15px 0;"><input type="text" class="year-filter" placeholder="Фильтр по году (например, 2015)" style="padding:8px 15px;border-radius:30px;border:1px solid #ccc;width:220px;"></div>';
+    Object.keys(yearsData).map(Number).sort(function (a, b) { return a - b; }).forEach(function (year) {
+        const data = yearsData[year];
+        if (!data.places && !data.note && !matchesData[year]) return;
+        let title = '<span class="title"><h3>' + year + '</h3>';
+        if (data.venue) title += '<span class="venue">🏁 ' + data.venue + '</span>';
+        const champ = fbYearChampion(year);
+        if (champ) title += ' <span class="badge badge-gold">🏆 ' + champ + '</span>';
+        else if (data.places) title += ' <span class="badge badge-muted">чемпион не определён</span>';
+        if (data.note && !data.places) title += ' <span style="font-size:0.9rem;color:#b91c1c;">⚠️ ' + data.note + '</span>';
+        title += '</span>';
+        let detail = '';
+        if (data.places) {
+            const sorted = Object.entries(data.places).sort(function (a, b) { return a[1] - b[1]; });
+            const top3 = sorted.filter(function (e) { return e[1] <= 3; });
+            if (top3.length) {
+                detail += '<div class="podium">';
+                top3.forEach(function (e) {
+                    detail += '<div class="podium-item"><span class="medal">' + medalFor(e[1]) + '</span><span class="team">' + e[0] + '</span></div>';
+                });
+                detail += '</div>';
+            }
+            detail += '<table><tr><th>Место</th><th>Команда</th></tr>';
+            sorted.forEach(function (e) {
+                detail += '<tr class="' + (e[1] === 1 ? 'highlight' : '') + '"><td>' + fmtNum(e[1]) + '</td><td>' + e[0] + '</td></tr>';
+            });
+            detail += '</table>';
+        }
+        if (matchesData[year]) {
+            detail += '<h4 style="margin-top:15px;">Матчи:</h4><ul class="match-list">';
+            matchesData[year].forEach(function (m) {
+                const v = getVideoLink(year, m[0], m[1], m[2]);
+                detail += '<li><span>' + m[0] + ' ' + m[2] + ' ' + m[1] +
+                    (v ? ' <a href="' + v + '" target="_blank" style="text-decoration:none;margin-left:8px;" title="Смотреть видео">▶️</a>' : '') + '</span></li>';
+            });
+            detail += '</ul>';
+        }
+        if (data.note && data.places) detail += '<div class="year-note">⚠️ ' + data.note + '</div>';
+        html += '<div class="year-block" data-year="' + year + '"><div class="header">' + title + '<span class="arrow">▼</span></div><div class="year-detail">' + detail + '</div></div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function fbRenderTeams() {
+    const container = document.getElementById('fb-teams');
+    if (!container) return;
+    container.innerHTML = '<div class="card"><h2>🏁 Результаты команд</h2>' +
+        '<p>Выберите команду, чтобы увидеть её историю выступлений.</p>' +
+        '<div style="margin:15px 0;"><select id="fbTeamSelect" class="app-select"><option value="">-- Выберите команду --</option>' +
+        getAllTeams().map(function (t) { return '<option value="' + t + '">' + t + '</option>'; }).join('') +
+        '</select></div><div id="fbTeamInfo" class="info-box">Выберите команду для отображения.</div></div>';
+}
+
+function fbRenderTeamInfo(team) {
+    const info = document.getElementById('fbTeamInfo');
+    if (!info) return;
+    if (!team) { info.innerHTML = 'Выберите команду для отображения.'; return; }
+    const appearances = getTeamAppearances(team).sort(function (a, b) { return a.year - b.year; });
+    let html = '<h3>' + team + '</h3>';
+    if (!appearances.length) { info.innerHTML = html + '<p>Нет данных об участии.</p>'; return; }
+    html += '<table><tr><th>Год</th><th>Место</th></tr>';
+    appearances.forEach(function (a) {
+        const p = (a.place === 'участник') ? 'нет данных' : a.place;
+        const m = (typeof p === 'number') ? medalFor(p) : null;
+        html += '<tr><td>' + a.year + '</td><td>' + (m ? '<span class="place-medal">' + m + ' ' + p + '</span>' : p) + '</td></tr>';
+    });
+    html += '</table>';
+    const numeric = appearances.filter(function (a) { return typeof a.place === 'number'; });
+    if (numeric.length) {
+        const best = Math.min.apply(null, numeric.map(function (a) { return a.place; }));
+        const bestYears = numeric.filter(function (a) { return a.place === best; }).map(function (a) { return a.year; });
+        html += '<p style="margin-top:12px;"><strong>Лучший результат:</strong> ' + best + '-е место (' + bestYears.join(', ') + ')</p>';
+        const c = { 1: 0, 2: 0, 3: 0 };
+        numeric.forEach(function (a) { if (c[a.place] !== undefined) c[a.place]++; });
+        html += '<p><strong>Медали:</strong> 🥇 × ' + c[1] + ' · 🥈 × ' + c[2] + ' · 🥉 × ' + c[3] + '</p>';
+    }
+    const seasons = getTeamSeasonsCount();
+    html += '<p><strong>Сезонов участия:</strong> ' + (seasons[team] || appearances.length) + '</p>';
+    const cs = getCleanSheetsFullSeason();
+    if (cs[team]) html += '<p><strong>«Сухие» сезоны (0 пропущенных голов):</strong> ' + cs[team].join(', ') + '</p>';
+    info.innerHTML = html;
+}
+
+function fbRenderMatches() {
+    const container = document.getElementById('fb-matches');
+    if (!container) return;
+    let html = '<div class="card"><h2>⚽ Матчи</h2><p>Известные матчи финальных турниров.</p>';
+    Object.keys(matchesData).map(Number).sort(function (a, b) { return b - a; }).forEach(function (year) {
+        html += '<h3 style="margin:20px 0 8px;">' + year + '</h3><ul class="match-list">';
+        matchesData[year].forEach(function (m) {
+            const v = getVideoLink(year, m[0], m[1], m[2]);
+            html += '<li><span>' + m[0] + ' — ' + m[1] + '</span><span>' + m[2] +
+                (v ? ' <a href="' + v + '" target="_blank" style="text-decoration:none;margin-left:6px;" title="Смотреть видео">▶️</a>' : '') + '</span></li>';
+        });
+        html += '</ul>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function fbRenderVideo() {
+    const container = document.getElementById('fb-video');
+    if (!container) return;
+    let html = '<div class="card"><h2>🎬 Видео</h2><p>Видеозаписи матчей.</p>';
+    Object.keys(videoLinks).map(Number).sort(function (a, b) { return b - a; }).forEach(function (year) {
+        html += '<h3 style="margin:20px 0 8px;">' + year + '</h3><ul class="match-list">';
+        videoLinks[year].forEach(function (v) {
+            html += '<li><span><a href="' + v.url + '" target="_blank" style="color:#0b3b5c;text-decoration:none;font-weight:600;">' + v.team1 + ' ' + v.score + ' ' + v.team2 + ' ▶️</a></span></li>';
+        });
+        html += '</ul>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function fbRenderStats() {
+    const container = document.getElementById('fb-stats');
+    if (!container) return;
+    const titles = {};
+    Object.keys(yearsData).forEach(function (y) {
+        const c = fbYearChampion(y);
+        if (c) titles[c] = (titles[c] || 0) + 1;
+    });
+    const titleRows = Object.entries(titles).sort(function (a, b) { return b[1] - a[1]; })
+        .map(function (e) { return '<tr><td>' + e[0] + '</td><td>' + e[1] + '</td></tr>'; }).join('');
+    const goalRows = Object.keys(goalsData).map(Number).sort(function (a, b) { return a - b; }).map(function (y) {
+        const m = matchesData[y] ? matchesData[y].length : 0;
+        return '<tr><td>' + y + '</td><td>' + m + '</td><td>' + goalsData[y] + '</td><td>' + (m ? (goalsData[y] / m).toFixed(2) : '—') + '</td></tr>';
+    }).join('');
+    const seasonRows = Object.entries(getTeamSeasonsCount()).sort(function (a, b) { return b[1] - a[1]; })
+        .map(function (e) { return '<tr><td>' + e[0] + '</td><td>' + e[1] + '</td></tr>'; }).join('');
+    const cs = getCleanSheetsFullSeason();
+    const csRows = Object.entries(cs).map(function (e) { return '<tr><td>' + e[0] + '</td><td>' + e[1].join(', ') + '</td></tr>'; }).join('');
+    container.innerHTML = '<div class="card"><h2>📊 Статистика</h2>' +
+        '<h3>Титулы</h3><table><tr><th>Команда</th><th>Побед</th></tr>' + titleRows + '</table>' +
+        '<h3>Голы по сезонам</h3><table><tr><th>Год</th><th>Матчей</th><th>Голов</th><th>Ср. за матч</th></tr>' + goalRows + '</table>' +
+        '<h3>Сезоны участия</h3><table><tr><th>Команда</th><th>Сезонов</th></tr>' + seasonRows + '</table>' +
+        '<h3>«Сухие» сезоны (0 пропущенных голов)</h3>' +
+        (csRows ? '<table><tr><th>Команда</th><th>Годы</th></tr>' + csRows + '</table>' : '<p>Нет данных.</p>') +
+        '</div>';
+}
+
+/* ============================================================
+   12. ВОЛЕЙБОЛ (структура как в index1, без данных)
+   ============================================================ */
+function renderVolleyballShell() {
+    const dev = '<div class="card"><h2>🛠 Раздел в разработке</h2><p>Данные по волейболу готовятся к публикации.</p></div>';
+    return '<div data-sport="vb">' +
+        '<div class="sport-banner"><h2>🏐 Сельские спортивные игры по волейболу</h2><div class="sport-sub">Группа 2 · Раздел в разработке</div></div>' +
+        '<div class="nav-tabs">' +
+            '<button type="button" class="active" data-fb="overview">Обзор</button>' +
+            '<button type="button" data-fb="years">По годам</button>' +
+            '<button type="button" data-fb="teams">По командам</button>' +
+            '<button type="button" data-fb="matches">Матчи</button>' +
+            '<button type="button" data-fb="video">Видео</button>' +
+            '<button type="button" data-fb="stats">Статистика</button>' +
+            '<button type="button" data-fb="donate">Донаты</button>' +
+        '</div>' +
+        '<div id="vb-overview" class="section active">' +
+            '<div class="card"><h2>📋 Общая информация</h2><p>Раздел в разработке.</p></div>' +
+        '</div>' +
+        '<div id="vb-years" class="section">' + dev + '</div>' +
+        '<div id="vb-teams" class="section">' + dev + '</div>' +
+        '<div id="vb-matches" class="section">' + dev + '</div>' +
+        '<div id="vb-video" class="section">' + dev + '</div>' +
+        '<div id="vb-stats" class="section">' + dev + '</div>' +
+        '<div id="vb-donate" class="section">' + donateCard + '</div>' +
+    '</div>';
+}
+
+/* ============================================================
+   13. ДЕЛЕГИРОВАНИЕ СОБЫТИЙ
+   ============================================================ */
+document.addEventListener('click', function (e) {
+    const gBtn = e.target.closest('#groupSwitch button');
+    if (gBtn) { switchGroup(gBtn.dataset.group); return; }
+
+    const tBtn = e.target.closest('#mainTabs button');
+    if (tBtn) {
+        state.tab = tBtn.dataset.tab;
+        renderTabs();
+        renderContent();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+
+    const sBtn = e.target.closest('[data-fb]');
+    if (sBtn) {
+        const root = sBtn.closest('[data-sport]');
+        if (root) {
+            const prefix = root.dataset.sport;
+            root.querySelectorAll('.nav-tabs button').forEach(function (b) { b.classList.toggle('active', b === sBtn); });
+            root.querySelectorAll('.section').forEach(function (s) { s.classList.toggle('active', s.id === prefix + '-' + sBtn.dataset.fb); });
+        }
+        return;
+    }
+
+    const yHead = e.target.closest('.year-block .header');
+    if (yHead) { yHead.closest('.year-block').classList.toggle('open'); }
+});
+
+document.addEventListener('input', function (e) {
+    if (e.target.classList && e.target.classList.contains('year-filter')) {
+        const val = e.target.value.trim().toLowerCase();
+        const card = e.target.closest('.card');
+        if (card) {
+            card.querySelectorAll('.year-block').forEach(function (b) {
+                b.style.display = (b.dataset.year || '').includes(val) ? '' : 'none';
+            });
+        }
+    }
+});
+
+document.addEventListener('change', function (e) {
+    if (e.target.id === 'teamSelect') renderTeamResultsUI(e.target.value);
+    else if (e.target.id === 'discSelect') renderDiscResultsUI(e.target.value);
+    else if (e.target.id === 'fbTeamSelect') fbRenderTeamInfo(e.target.value);
+});
+
+/* ============================================================
+   14. ИНИЦИАЛИЗАЦИЯ
+   ============================================================ */
+switchGroup('undefined');
+
+})();
 </script>
+
 </body>
 </html>
