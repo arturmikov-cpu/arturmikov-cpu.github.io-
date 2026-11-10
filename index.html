@@ -9,136 +9,237 @@
 <script src="vk-bridge.js"></script>
 
 <style>
+/* ============================================================
+   Дизайн-система K4TV · «нативный VK + спортивное золото»
+   Все цвета — токены. Тема привязана к схеме VK: скрипт
+   инициализации vk-bridge добавляет body.dark-theme по схеме
+   клиента (VKWebAppUpdateConfig / launch params) — подключение
+   и логика vk-bridge не менялись.
+   ============================================================ */
+:root {
+    color-scheme: light;
+    --bg: #eef2f6;
+    --surface: #ffffff;
+    --surface-alt: #f3f6fa;
+    --surface-chip: #eef3f8;
+    --text: #1a2333;
+    --text-secondary: #69758a;
+    --border: #dfe5ec;
+    --divider: #e9eef4;
+    --tab-active-bg: #0b3b5c;
+    --tab-active-text: #ffffff;
+    --gold: #ffca00;
+    --gold-strong: #ffd633;
+    --accent-text: #241d00;
+    --accent-soft: #fff6d6;
+    --accent-border: #f0d76c;
+    --silver-bg: #e6ebf1;
+    --silver-text: #5a6a79;
+    --bronze-bg: #f4e2d3;
+    --bronze-text: #9a5522;
+    --link: #0a63c9;
+    --warn: #b45309;
+    --warn-bg: #fff8e6;
+    --red: #c03f2f;
+    --shadow-card: 0 2px 10px rgba(16, 35, 55, 0.05);
+    --shadow-float: 0 6px 18px rgba(16, 35, 55, 0.14);
+    --hero-grad: linear-gradient(135deg, #0d3b5c 0%, #155a7a 58%, #1b6f9c 100%);
+    --radius: 16px;
+}
+
+/* Тёмная схема VK (space_gray / vkcom_dark) — тот же набор токенов */
+body.dark-theme {
+    color-scheme: dark;
+    --bg: #17181c;
+    --surface: #232428;
+    --surface-alt: #2b2d33;
+    --surface-chip: #2b2d33;
+    --text: #e2e4e9;
+    --text-secondary: #9aa0ab;
+    --border: #383a41;
+    --divider: #333540;
+    --tab-active-bg: var(--gold);
+    --tab-active-text: #241d00;
+    --gold-strong: #ffd83d;
+    --accent-soft: rgba(255, 202, 0, 0.09);
+    --accent-border: rgba(255, 202, 0, 0.35);
+    --silver-bg: #3a3d44;
+    --silver-text: #c3c9d2;
+    --bronze-bg: #4a3526;
+    --bronze-text: #f2b287;
+    --link: #74a9ec;
+    --warn: #f0b429;
+    --warn-bg: rgba(255, 202, 0, 0.08);
+    --red: #ff8677;
+    --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --shadow-float: 0 6px 18px rgba(0, 0, 0, 0.45);
+    --hero-grad: linear-gradient(135deg, #0a2f4a 0%, #0f4360 58%, #155a7a 100%);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; padding: 20px; color: #1e293b; }
-#app { display: none; }
-.container { max-width: 1300px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; }
-h1 { font-size: 2.2rem; font-weight: 700; color: #0b3b5c; border-left: 6px solid #ffca00; padding-left: 15px; margin-bottom: 10px; }
-.subhead { color: #475569; margin-bottom: 25px; font-size: 1.1rem; padding-left: 21px; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+#app { display: none; max-width: 860px; margin: 0 auto; padding: 14px 12px 30px; }
 
-.group-switch { display: flex; gap: 10px; margin-bottom: 25px; }
-.group-switch button { flex: 1; padding: 14px 10px; border-radius: 16px; border: 2px solid #e2e8f0; background: #f8fafc; font-weight: 700; font-size: 1.05rem; color: #1e293b; cursor: pointer; transition: 0.2s; font-family: inherit; }
-.group-switch button .g-sub { display: block; font-size: 0.75rem; font-weight: 500; color: #64748b; margin-top: 3px; }
-.group-switch button:hover { background: #eef2f7; }
-.group-switch button.active { background: #0b3b5c; color: white; border-color: #0b3b5c; box-shadow: 0 4px 12px rgba(11,59,92,0.25); }
-.group-switch button.active .g-sub { color: #cbd5e1; }
+/* Шапка-баннер */
+.hero {
+    position: relative;
+    overflow: hidden;
+    background: var(--hero-grad);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 20px 18px 22px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-card);
+}
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(140px 110px at 88% -12%, rgba(255, 202, 0, 0.28), transparent 72%); pointer-events: none; }
+.hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--gold), rgba(255, 202, 0, 0.1)); }
+.hero h1 { color: #fff; font-size: 1.5rem; line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 6px; }
+.hero .subhead { color: rgba(255, 255, 255, 0.82); font-size: 0.95rem; margin: 0; }
 
-.nav-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-.nav-tabs button { background: #f1f5f9; border: none; padding: 8px 18px; border-radius: 30px; font-weight: 600; font-size: 0.9rem; color: #1e293b; cursor: pointer; transition: 0.2s; font-family: inherit; }
-.nav-tabs button:hover { background: #d9e2ef; }
-.nav-tabs button.active { background: #0b3b5c; color: white; }
+/* Группы — сегментный переключатель в стиле VK */
+.group-switch { display: flex; gap: 4px; background: var(--surface-chip); border: 1px solid var(--border); border-radius: 14px; padding: 4px; margin-bottom: 14px; }
+.group-switch button { flex: 1; border: none; background: transparent; border-radius: 10px; padding: 9px 6px; font-weight: 700; font-size: 0.92rem; color: var(--text); cursor: pointer; transition: background 0.15s, color 0.15s, box-shadow 0.15s; font-family: inherit; }
+.group-switch button .g-sub { display: block; font-size: 0.72rem; font-weight: 500; color: var(--text-secondary); margin-top: 2px; }
+.group-switch button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 5px rgba(16, 35, 55, 0.16); }
+body.dark-theme .group-switch button.active { background: #3b3e46; }
+.group-switch button.active .g-sub { color: var(--text-secondary); }
 
-.section { display: none; animation: fade 0.3s ease; }
-.section.active { display: block; }
-@keyframes fade { from { opacity: 0.3; } to { opacity: 1; } }
+/* Навигация — горизонтальные пилюли со скроллом */
+.nav-tabs { display: flex; gap: 8px; margin-bottom: 18px; overflow-x: auto; padding: 2px 2px 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tabs button { flex: 0 0 auto; background: var(--surface-chip); border: 1px solid var(--border); padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; color: var(--text); cursor: pointer; transition: background 0.15s, color 0.15s; font-family: inherit; white-space: nowrap; }
+.nav-tabs button:hover { background: var(--surface-alt); }
+.nav-tabs button.active { background: var(--tab-active-bg); border-color: transparent; color: var(--tab-active-text); }
 
-.sport-banner { background: #0b3b5c; color: white; border-radius: 16px; padding: 18px 22px; margin-bottom: 20px; }
-.sport-banner h2 { color: white; margin: 0; font-size: 1.4rem; }
-.sport-banner .sport-sub { color: #cbd5e1; font-size: 0.95rem; margin-top: 5px; }
+.section { display: none; }
+.section.active { display: block; animation: rise 0.24s ease; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-.card { background: #f8fafc; border-radius: 16px; padding: 20px 25px; margin-bottom: 25px; border-left: 5px solid #ffca00; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-.card h2 { font-size: 1.5rem; font-weight: 600; color: #0b3b5c; margin-bottom: 12px; }
-.card h3 { font-size: 1.2rem; margin: 15px 0 8px 0; color: #1e293b; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-.stat-box { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
-th { background: #e2e8f0; color: #0b3b5c; font-weight: 600; padding: 8px 12px; text-align: left; }
-td { padding: 6px 12px; border-bottom: 1px solid #e9edf2; }
-.highlight { background: #fff3cd; font-weight: 600; }
-.badge { display: inline-block; background: #ffca00; color: #0b3b5c; border-radius: 20px; padding: 0 12px; font-size: 0.8rem; line-height: 1.8; font-weight: 600; }
-.badge-gold { background: #ffca00; color: #0b3b5c; }
-.badge-silver { background: #a8b5c0; }
-.badge-bronze { background: #c67c4a; }
-.badge-muted { background: #e2e8f0; color: #475569; }
-.match-list { list-style: none; padding: 0; }
-.match-list li { padding: 4px 0; border-bottom: 1px dashed #dee4ec; display: flex; justify-content: space-between; }
-.match-list li span:last-child { font-weight: 500; color: #0b3b5c; }
-.footnote { font-size: 0.9rem; color: #64748b; margin-top: 10px; }
+/* Баннер вида спорта (футбол/волейбол) */
+.sport-banner { position: relative; overflow: hidden; background: var(--hero-grad); border-radius: var(--radius); padding: 18px 18px 21px; margin-bottom: 16px; box-shadow: var(--shadow-card); }
+.sport-banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--gold), rgba(255, 202, 0, 0.1)); }
+.sport-banner h2 { color: #fff; margin: 0; font-size: 1.3rem; }
+.sport-banner .sport-sub { color: rgba(255, 255, 255, 0.8); font-size: 0.9rem; margin-top: 4px; }
 
-.year-block { margin-bottom: 20px; border: 1px solid #dde4ec; border-radius: 12px; padding: 15px; background: white; transition: box-shadow 0.2s; }
-.year-block:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.year-block .header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; flex-wrap: wrap; user-select: none; }
-.year-block .header .title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.year-block .header .title .venue { display: inline-flex; align-items: center; gap: 4px; font-size: 0.9rem; color: #475569; }
-.year-block .header h3 { margin: 0; }
-.year-detail { margin-top: 15px; display: none; }
+/* Карточки-группы в стиле VK */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow-card); }
+.card h2 { font-size: 1.22rem; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+.card h2::before { content: ''; display: block; width: 30px; height: 4px; border-radius: 2px; background: var(--gold); margin-bottom: 8px; }
+.card h3 { font-size: 1.05rem; margin: 16px 0 10px; color: var(--text); }
+.card p { font-size: 0.95rem; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+
+/* Статистические плитки */
+.stat-box { background: var(--surface-alt); border-radius: 12px; padding: 14px; font-size: 0.95rem; }
+.stat-box strong { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 5px; }
+
+/* Таблицы */
+table { width: 100%; border-collapse: collapse; font-size: 0.92rem; font-variant-numeric: tabular-nums; }
+th { text-align: left; background: var(--surface-alt); color: var(--text-secondary); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 9px 10px; }
+th:first-child { border-radius: 8px 0 0 8px; }
+th:last-child { border-radius: 0 8px 8px 0; }
+td { padding: 9px 10px; border-bottom: 1px solid var(--divider); }
+tr:last-child td { border-bottom: none; }
+tr.highlight td { background: var(--accent-soft); font-weight: 600; }
+
+/* Бейджи-медали */
+.badge { display: inline-block; background: var(--surface-chip); color: var(--text); border-radius: 10px; padding: 3px 10px; font-size: 0.78rem; line-height: 1.6; font-weight: 700; white-space: nowrap; }
+.badge-gold { background: var(--gold); color: var(--accent-text); }
+.badge-silver { background: var(--silver-bg); color: var(--silver-text); }
+.badge-bronze { background: var(--bronze-bg); color: var(--bronze-text); }
+.badge-muted { background: var(--surface-chip); color: var(--text-secondary); }
+
+/* Списки матчей */
+.match-list { list-style: none; }
+.match-list li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 2px; border-bottom: 1px solid var(--divider); font-size: 0.92rem; }
+.match-list li:last-child { border-bottom: none; }
+.match-list li span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; }
+.footnote { font-size: 0.87rem; color: var(--text-secondary); margin-top: 10px; }
+
+/* Годовые блоки-аккордеоны */
+.year-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.15s, box-shadow 0.15s; }
+.year-block:hover { box-shadow: var(--shadow-card); }
+.year-block.open { border-color: var(--accent-border); }
+.year-block .header { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 13px 15px; cursor: pointer; user-select: none; }
+.year-block .header:active { background: var(--surface-alt); }
+.year-block .header .title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.year-block .header .title .venue { display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--text-secondary); }
+.year-block .header h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text); }
+.year-detail { margin-top: 2px; padding: 2px 15px 14px; display: none; }
 .year-block.open .year-detail { display: block; }
-.year-block .arrow { display: inline-block; transition: transform 0.2s ease; font-size: 1.2rem; }
+.year-block .arrow { color: var(--text-secondary); font-size: 0.85rem; transition: transform 0.2s ease; }
 .year-block.open .arrow { transform: rotate(180deg); }
 
-.podium { background: #f1f5f9; border-radius: 10px; padding: 12px 16px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 20px 40px; }
-.podium-item { display: flex; align-items: center; gap: 8px; }
-.podium-item .medal { font-size: 1.4rem; }
-.podium-item .team { font-weight: 600; }
+/* Подиум */
+.podium { display: flex; gap: 10px; margin-bottom: 14px; }
+.podium-item { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 14px 8px; border-radius: 14px; background: var(--surface-alt); border: 1px solid var(--border); text-align: center; }
+.podium-item:nth-child(1) { background: var(--accent-soft); border-color: var(--accent-border); }
+.podium-item .medal { font-size: 1.5rem; }
+.podium-item .team { font-weight: 700; font-size: 0.88rem; line-height: 1.3; overflow-wrap: anywhere; }
+.podium-item .badge { margin-top: 2px; }
 
+/* Медали в таблицах */
 .place-medal { font-weight: 700; white-space: nowrap; }
-.no-part { color: #94a3b8; font-style: italic; }
-.not-held { color: #b6c2cf; font-style: italic; }
-.year-note { font-size: 0.85rem; color: #b45309; background: #fffbeb; border-radius: 8px; padding: 6px 10px; margin-top: 10px; display: inline-block; }
-.app-select { padding: 10px 15px; border-radius: 30px; border: 1px solid #cbd5e1; width: 100%; max-width: 340px; font-size: 0.95rem; background: white; color: #1e293b; font-family: inherit; }
-.info-box { margin-top: 15px; background: #f1f5f9; border-radius: 12px; padding: 15px; min-height: 80px; }
-.champions-flex { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 10px; }
+.no-part { color: var(--text-secondary); font-style: italic; opacity: 0.85; }
+.not-held { color: var(--text-secondary); font-style: italic; font-size: 0.85em; }
+.year-note { font-size: 0.85rem; color: var(--warn); background: var(--warn-bg); border-left: 3px solid var(--gold); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
 
-.footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 0.9rem; color: #64748b; text-align: center; }
-.footer a { color: #0b3b5c; text-decoration: none; font-weight: 600; }
+/* Поля ввода */
+.app-select { padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 340px; font-size: 0.95rem; background: var(--surface); color: var(--text); font-family: inherit; }
+.year-filter { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 240px; font-size: 0.95rem; background: var(--surface); color: var(--text); font-family: inherit; }
+.app-select:focus, .year-filter:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255, 202, 0, 0.22); }
+.info-box { margin-top: 14px; background: var(--surface-alt); border-radius: 14px; padding: 16px; min-height: 80px; }
+.info-box h3 { margin: 0 0 10px; }
+.champions-flex { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.champions-flex span { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; padding: 7px 11px; font-size: 0.85rem; }
+.champions-flex span strong { font-variant-numeric: tabular-nums; }
+
+/* Футер */
+.footer { margin-top: 26px; border-top: 1px solid var(--border); padding: 20px 2px 8px; font-size: 0.85rem; color: var(--text-secondary); text-align: center; }
+.footer a { color: var(--link); text-decoration: none; font-weight: 600; }
 .footer a:hover { text-decoration: underline; }
-.donate-button { display: inline-block; background: #ffca00; color: #0b3b5c; font-size: 1.5rem; font-weight: 700; padding: 15px 40px; border-radius: 50px; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.donate-button:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.2); color: #0b3b5c; }
+.footer .button { display: inline-block; background: var(--gold); color: var(--accent-text); border-radius: 10px; padding: 9px 20px; font-weight: 700; font-size: 0.9rem; text-decoration: none; box-shadow: var(--shadow-card); margin-top: 4px; }
+.footer .button:hover { background: var(--gold-strong); text-decoration: none; color: var(--accent-text); }
 
-@media (max-width: 700px) {
-body { padding: 10px; }
-.container { padding: 15px; border-radius: 16px; }
-h1 { font-size: 1.6rem; padding-left: 10px; }
-.subhead { font-size: 0.95rem; padding-left: 10px; margin-bottom: 15px; }
-.group-switch { gap: 8px; }
-.group-switch button { font-size: 0.95rem; padding: 10px 6px; }
-.nav-tabs { gap: 6px; padding-bottom: 8px; }
-.nav-tabs button { font-size: 0.8rem; padding: 6px 12px; white-space: nowrap; }
-.card { padding: 15px; }
-.card h2 { font-size: 1.3rem; }
-.grid-2 { grid-template-columns: 1fr; gap: 12px; }
-table { font-size: 0.85rem; }
-th, td { padding: 6px 8px; }
-.podium { gap: 10px 20px; padding: 10px 12px; }
-.year-block { padding: 10px; }
-.year-block .header .title { gap: 6px; }
-.year-block .header h3 { font-size: 1.1rem; }
-.match-list li { font-size: 0.85rem; }
-.donate-button { font-size: 1.2rem; padding: 12px 30px; }
-.sport-banner { padding: 14px 16px; }
-.sport-banner h2 { font-size: 1.2rem; }
-.app-select { max-width: 100%; }
-}
-.season-link {
-    display: block;
-    width: 100%;
-    padding: 14px 10px;
-    border-radius: 16px;
-    border: 2px solid #ffca00;
-    background: #ffca00;
-    font-weight: 700;
-    font-size: 1.05rem;
-    color: #0b3b5c;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-bottom: 25px;
-    font-family: inherit;
-    box-shadow: 0 4px 12px rgba(255, 202, 0, 0.3);
-}
-.season-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(255, 202, 0, 0.45);
-    background: #ffd633;
-    border-color: #ffd633;
-    color: #0b3b5c;
-}
-.season-link:active {
-    transform: translateY(0);
-}
-@media (max-width: 700px) {
-    .season-link { font-size: 0.95rem; padding: 10px 6px; }
+/* Донат */
+.donate-button { display: inline-block; background: linear-gradient(180deg, var(--gold-strong), var(--gold)); color: var(--accent-text); font-size: 1.25rem; font-weight: 800; padding: 15px 40px; border-radius: 12px; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 14px rgba(255, 202, 0, 0.35); }
+.donate-button:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(255, 202, 0, 0.45); color: var(--accent-text); }
+.donate-button:active { transform: none; }
+
+/* Утилиты */
+.muted { color: var(--text-secondary); }
+.link-video { color: var(--link); text-decoration: none; font-weight: 600; }
+.link-video:hover { text-decoration: underline; }
+.note-red { font-size: 0.9rem; font-weight: 600; color: var(--red); }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Баннер «Сезон 2026» */
+.season-link { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px 14px; border-radius: 14px; background: var(--hero-grad); color: #fff; font-weight: 800; font-size: 1rem; letter-spacing: 0.04em; text-align: center; text-decoration: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; margin-bottom: 16px; font-family: inherit; box-shadow: var(--shadow-card); }
+.season-link::after { content: '↗'; color: var(--gold); font-size: 1.05rem; }
+.season-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); color: #fff; }
+.season-link:active { transform: translateY(0); }
+
+/* Десктоп */
+@media (min-width: 720px) {
+    #app { padding: 22px 20px 40px; }
+    .hero { padding: 26px 26px 28px; }
+    .hero h1 { font-size: 1.9rem; }
+    .card { padding: 20px 22px; }
+    .group-switch { margin-bottom: 16px; }
+    .group-switch button { padding: 10px 8px; font-size: 0.95rem; }
+    .nav-tabs { margin-bottom: 20px; }
+    table { font-size: 0.95rem; }
+    th, td { padding: 9px 12px; }
+    .grid-2 { gap: 12px; }
+    .sport-banner h2 { font-size: 1.45rem; }
 }
 </style>
 </head>
@@ -146,8 +247,10 @@ th, td { padding: 6px 8px; }
 
 <div class="container" id="app">
 
-    <h1>🏆 Краевые сельские спортивные игры</h1>
-    <div class="subhead" id="subhead">База знаний · Пермский край</div>
+    <header class="hero">
+        <h1>🏆 Краевые сельские спортивные игры</h1>
+        <div class="subhead" id="subhead">База знаний · Пермский край</div>
+    </header>
 
     <div class="group-switch" id="groupSwitch">
         <button type="button" data-group="g1" class="active">ГРУППА 1<span class="g-sub">Свыше 25 тыс. жителей</span></button>
@@ -158,13 +261,11 @@ th, td { padding: 6px 8px; }
 
     <div class="nav-tabs" id="mainTabs"></div>
 
-    <div class="nav-tabs" id="mainTabs"></div>
-
     <div id="content"></div>
 
     <div class="footer">
         Автор — Артур Миков <a href="https://vk.ru/karagatchtv" target="_blank">Карагатч ТВ (K4TV)</a> · Все данные собраны из архивов и уточнены в 2026 году.
-		<a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="button">Поддержать автора</a></div>'
+		<a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="button">Поддержать автора</a>
     </div>
 
 </div>
@@ -1474,7 +1575,7 @@ function renderYearsView() {
 
     return '<div class="card"><h2>📅 Результаты по годам</h2>' +
         '<p>Общие зачёты по годам. Нажмите на год, чтобы раскрыть подробности.</p>' +
-        '<div style="margin:15px 0;"><input type="text" class="year-filter" placeholder="Фильтр по году (например, 2012)" style="padding:8px 15px;border-radius:30px;border:1px solid #ccc;width:220px;"></div>' +
+        '<div style="margin:15px 0;"><input type="text" class="year-filter" placeholder="Фильтр по году (например, 2012)"></div>' +
         blocks + '</div>';
 }
 
@@ -1822,7 +1923,7 @@ const donateCard =
         '<h2>💛 Поддержать автора</h2>' +
         '<p>Сказать спасибо за труд автору приложения:</p>' +
         '<div style="margin:25px 0;"><a href="https://finance.ozon.ru/apps/sbp/ozonbankpay/01a03723-2ba7-77d8-85c3-85b1d8015c16" target="_blank" class="donate-button">ЗАДОНАТИТЬ</a></div>' +
-        '<p style="color:#64748b;">Любая сумма будет приятна 🌟</p>' +
+        '<p class="muted">Любая сумма будет приятна 🌟</p>' +
     '</div>';
 
 function renderFootballShell() {
@@ -1878,7 +1979,7 @@ function fbRenderYears() {
     const container = document.getElementById('fb-years');
     if (!container) return;
     let html = '<div class="card"><h2>📅 Турниры по годам</h2><p>Нажмите на год, чтобы раскрыть детали.</p>' +
-        '<div style="margin:15px 0;"><input type="text" class="year-filter" placeholder="Фильтр по году (например, 2015)" style="padding:8px 15px;border-radius:30px;border:1px solid #ccc;width:220px;"></div>';
+        '<div style="margin:15px 0;"><input type="text" class="year-filter" placeholder="Фильтр по году (например, 2015)"></div>';
     Object.keys(yearsData).map(Number).sort(function (a, b) { return a - b; }).forEach(function (year) {
         const data = yearsData[year];
         if (!data.places && !data.note && !matchesData[year]) return;
@@ -1887,7 +1988,7 @@ function fbRenderYears() {
         const champ = fbYearChampion(year);
         if (champ) title += ' <span class="badge badge-gold">🏆 ' + champ + '</span>';
         else if (data.places) title += ' <span class="badge badge-muted">чемпион не определён</span>';
-        if (data.note && !data.places) title += ' <span style="font-size:0.9rem;color:#b91c1c;">⚠️ ' + data.note + '</span>';
+        if (data.note && !data.places) title += ' <span class="note-red">⚠️ ' + data.note + '</span>';
         title += '</span>';
         let detail = '';
         if (data.places) {
@@ -1911,7 +2012,7 @@ function fbRenderYears() {
             matchesData[year].forEach(function (m) {
                 const v = getVideoLink(year, m[0], m[1], m[2]);
                 detail += '<li><span>' + m[0] + ' ' + m[2] + ' ' + m[1] +
-                    (v ? ' <a href="' + v + '" target="_blank" style="text-decoration:none;margin-left:8px;" title="Смотреть видео">▶️</a>' : '') + '</span></li>';
+                    (v ? ' <a href="' + v + '" target="_blank" class="link-video" title="Смотреть видео">▶️</a>' : '') + '</span></li>';
             });
             detail += '</ul>';
         }
@@ -1971,7 +2072,7 @@ function fbRenderMatches() {
         matchesData[year].forEach(function (m) {
             const v = getVideoLink(year, m[0], m[1], m[2]);
             html += '<li><span>' + m[0] + ' — ' + m[1] + '</span><span>' + m[2] +
-                (v ? ' <a href="' + v + '" target="_blank" style="text-decoration:none;margin-left:6px;" title="Смотреть видео">▶️</a>' : '') + '</span></li>';
+                (v ? ' <a href="' + v + '" target="_blank" class="link-video" title="Смотреть видео">▶️</a>' : '') + '</span></li>';
         });
         html += '</ul>';
     });
@@ -1986,7 +2087,7 @@ function fbRenderVideo() {
     Object.keys(videoLinks).map(Number).sort(function (a, b) { return b - a; }).forEach(function (year) {
         html += '<h3 style="margin:20px 0 8px;">' + year + '</h3><ul class="match-list">';
         videoLinks[year].forEach(function (v) {
-            html += '<li><span><a href="' + v.url + '" target="_blank" style="color:#0b3b5c;text-decoration:none;font-weight:600;">' + v.team1 + ' ' + v.score + ' ' + v.team2 + ' ▶️</a></span></li>';
+            html += '<li><span><a href="' + v.url + '" target="_blank" class="link-video">' + v.team1 + ' ' + v.score + ' ' + v.team2 + ' ▶️</a></span></li>';
         });
         html += '</ul>';
     });
@@ -2101,7 +2202,13 @@ document.addEventListener('change', function (e) {
 /* ============================================================
    14. ИНИЦИАЛИЗАЦИЯ
    ============================================================ */
-switchGroup('undefined');
+/* Инициализация: полная отрисовка стартового состояния (группа 1)
+   (switchGroup не используется: при совпадении группы он завершается
+   досрочно, а при старте нужна именно полная отрисовка) */
+renderGroupSwitch();
+renderSubhead();
+renderTabs();
+renderContent();
 
 })();
 </script>
