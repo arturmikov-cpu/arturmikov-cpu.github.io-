@@ -157,6 +157,15 @@ tr.highlight td { background: var(--accent-soft); font-weight: 600; }
 .badge-bronze { background: var(--bronze-bg); color: var(--bronze-text); }
 .badge-muted { background: var(--surface-chip); color: var(--text-secondary); }
 
+/* Действующий чемпион — крупный призовой бейдж с кубком */
+.badge-champ { font-size: 1.05rem; line-height: 1.5; padding: 6px 16px 6px 12px; cursor: pointer; animation: champ-pulse 2.4s ease-in-out infinite; }
+.badge-champ:hover { transform: translateY(-1px); }
+@keyframes champ-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 202, 0, 0); }
+    50% { box-shadow: 0 0 0 7px rgba(255, 202, 0, 0.22); }
+}
+.champ-hint { display: block; margin-top: 8px; font-size: 0.78rem; color: var(--text-secondary); }
+
 /* Списки матчей */
 .match-list { list-style: none; }
 .match-list li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 2px; border-bottom: 1px solid var(--divider); font-size: 0.92rem; }
@@ -1413,7 +1422,7 @@ function renderDiscTop3Card() {
 /* ============================================================
    6. СОСТОЯНИЕ И НАВИГАЦИЯ
    ============================================================ */
-const state = { group: 'g1', tab: 'overview' };
+const state = { group: null, tab: 'overview' }; // null = группа не выбрана — приветственный экран
 const TABS = {
     g1: [
         { id: 'overview', label: 'Общая информация' },
@@ -1452,18 +1461,37 @@ function renderSubhead() {
         : 'Пермский край · Группа 2 · общий зачёт ' + p + ' · ⚽ футбол (1997–2026) · 🏐 волейбол';
 }
 function renderTabs() {
-    document.getElementById('mainTabs').innerHTML = TABS[state.group].map(function (t) {
+    const holder = document.getElementById('mainTabs');
+    const list = TABS[state.group];
+    /* группа не выбрана => табов нет, пока не выбрана группа */
+    if (!list) { holder.innerHTML = ''; return; }
+    holder.innerHTML = list.map(function (t) {
         return '<button type="button" class="' + (t.id === state.tab ? 'active' : '') + '" data-tab="' + t.id + '">' + t.label + '</button>';
     }).join('');
 }
 function renderContent() {
+    stopSnow(); /* снег — только пока открыта выбранная зимняя дисциплина */
     const c = document.getElementById('content');
+    if (!TABS[state.group]) { c.innerHTML = renderWelcome(); return; }
     if (state.tab === 'overview') c.innerHTML = renderOverview();
     else if (state.tab === 'years') c.innerHTML = renderYearsView();
     else if (state.tab === 'team') c.innerHTML = renderTeamView();
     else if (state.tab === 'disc') c.innerHTML = renderDiscView();
     else if (state.tab === 'football') { c.innerHTML = renderFootballShell(); fbRenderAll(); }
     else if (state.tab === 'volleyball') c.innerHTML = renderVolleyballShell();
+}
+
+/* Стартовый экран выбора группы (без выбранной группы) */
+function renderWelcome() {
+    return '<div class="card welcome-card">' +
+        '<h2>👋 Добро пожаловать</h2>' +
+        '<p>Краевые сельские спортивные игры — база знаний по результатам с 2006 года. Выберите группу участников (<strong>сверху</strong>), чтобы открыть общие зачёты, архив по годам, по командам и по дисциплинам.</p>' +
+        '<div class="grid-2">' +
+            '<div class="stat-box"><strong>Группа 1</strong><br>Свыше 25 тыс. жителей</div>' +
+            '<div class="stat-box"><strong>Группа 2</strong><br>Менее 25 тыс. жителей · ⚽ футбол · 🏐 волейбол</div>' +
+        '</div>' +
+        '<p class="footnote">⚽ Отдельные базы по футболу (1997–2026) и волейболу доступны в группе 2.</p>' +
+    '</div>';
 }
 
 /* ============================================================
@@ -1500,7 +1528,7 @@ function renderOverview() {
                 '<div class="stat-box"><strong>Наибольшее число побед</strong><br>' +
                     topTeams.map(function (e) { return '<span class="badge badge-gold">' + e[0] + ' – ' + e[1] + '</span>'; }).join(' ') +
                 '</div>' +
-                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">' + currentChampion + ' (' + last + ')</span></div>' +
+                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 ' + currentChampion + ' (' + last + ')</span><span class="champ-hint">🎉 Запустить конфетти</span></div>' +
             '</div>' +
             (YEAR_NOTES[state.group][last] ? '<div class="year-note" style="margin-top:15px;">⚠️ ' + YEAR_NOTES[state.group][last] + '</div>' : '') +
             (progNote ? '<div class="footnote" style="margin-top:12px;">ℹ️ ' + progNote + '</div>' : '') +
@@ -1645,6 +1673,8 @@ function renderDiscView() {
 function renderDiscResultsUI(discId) {
     const el = document.getElementById('discInfo');
     if (!el) return;
+    /* зимняя дисциплина «Лыжные гонки» — включаем снег, остальные — выключаем */
+    if (discId === 'ski') startSnow(); else stopSnow();
     if (!discId) { el.innerHTML = 'Выберите дисциплину для отображения.'; return; }
     const d = DISC_BY_ID[discId];
     const data = getGroupData();
@@ -1945,7 +1975,7 @@ function renderFootballShell() {
                 '<div class="stat-box"><strong>Период</strong><br>1997 – 2026 (с перерывами)</div>' +
                 '<div class="stat-box"><strong>Всего чемпионов</strong><br>5 разных команд (плюс 2022 – не определён)</div>' +
                 '<div class="stat-box"><strong>Наибольшее число побед</strong><br><span class="badge badge-gold">Берёзовский – 13</span></div>' +
-                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge">Куединский (2024, 2025, 2026)</span></div>' +
+                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 Куединский (2024, 2025, 2026)</span><span class="champ-hint">🎉 Запустить конфетти</span></div>' +
             '</div></div>' +
             '<div class="card"><h2>🏅 Список чемпионов (по годам)</h2><div class="champions-flex">' +
                 '<span><strong>1997–2005</strong> Берёзовский (9 раз)</span>' +
@@ -2151,6 +2181,164 @@ function renderVolleyballShell() {
 }
 
 /* ============================================================
+   12.1 КОНФЕТТИ при нажатии на действующего чемпиона
+   Чистый canvas без внешних библиотек (в VK неприходится грузить
+   CDN). Работает 5 секунд, затем кадры прекращаются и canvas
+   удаляется из DOM. Цвета — фирменные (золото/синь/серебро).
+   ============================================================ */
+var confettiActive = false;
+function launchConfetti(durationMs) {
+    if (confettiActive) return;
+    confettiActive = true;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'confettiCanvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:9999;pointer-events:none;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const COLORS = ['#ffca00', '#ffd633', '#1b6f9c', '#0b3b5c', '#ffffff', '#cfd8e3', '#c9803f'];
+    const particles = [];
+    const finishAt = Date.now() + durationMs;
+    let rafId = 0;
+
+    /* «выстрелы» из нижних углов, как на пьедестале */
+    function spawn(isLeft) {
+        particles.push({
+            x: isLeft ? -10 : W + 10,
+            y: H * (0.55 + Math.random() * 0.25),
+            vx: (isLeft ? 1 : -1) * (2 + Math.random() * 5.5),
+            vy: -(7 + Math.random() * 7.5),
+            g: 0.16 + Math.random() * 0.08,
+            w: 6 + Math.random() * 6,
+            h: 8 + Math.random() * 8,
+            rot: Math.random() * Math.PI,
+            vr: (Math.random() - 0.5) * 0.25,
+            color: COLORS[(Math.random() * COLORS.length) | 0],
+            shape: Math.random() < 0.3 ? 'circle' : 'rect',
+            r: 3 + Math.random() * 3
+        });
+    }
+
+    function tick() {
+        ctx.clearRect(0, 0, W, H);
+        const now = Date.now();
+        if (now < finishAt && particles.length < 380) {
+            for (let i = 0; i < 4; i++) { spawn(true); spawn(false); }
+        }
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.vy += p.g;
+            p.vx *= 0.992;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.rot += p.vr;
+            if (p.y > H + 30 || p.x < -70 || p.x > W + 70) { particles.splice(i, 1); continue; }
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.fillStyle = p.color;
+            if (p.shape === 'circle') {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            }
+            ctx.restore();
+        }
+        /* конец: после 5 секунд и полного вылета частиц — отключаемся */
+        if (now >= finishAt && !particles.length) {
+            cancelAnimationFrame(rafId);
+            window.removeEventListener('resize', resize);
+            canvas.remove();
+            confettiActive = false;
+            return;
+        }
+        rafId = requestAnimationFrame(tick);
+    }
+    tick();
+}
+
+/* ============================================================
+   12.2 СНЕГ для зимней дисциплины «Лыжные гонки»
+   Лёгкая фоновая анимация: редкие неторопливые снежинки
+   (white + слегка голубые) с мягким покачиванием.
+   Включается выбором «Лыжные гонки» в «По дисциплинам»,
+   плавно гаснет при выборе другой дисциплины/смене вкладки.
+   ============================================================ */
+var snowState = { active: false, fade: 1, rafId: 0 };
+function startSnow() {
+    if (snowState.active) return;
+    snowState.active = true;
+    snowState.fade = 1;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'snowCanvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:9998;pointer-events:none;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    let W, H;
+
+    const flakes = [];
+    function make(top) {
+        return {
+            x: Math.random() * W,
+            y: top ? -8 : Math.random() * H,
+            r: 1.6 + Math.random() * 2.6,
+            v: 0.4 + Math.random() * 0.9,          /* скорость падения */
+            amp: 0.3 + Math.random() * 0.9,        /* амплитуда покачивания */
+            phase: Math.random() * Math.PI * 2,
+            vr: 0.006 + Math.random() * 0.012,
+            alpha: 0.45 + Math.random() * 0.45,
+            tint: Math.random() < 0.25 ? '#cfe3ff' : '#ffffff'
+        };
+    }
+    function ensure() {
+        const target = Math.min(70, Math.round(W / 26));  /* «лёгкость»: не густо */
+        while (flakes.length < target) flakes.push(make(false));
+        if (flakes.length > target) flakes.length = target;
+    }
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; ensure(); }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function tick() {
+        ctx.clearRect(0, 0, W, H);
+        if (!snowState.active) snowState.fade = Math.max(0, snowState.fade - 0.03);
+        for (const f of flakes) {
+            f.phase += f.vr;
+            f.y += f.v;
+            f.x += Math.sin(f.phase) * f.amp;
+            if (f.y > H + 10) Object.assign(f, make(true));
+            ctx.globalAlpha = f.alpha * snowState.fade;
+            ctx.fillStyle = f.tint;
+            ctx.beginPath();
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        if (!snowState.active && snowState.fade <= 0) {
+            cancelAnimationFrame(snowState.rafId);
+            window.removeEventListener('resize', resize);
+            canvas.remove();
+            return;
+        }
+        snowState.rafId = requestAnimationFrame(tick);
+    }
+    tick();
+}
+function stopSnow() {
+    /* не обрываем резко: tick сам гаситOpacity и удаляет canvas */
+    if (!snowState.active) return;
+    snowState.active = false;
+}
+
+/* ============================================================
    13. ДЕЛЕГИРОВАНИЕ СОБЫТИЙ
    ============================================================ */
 document.addEventListener('click', function (e) {
@@ -2177,6 +2365,9 @@ document.addEventListener('click', function (e) {
         return;
     }
 
+    const champBtn = e.target.closest('.badge-champ');
+    if (champBtn) { launchConfetti(5000); return; }
+
     const yHead = e.target.closest('.year-block .header');
     if (yHead) { yHead.closest('.year-block').classList.toggle('open'); }
 });
@@ -2202,11 +2393,11 @@ document.addEventListener('change', function (e) {
 /* ============================================================
    14. ИНИЦИАЛИЗАЦИЯ
    ============================================================ */
-/* Инициализация: полная отрисовка стартового состояния (группа 1)
-   (switchGroup не используется: при совпадении группы он завершается
-   досрочно, а при старте нужна именно полная отрисовка) */
+/* Инициализация: группа по умолчанию НЕ выбрана (изначальный замысел
+   со switchGroup('undefined')) — стартовый приветственный экран, но
+   без падения на YEAR_NOTES. Полная отрисовка происходит в
+   switchGroup() при выборе группы. */
 renderGroupSwitch();
-renderSubhead();
 renderTabs();
 renderContent();
 
