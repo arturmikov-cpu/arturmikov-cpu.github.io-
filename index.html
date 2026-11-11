@@ -102,6 +102,11 @@ body {
 .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(140px 110px at 88% -12%, rgba(255, 202, 0, 0.28), transparent 72%); pointer-events: none; }
 .hero::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--gold), rgba(255, 202, 0, 0.1)); }
 .hero h1 { color: #fff; font-size: 1.5rem; line-height: 1.25; letter-spacing: -0.01em; margin: 0 0 6px; }
+/* Флаг района — фоновый водяной знак контейнера «Действующий чемпион»:
+   перекрывает бокс с запасом 10px, прозрачность 20% */
+.stat-box.champ-box { position: relative; overflow: hidden; }
+.champ-flag-bg { position: absolute; inset: -10px; object-fit: cover; opacity: 0.1; z-index: 0; }
+.champ-content { position: relative; z-index: 1; display: block; }
 .hero .subhead { color: rgba(255, 255, 255, 0.82); font-size: 0.95rem; margin: 0; }
 
 /* Группы — сегментный переключатель в стиле VK */
@@ -123,7 +128,7 @@ body.dark-theme .group-switch button.active { background: #3b3e46; }
 .section.active { display: block; animation: rise 0.24s ease; }
 @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Баннер вида спорта (футбол/волейбол) */
+/* Баннер вида спорта (футбол) */
 .sport-banner { position: relative; overflow: hidden; background: var(--hero-grad); border-radius: var(--radius); padding: 18px 18px 21px; margin-bottom: 16px; box-shadow: var(--shadow-card); }
 .sport-banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--gold), rgba(255, 202, 0, 0.1)); }
 .sport-banner h2 { color: #fff; margin: 0; font-size: 1.3rem; }
@@ -203,9 +208,17 @@ tr.highlight td { background: var(--accent-soft); font-weight: 600; }
 .podium-item .team { font-weight: 700; font-size: 0.88rem; line-height: 1.3; overflow-wrap: anywhere; }
 .podium-item .badge { margin-top: 2px; }
 
-/* Топ-3: таблица «Дисциплина | Команда» (общая информация) */
-.top3-table td { vertical-align: top; }
-.top3-table td:first-child { width: 38%; font-weight: 600; }
+/* Топ-3 (общая информация): дисциплина во всю строку — квадратный значок
+   с эмодзи вида спорта + название, под ней линии команд 1./2./3. */
+.disc-row { padding: 12px 0 10px; border-top: 1px solid var(--divider); }
+.disc-row:first-child { border-top: 0; padding-top: 2px; }
+.disc-row-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.disc-icon { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border); font-size: 1.25rem; }
+.disc-row-name { font-weight: 700; font-size: 0.95rem; color: var(--text); min-width: 0; }
+/* центры квадратиков мест — по вертикальной оси иконки вида спорта (40px):
+   отступ 10px + квадратик 20px → центр на 20px, как у иконки */
+.disc-row .win-line { padding-left: 10px; }
+.year-top3 { margin-bottom: 10px; }
 .win-line { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 0.9rem; }
 .win-line + .win-line { border-top: 1px dashed var(--divider); }
 .win-place { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 6px; background: var(--surface-chip); color: var(--text); font-size: 0.72rem; font-weight: 800; }
@@ -220,13 +233,17 @@ tr.highlight td { background: var(--accent-soft); font-weight: 600; }
 .win-chip { display: inline-flex; align-items: center; gap: 7px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px 6px 8px; font-size: 0.88rem; font-weight: 600; }
 
 /* Медали в таблицах */
-.place-medal { font-weight: 700; white-space: nowrap; }
+.place-cell { display: inline-flex; align-items: center; justify-content: center; }
+.place-medal { display: inline-block; width: 26px; text-align: center; }
+.place-num { display: inline-block; min-width: 28px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.td-place { text-align: center; }
+th.th-place { text-align: center; }
 .no-part { color: var(--text-secondary); font-style: italic; opacity: 0.85; }
 .not-held { color: var(--text-secondary); font-style: italic; font-size: 0.85em; }
 .year-note { font-size: 0.85rem; color: var(--warn); background: var(--warn-bg); border-left: 3px solid var(--gold); border-radius: 8px; padding: 8px 12px; margin-top: 10px; }
 
 /* Поля ввода */
-.app-select { padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 340px; font-size: 0.95rem; background: var(--surface); color: var(--text); font-family: inherit; }
+.app-select { appearance: none; -webkit-appearance: none; padding: 11px 40px 11px 15px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 340px; font-size: 0.95rem; background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' fill='none' stroke='%238a94a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 15px center; color: var(--text); font-family: inherit; }
 .year-filter { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 240px; font-size: 0.95rem; background: var(--surface); color: var(--text); font-family: inherit; }
 .app-select:focus, .year-filter:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255, 202, 0, 0.22); }
 .info-box { margin-top: 14px; background: var(--surface-alt); border-radius: 14px; padding: 16px; min-height: 80px; }
@@ -365,16 +382,16 @@ document.addEventListener('DOMContentLoaded', function() {
    ИСЧЕЗ ВИД:     допишите until: <год>.
    ============================================================ */
 const DISCIPLINES = [
-    { id: 'ski',    label: 'Лыжные гонки',            since: 2006 },
-    { id: 'vbm',    label: 'Волейбол (мужчины)',      since: 2006 },
-    { id: 'vbw',    label: 'Волейбол (женщины)',      since: 2006 },
-    { id: 'weight', label: 'Гиревой спорт',           since: 2006 },
-    { id: 'gto',    label: 'Многоборье ГТО',          since: 2023 },
-    { id: 'fb',     label: 'Футбол',                  since: 2006 },
-    { id: 'run',    label: 'Лёгкоатлетический кросс', since: 2006 },
-    { id: 'tt',     label: 'Настольный теннис',       since: 2006 },
-    { id: 'chess',  label: 'Шахматы',                 since: 2006 },
-    { id: 'bb',     label: 'Баскетбол (мужчины)',     since: 2006 }
+    { id: 'ski',    label: 'Лыжные гонки',            emoji: '⛷️', since: 2006 },
+    { id: 'vbm',    label: 'Волейбол (мужчины)',      emoji: '🏐', since: 2006 },
+    { id: 'vbw',    label: 'Волейбол (женщины)',      emoji: '🏐', since: 2006 },
+    { id: 'weight', label: 'Гиревой спорт',           emoji: '🏋️', since: 2006 },
+    { id: 'gto',    label: 'Многоборье ГТО',          emoji: '🏅', since: 2023 },
+    { id: 'fb',     label: 'Футбол',                  emoji: '⚽', since: 2006 },
+    { id: 'run',    label: 'Лёгкоатлетический кросс', emoji: '🏃', since: 2006 },
+    { id: 'tt',     label: 'Настольный теннис',       emoji: '🏓', since: 2006 },
+    { id: 'chess',  label: 'Шахматы',                 emoji: '♞',  since: 2006 },
+    { id: 'bb',     label: 'Баскетбол (мужчины)',     emoji: '🏀', since: 2006 }
     /* Пример исчезнувшего вида:
        { id: 'xyz', label: '…', since: 2006, until: 2016 }  */
 ];
@@ -1319,7 +1336,12 @@ function fmtNum(n) {
 function placeCell(p, emptyText) {
     if (p === null || p === undefined) return '<span class="no-part">' + emptyText + '</span>';
     const m = medalFor(p);
-    return m ? '<span class="place-medal">' + m + ' ' + fmtNum(p) + '</span>' : fmtNum(p);
+    /* медаль и цифра — в отдельных слотах фиксированной ширины:
+       цифры всегда стоят под цифрами, независимо от наличия эмодзи */
+    return '<span class="place-cell">' +
+        '<span class="place-medal">' + (m || '') + '</span>' +
+        '<span class="place-num">' + fmtNum(p) + '</span>' +
+    '</span>';
 }
 function placeBadge(p) {
     if (p === null || p === undefined) return '<span class="badge badge-muted">нет данных</span>';
@@ -1427,7 +1449,8 @@ function renderDiscTop3Card() {
         const groups = rankWithTies(computeDiscWins(data, d.id))
             .filter(function (g) { return g.place <= 3; });
         if (!groups.length) return;
-        /* команды дисциплины — в один столбец: 1., 2., 3. */
+        /* шапка дисциплины на всю строку: квадратный значок с эмодзи + название,
+           под ней — команды построчно: [место] название — число побед */
         let lines = '';
         groups.forEach(function (g) {
             g.teams.forEach(function (t) {
@@ -1438,12 +1461,15 @@ function renderDiscTop3Card() {
                 '</div>';
             });
         });
-        rows += '<tr><td class="disc-name">' + d.label + '</td><td>' + lines + '</td></tr>';
+        rows += '<div class="disc-row">' +
+            '<div class="disc-row-head"><span class="disc-icon">' + (d.emoji || '🏆') + '</span><span class="disc-row-name">' + d.label + '</span></div>' +
+            lines +
+        '</div>';
     });
     if (!rows) return '';
-    return '<div class="card"><h2>🥇 Топ-3 команд по победам в дисциплинах</h2>' +
+    return '<div class="card"><h2>Топ-3 команд по победам в дисциплинах</h2>' +
         '<p>Число побед (1-х мест) в каждой дисциплине за всю известную историю. Команды с равным числом побед делят место.</p>' +
-        '<table class="top3-table"><tr><th>Дисциплина</th><th>Команда</th></tr>' + rows + '</table></div>';
+        rows + '</div>';
 }
 
 /* ============================================================
@@ -1462,8 +1488,7 @@ const TABS = {
         { id: 'years', label: 'По годам' },
         { id: 'team', label: 'По команде' },
         { id: 'disc', label: 'По дисциплинам' },
-        { id: 'football', label: '⚽ ФУТБОЛ' },
-        { id: 'volleyball', label: '🏐 ВОЛЕЙБОЛ' }
+        { id: 'football', label: '⚽ ФУТБОЛ' }
     ]
 };
 function getGroupData() { return state.group === 'g1' ? G1 : G2; }
@@ -1485,7 +1510,7 @@ function renderSubhead() {
     const p = getPeriod(getGroupData());
     document.getElementById('subhead').textContent = (state.group === 'g1')
         ? 'Пермский край · Группа 1 · общий зачёт ' + p
-        : 'Пермский край · Группа 2 · общий зачёт ' + p + ' · ⚽ футбол (1997–2026) · 🏐 волейбол';
+        : 'Пермский край · Группа 2 · общий зачёт ' + p + ' · ⚽ футбол (1997–2026)';
 }
 function renderTabs() {
     const holder = document.getElementById('mainTabs');
@@ -1506,7 +1531,6 @@ function renderContent() {
     else if (state.tab === 'team') c.innerHTML = renderTeamView();
     else if (state.tab === 'disc') c.innerHTML = renderDiscView();
     else if (state.tab === 'football') { c.innerHTML = renderFootballShell(); fbRenderAll(); }
-    else if (state.tab === 'volleyball') c.innerHTML = renderVolleyballShell();
 }
 
 /* Стартовый экран выбора группы (без выбранной группы) */
@@ -1516,15 +1540,23 @@ function renderWelcome() {
         '<p>Краевые сельские спортивные игры — база знаний по результатам с 2006 года. Выберите группу участников (<strong>сверху</strong>), чтобы открыть общие зачёты, архив по годам, по командам и по дисциплинам.</p>' +
         '<div class="grid-2">' +
             '<div class="stat-box"><strong>Группа 1</strong><br>Свыше 25 тыс. жителей</div>' +
-            '<div class="stat-box"><strong>Группа 2</strong><br>Менее 25 тыс. жителей · ⚽ футбол · 🏐 волейбол</div>' +
+            '<div class="stat-box"><strong>Группа 2</strong><br>Менее 25 тыс. жителей · ⚽ футбол</div>' +
         '</div>' +
-        '<p class="footnote">⚽ Отдельные базы по футболу (1997–2026) и волейболу доступны в группе 2.</p>' +
+        '<p class="footnote">⚽ Отдельная база по футболу (1997–2026) доступна в группе 2.</p>' +
     '</div>';
 }
 
 /* ============================================================
    7. РАЗДЕЛ «ОБЩАЯ ИНФОРМАЦИЯ»
    ============================================================ */
+
+/* Миниатюры флагов районов для действующего чемпиона.
+   Пополняется по мере появления данных: команда → URL флага. */
+const TEAM_FLAGS = {
+    'Карагайский': 'https://upload.wikimedia.org/wikipedia/commons/1/13/Flag_of_Karagaysky_rayon_%28Perm_krai%29.png',
+    'Куединский': 'https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Kuedinsky_rayon_%28Perm_krai%29.png'
+};
+
 function renderOverview() {
     const data = getGroupData();
     const years = Object.keys(data).map(Number).sort(function (a, b) { return a - b; });
@@ -1537,6 +1569,7 @@ function renderOverview() {
     const topTeams = winEntries.filter(function (e) { return e[1] === maxWins; })
         .sort(function (a, b) { return a[0].localeCompare(b[0], 'ru'); });
     const currentChampion = champGroups.length ? champGroups[champGroups.length - 1].team : null;
+    const champFlag = currentChampion ? (TEAM_FLAGS[currentChampion] || '') : '';
     const groupName = state.group === 'g1' ? 'первой' : 'второй';
 
     /* изменение программы дисциплин — считается автоматически */
@@ -1556,13 +1589,17 @@ function renderOverview() {
                 '<div class="stat-box"><strong>Наибольшее число побед</strong><br>' +
                     topTeams.map(function (e) { return '<span class="badge badge-gold">' + e[0] + ' – ' + e[1] + '</span>'; }).join(' ') +
                 '</div>' +
-                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 ' + currentChampion + ' (' + last + ')</span><span class="champ-hint">🎉 Запустить конфетти</span></div>' +
+                '<div class="stat-box champ-box">' +
+                    (champFlag ? '<img class="champ-flag-bg" src="' + champFlag + '" alt="">' : '') +
+                    '<span class="champ-content"><strong>Действующий чемпион</strong><br>' +
+                    '<span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 ' + currentChampion + ' (' + last + ')</span>' +
+                    '<span class="champ-hint">🎉 Запустить конфетти</span></span></div>' +
             '</div>' +
             (YEAR_NOTES[state.group][last] ? '<div class="year-note" style="margin-top:15px;">⚠️ ' + YEAR_NOTES[state.group][last] + '</div>' : '') +
             (progNote ? '<div class="footnote" style="margin-top:12px;">ℹ️ ' + progNote + '</div>' : '') +
         '</div>' +
         '<div class="card">' +
-            '<h2>🏅 Список чемпионов (по годам)</h2>' +
+            '<h2>🏆 Список чемпионов (по годам)</h2>' +
             '<div class="champions-flex">' +
                 champGroups.map(function (g) {
                     const range = (g.from === g.to) ? String(g.from) : (g.from + '–' + g.to);
@@ -1572,10 +1609,6 @@ function renderOverview() {
             '</div>' +
         '</div>';
 
-    if (state.group === 'g2') {
-        html += '<div class="card"><h2>🗂 Отдельные виды спорта</h2>' +
-            '<p>В рамках группы 2 доступны отдельные базы знаний: <strong>⚽ ФУТБОЛ</strong> (финальные турниры 1997–2026) и <strong>🏐 ВОЛЕЙБОЛ</strong> (раздел в разработке). Переключитесь на соответствующие вкладки выше.</p></div>';
-    }
 	html += renderDiscTop3Card();
     return html;
 }
@@ -1598,22 +1631,28 @@ function renderYearsView() {
         const champion = getChampion(data, year);
         const top3 = rows.filter(function (r) { return r.place >= 1 && r.place <= 3; });
 
-        let header = '<span class="title"><h3>' + year + '</h3>' +
-            '<span class="venue">👥 ' + rows.length + ' ' + plural(rows.length, 'команда', 'команды', 'команд') + '</span>';
-        if (champion) header += ' <span class="badge badge-gold">🏆 ' + champion + '</span>';
-        header += '</span>';
+        /* шапка года — как в футбольном «По годам»: ГОД (крупно, на 2 строки) |
+           верхняя строка — чемпион, нижняя — число команд */
+        let header = '<span class="fb-year-head"><span class="fb-year-num">' + year + '</span><span class="fb-year-info">' +
+            '<span class="fb-year-champ">' + (champion ? '<span class="badge badge-gold">🏆 ' + champion + '</span>' : '') + '</span>' +
+            '<span class="fb-year-venue">👥 ' + rows.length + ' ' + plural(rows.length, 'команда', 'команды', 'команд') + '</span>' +
+            '</span></span>';
 
         let detail = '';
         if (top3.length) {
-            detail += '<div class="podium">';
+            /* Топ-3 построчно, как в «По дисциплинам»: [место] команда */
+            detail += '<div class="year-top3">';
             top3.forEach(function (r) {
-                detail += '<div class="podium-item"><span class="medal">' + medalFor(r.place) + '</span><span class="team">' + r.team + '</span></div>';
+                detail += '<div class="win-line">' +
+                    '<span class="win-place p' + r.place + '">' + r.place + '</span>' +
+                    '<span class="win-team">' + r.team + '</span>' +
+                '</div>';
             });
             detail += '</div>';
         }
-        detail += '<table><tr><th>Команда</th><th>Место в общем зачёте</th></tr>';
+        detail += '<table><tr><th>Команда</th><th class="th-place">Место в общем зачёте</th></tr>';
         rows.forEach(function (r) {
-            detail += '<tr class="' + (r.place === 1 ? 'highlight' : '') + '"><td>' + r.team + '</td><td>' + placeCell(r.place, 'нет данных') + '</td></tr>';
+            detail += '<tr class="' + (r.place === 1 ? 'highlight' : '') + '"><td>' + r.team + '</td><td class="td-place">' + placeCell(r.place, 'нет данных') + '</td></tr>';
         });
         detail += '</table>';
         if (YEAR_NOTES[state.group][year]) detail += '<div class="year-note">⚠️ ' + YEAR_NOTES[state.group][year] + '</div>';
@@ -1656,8 +1695,8 @@ function renderTeamResultsUI(team) {
     if (!rows.length) { el.innerHTML = html + '<p>Нет данных об участии команды (по известным данным).</p>'; return; }
 
     html += '<p style="margin-bottom:10px;"><strong>Сезонов участия:</strong> ' + rows.length + '</p>';
-    html += '<table><tr><th>Год</th><th>Место в общем зачёте</th></tr>';
-    rows.forEach(function (r) { html += '<tr><td>' + r.year + '</td><td>' + placeCell(r.place, 'нет данных') + '</td></tr>'; });
+    html += '<table><tr><th>Год</th><th class="th-place">Место в общем зачёте</th></tr>';
+    rows.forEach(function (r) { html += '<tr><td>' + r.year + '</td><td class="td-place">' + placeCell(r.place, 'нет данных') + '</td></tr>'; });
     html += '</table>';
 
     const numeric = rows.filter(function (r) { return typeof r.place === 'number'; });
@@ -1672,9 +1711,9 @@ function renderTeamResultsUI(team) {
 
     html += '<h4 style="margin:18px 0 10px;">Результаты по дисциплинам по годам:</h4>';
     rows.forEach(function (r) {
-        let detail = '<table><tr><th>Дисциплина</th><th>Место в дисциплине</th></tr>';
+        let detail = '<table><tr><th>Дисциплина</th><th class="th-place">Место в дисциплине</th></tr>';
         DISCIPLINES.forEach(function (d) {
-            detail += '<tr><td>' + d.label + '</td><td>' + discCell(d, r.year, r.disc[d.id]) + '</td></tr>';
+            detail += '<tr><td>' + d.label + '</td><td class="td-place">' + discCell(d, r.year, r.disc[d.id]) + '</td></tr>';
         });
         detail += '</table>';
         if (YEAR_NOTES[state.group][r.year]) detail += '<div class="year-note">⚠️ ' + YEAR_NOTES[state.group][r.year] + '</div>';
@@ -1748,9 +1787,9 @@ function renderDiscResultsUI(discId) {
         else header += ' <span class="badge badge-muted">чемпион не определён</span>';
         header += '</span>';
 
-        let detail = '<table><tr><th>Команда</th><th>Место в дисциплине</th></tr>';
+        let detail = '<table><tr><th>Команда</th><th class="th-place">Место в дисциплине</th></tr>';
         rows.forEach(function (r) {
-            detail += '<tr class="' + (r.place === 1 ? 'highlight' : '') + '"><td>' + r.team + '</td><td>' + placeCell(r.place, 'без участия') + '</td></tr>';
+            detail += '<tr class="' + (r.place === 1 ? 'highlight' : '') + '"><td>' + r.team + '</td><td class="td-place">' + placeCell(r.place, 'без участия') + '</td></tr>';
         });
         detail += '</table>';
         if (YEAR_NOTES[state.group][year]) detail += '<div class="year-note">⚠️ ' + YEAR_NOTES[state.group][year] + '</div>';
@@ -1977,7 +2016,7 @@ function fbYearChampion(year) {
     return w ? w[0] : null;
 }
 
-/* ---------- Шаблоны футбола / волейбола ---------- */
+/* ---------- Шаблоны футбола ---------- */
 const donateCard =
     '<div class="card" style="text-align:center;">' +
         '<h2>💛 Поддержать автора</h2>' +
@@ -1987,6 +2026,8 @@ const donateCard =
     '</div>';
 
 function renderFootballShell() {
+    /* флаг района действующего чемпиона — фоновым водяным знаком (карта TEAM_FLAGS) */
+    const champFlag = TEAM_FLAGS['Куединский'] || '';
     return '<div data-sport="fb">' +
         '<div class="sport-banner"><h2>⚽ Сельские спортивные игры по футболу</h2><div class="sport-sub">Группа 2 · Финальные турниры (1997–2026) — известные данные</div></div>' +
         '<div class="nav-tabs">' +
@@ -2005,9 +2046,13 @@ function renderFootballShell() {
                 '<div class="stat-box"><strong>Период</strong><br>1997 – 2026 (с перерывами)</div>' +
                 '<div class="stat-box"><strong>Всего чемпионов</strong><br>5 разных команд (плюс 2022 – не определён)</div>' +
                 '<div class="stat-box"><strong>Наибольшее число побед</strong><br><span class="badge badge-gold">Берёзовский – 13</span></div>' +
-                '<div class="stat-box"><strong>Действующий чемпион</strong><br><span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 Куединский (2024, 2025, 2026)</span><span class="champ-hint">🎉 Запустить конфетти</span></div>' +
+                '<div class="stat-box champ-box">' +
+                    (champFlag ? '<img class="champ-flag-bg" src="' + champFlag + '" alt="">' : '') +
+                    '<span class="champ-content"><strong>Действующий чемпион</strong><br>' +
+                    '<span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 Куединский (2026)</span>' +
+                    '<span class="champ-hint">🎉 Запустить конфетти</span></span></div>' +
             '</div></div>' +
-            '<div class="card"><h2>🏅 Список чемпионов (по годам)</h2><div class="champions-flex">' +
+            '<div class="card"><h2>🏆 Список чемпионов (по годам)</h2><div class="champions-flex">' +
                 '<span><strong>1997–2005</strong> Берёзовский (9 раз)</span>' +
                 '<span><strong>2006</strong> Чердынский</span>' +
                 '<span><strong>2007–2010</strong> Берёзовский (4 раза)</span>' +
@@ -2059,9 +2104,13 @@ function fbRenderYears() {
             const sorted = Object.entries(data.places).sort(function (a, b) { return a[1] - b[1]; });
             const top3 = sorted.filter(function (e) { return e[1] <= 3; });
             if (top3.length) {
-                detail += '<div class="podium">';
+                /* Топ-3 построчно: [место] команда */
+                detail += '<div class="year-top3">';
                 top3.forEach(function (e) {
-                    detail += '<div class="podium-item"><span class="medal">' + medalFor(e[1]) + '</span><span class="team">' + e[0] + '</span></div>';
+                    detail += '<div class="win-line">' +
+                        '<span class="win-place p' + e[1] + '">' + e[1] + '</span>' +
+                        '<span class="win-team">' + e[0] + '</span>' +
+                    '</div>';
                 });
                 detail += '</div>';
             }
@@ -2104,11 +2153,10 @@ function fbRenderTeamInfo(team) {
     const appearances = getTeamAppearances(team).sort(function (a, b) { return a.year - b.year; });
     let html = '<h3>' + team + '</h3>';
     if (!appearances.length) { info.innerHTML = html + '<p>Нет данных об участии.</p>'; return; }
-    html += '<table><tr><th>Год</th><th>Место</th></tr>';
+    html += '<table><tr><th>Год</th><th class="th-place">Место</th></tr>';
     appearances.forEach(function (a) {
-        const p = (a.place === 'участник') ? 'нет данных' : a.place;
-        const m = (typeof p === 'number') ? medalFor(p) : null;
-        html += '<tr><td>' + a.year + '</td><td>' + (m ? '<span class="place-medal">' + m + ' ' + p + '</span>' : p) + '</td></tr>';
+        const p = (a.place === 'участник') ? null : a.place;
+        html += '<tr><td>' + a.year + '</td><td class="td-place">' + placeCell(p, 'нет данных') + '</td></tr>';
     });
     html += '</table>';
     const numeric = appearances.filter(function (a) { return typeof a.place === 'number'; });
@@ -2184,34 +2232,6 @@ function fbRenderStats() {
         '<h3>«Сухие» сезоны (0 пропущенных голов)</h3>' +
         (csRows ? '<table><tr><th>Команда</th><th>Годы</th></tr>' + csRows + '</table>' : '<p>Нет данных.</p>') +
         '</div>';
-}
-
-/* ============================================================
-   12. ВОЛЕЙБОЛ (структура как в index1, без данных)
-   ============================================================ */
-function renderVolleyballShell() {
-    const dev = '<div class="card"><h2>🛠 Раздел в разработке</h2><p>Данные по волейболу готовятся к публикации.</p></div>';
-    return '<div data-sport="vb">' +
-        '<div class="sport-banner"><h2>🏐 Сельские спортивные игры по волейболу</h2><div class="sport-sub">Группа 2 · Раздел в разработке</div></div>' +
-        '<div class="nav-tabs">' +
-            '<button type="button" class="active" data-fb="overview">Обзор</button>' +
-            '<button type="button" data-fb="years">По годам</button>' +
-            '<button type="button" data-fb="teams">По командам</button>' +
-            '<button type="button" data-fb="matches">Матчи</button>' +
-            '<button type="button" data-fb="video">Видео</button>' +
-            '<button type="button" data-fb="stats">Статистика</button>' +
-            '<button type="button" data-fb="donate">Донаты</button>' +
-        '</div>' +
-        '<div id="vb-overview" class="section active">' +
-            '<div class="card"><h2>📋 Общая информация</h2><p>Раздел в разработке.</p></div>' +
-        '</div>' +
-        '<div id="vb-years" class="section">' + dev + '</div>' +
-        '<div id="vb-teams" class="section">' + dev + '</div>' +
-        '<div id="vb-matches" class="section">' + dev + '</div>' +
-        '<div id="vb-video" class="section">' + dev + '</div>' +
-        '<div id="vb-stats" class="section">' + dev + '</div>' +
-        '<div id="vb-donate" class="section">' + donateCard + '</div>' +
-    '</div>';
 }
 
 /* ============================================================
@@ -2534,7 +2554,7 @@ function startDiscFx(discId) {
         } else if (kind === 'stars') {
             parts.push({ x: W * (0.05 + Math.random() * 0.9), y: H + 30, vy: -(0.8 + Math.random() * 1.2), phase: Math.random() * 6.3, rot: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.03, r: 9 + Math.random() * 12, alpha: 0.75 + Math.random() * 0.25 });
         } else if (kind === 'runners') {
-            parts.push({ x: -34, y: H * (0.5 + Math.random() * 0.38), vx: 2.8 + Math.random() * 1.8, phase: Math.random() * 6.3, vr: 0.22 + Math.random() * 0.12, size: 24 + Math.random() * 12 });
+            parts.push({ x: W + 34, y: H * (0.5 + Math.random() * 0.38), vx: -(2.8 + Math.random() * 1.8), phase: Math.random() * 6.3, vr: 0.22 + Math.random() * 0.12, size: 24 + Math.random() * 12 });
         } else if (kind === 'pingpong') {
             const a = Math.random() * Math.PI * 2, sp = 3.6 + Math.random() * 2.8;
             parts.push({ x: W * (0.15 + Math.random() * 0.7), y: H * (0.2 + Math.random() * 0.6), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 7 + Math.random() * 5, alpha: 0.9 });
@@ -2635,10 +2655,11 @@ function startDiscFx(discId) {
                 drawStar(p);
             } else if (kind === 'runners') {
                 p.phase += p.vr; p.x += p.vx;
-                if (p.x > W + 40) { parts.splice(i, 1); continue; }
+                if (p.x < -40) { parts.splice(i, 1); continue; }
                 ctx.globalAlpha = 0.95 * fade;
                 ctx.save();
                 ctx.translate(p.x, p.y - Math.abs(Math.sin(p.phase)) * 7); /* подскок при беге */
+                ctx.scale(-1, 1); /* разворачиваем бегуна — бежит справа налево */
                 drawEmoji({ x: 0, y: 0, size: p.size }, '🏃');
                 ctx.restore();
             } else if (kind === 'pingpong') {
