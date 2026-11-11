@@ -182,6 +182,14 @@ tr.highlight td { background: var(--accent-soft); font-weight: 600; }
 .year-block .header .title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0; }
 .year-block .header .title .venue { display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--text-secondary); }
 .year-block .header h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text); }
+
+/* Шапка года в футбольном «По годам»: ГОД | ЧЕМПИОН / место проведения */
+.fb-year-head { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.fb-year-num { flex: 0 0 auto; min-width: 78px; font-size: 1.5rem; font-weight: 800; line-height: 1.05; color: var(--text); letter-spacing: 0.01em; }
+.fb-year-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; padding-left: 12px; border-left: 1px solid var(--divider); }
+.fb-year-champ { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 26px; }
+.fb-year-champ .badge, .fb-year-champ .note-red { max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+.fb-year-venue { display: inline-flex; align-items: center; gap: 4px; font-size: 0.82rem; color: var(--text-secondary); min-width: 0; overflow-wrap: anywhere; }
 .year-detail { margin-top: 2px; padding: 2px 15px 14px; display: none; }
 .year-block.open .year-detail { display: block; }
 .year-block .arrow { color: var(--text-secondary); font-size: 0.85rem; transition: transform 0.2s ease; }
@@ -189,11 +197,27 @@ tr.highlight td { background: var(--accent-soft); font-weight: 600; }
 
 /* Подиум */
 .podium { display: flex; gap: 10px; margin-bottom: 14px; }
-.podium-item { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 14px 8px; border-radius: 14px; background: var(--surface-alt); border: 1px solid var(--border); text-align: center; }
+.podium-item { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 14px 8px; border-radius: 10px; background: var(--surface-alt); border: 1px solid var(--border); text-align: center; }
 .podium-item:nth-child(1) { background: var(--accent-soft); border-color: var(--accent-border); }
 .podium-item .medal { font-size: 1.5rem; }
 .podium-item .team { font-weight: 700; font-size: 0.88rem; line-height: 1.3; overflow-wrap: anywhere; }
 .podium-item .badge { margin-top: 2px; }
+
+/* Топ-3: таблица «Дисциплина | Команда» (общая информация) */
+.top3-table td { vertical-align: top; }
+.top3-table td:first-child { width: 38%; font-weight: 600; }
+.win-line { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 0.9rem; }
+.win-line + .win-line { border-top: 1px dashed var(--divider); }
+.win-place { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 6px; background: var(--surface-chip); color: var(--text); font-size: 0.72rem; font-weight: 800; }
+.win-place.p1 { background: var(--gold); color: var(--accent-text); }
+.win-place.p2 { background: var(--silver-bg); color: var(--silver-text); }
+.win-place.p3 { background: var(--bronze-bg); color: var(--bronze-text); }
+.win-team { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.win-count { flex: 0 0 auto; color: var(--text-secondary); font-size: 0.8rem; white-space: nowrap; }
+
+/* Топ-3 в «По дисциплинам» — горизонтальная лента чипов */
+.top3-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.win-chip { display: inline-flex; align-items: center; gap: 7px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px 6px 8px; font-size: 0.88rem; font-weight: 600; }
 
 /* Медали в таблицах */
 .place-medal { font-weight: 700; white-space: nowrap; }
@@ -1386,13 +1410,12 @@ function discTop3Html(discId) {
     const groups = rankWithTies(computeDiscWins(getGroupData(), discId))
         .filter(function (g) { return g.place <= 3; });
     if (!groups.length) return '';
-    let html = '<div class="podium">';
+    /* горизонтальная лента: 1. … 2. … 3. … (перенос на узких экранах) */
+    let html = '<div class="top3-list">';
     groups.forEach(function (g) {
-        const m = g.place === 1 ? '🥇' : (g.place === 2 ? '🥈' : '🥉');
         g.teams.forEach(function (t) {
-            html += '<div class="podium-item"><span class="medal">' + m + '</span>' +
-                '<span class="team">' + t + '</span>' +
-                '<span class="badge badge-muted">' + g.wins + ' ' + plural(g.wins, 'победа', 'победы', 'побед') + '</span></div>';
+            html += '<span class="win-chip"><span class="win-place p' + g.place + '">' + g.place + '</span>' +
+                t + ' — ' + g.wins + ' ' + plural(g.wins, 'победа', 'победы', 'побед') + '</span>';
         });
     });
     return html + '</div>';
@@ -1404,19 +1427,23 @@ function renderDiscTop3Card() {
         const groups = rankWithTies(computeDiscWins(data, d.id))
             .filter(function (g) { return g.place <= 3; });
         if (!groups.length) return;
-        let cells = '';
-        [1, 2, 3].forEach(function (place) {
-            const grp = groups.filter(function (g) { return g.place === place; })[0];
-            cells += '<td>' + (grp
-                ? grp.teams.map(function (t) { return t + ' — ' + grp.wins + ' ' + plural(grp.wins, 'победа', 'победы', 'побед'); }).join('<br>')
-                : '<span class="no-part">—</span>') + '</td>';
+        /* команды дисциплины — в один столбец: 1., 2., 3. */
+        let lines = '';
+        groups.forEach(function (g) {
+            g.teams.forEach(function (t) {
+                lines += '<div class="win-line">' +
+                    '<span class="win-place p' + g.place + '">' + g.place + '</span>' +
+                    '<span class="win-team">' + t + '</span>' +
+                    '<span class="win-count">' + g.wins + ' ' + plural(g.wins, 'победа', 'победы', 'побед') + '</span>' +
+                '</div>';
+            });
         });
-        rows += '<tr><td>' + d.label + '</td>' + cells + '</tr>';
+        rows += '<tr><td class="disc-name">' + d.label + '</td><td>' + lines + '</td></tr>';
     });
     if (!rows) return '';
     return '<div class="card"><h2>🥇 Топ-3 команд по победам в дисциплинах</h2>' +
         '<p>Число побед (1-х мест) в каждой дисциплине за всю известную историю. Команды с равным числом побед делят место.</p>' +
-        '<table><tr><th>Дисциплина</th><th>1-е место</th><th>2-е место</th><th>3-е место</th></tr>' + rows + '</table></div>';
+        '<table class="top3-table"><tr><th>Дисциплина</th><th>Команда</th></tr>' + rows + '</table></div>';
 }
 
 /* ============================================================
@@ -1471,6 +1498,7 @@ function renderTabs() {
 }
 function renderContent() {
     stopSnow(); /* снег — только пока открыта выбранная зимняя дисциплина */
+    stopDiscFx(true); /* тематические анимации дисциплин — при смене вкладки гаснут */
     const c = document.getElementById('content');
     if (!TABS[state.group]) { c.innerHTML = renderWelcome(); return; }
     if (state.tab === 'overview') c.innerHTML = renderOverview();
@@ -1673,8 +1701,10 @@ function renderDiscView() {
 function renderDiscResultsUI(discId) {
     const el = document.getElementById('discInfo');
     if (!el) return;
-    /* зимняя дисциплина «Лыжные гонки» — включаем снег, остальные — выключаем */
-    if (discId === 'ski') startSnow(); else stopSnow();
+    /* Зимняя дисциплина «Лыжные гонки» — бесконечный снег; для остальных
+       видов — своя короткая тематическая анимация (≤5 с) */
+    if (discId === 'ski') { stopDiscFx(true); startSnow(); }
+    else { stopSnow(); startDiscFx(discId); }
     if (!discId) { el.innerHTML = 'Выберите дисциплину для отображения.'; return; }
     const d = DISC_BY_ID[discId];
     const data = getGroupData();
@@ -2013,13 +2043,17 @@ function fbRenderYears() {
     Object.keys(yearsData).map(Number).sort(function (a, b) { return a - b; }).forEach(function (year) {
         const data = yearsData[year];
         if (!data.places && !data.note && !matchesData[year]) return;
-        let title = '<span class="title"><h3>' + year + '</h3>';
-        if (data.venue) title += '<span class="venue">🏁 ' + data.venue + '</span>';
+        /* ГОД | ЧЕМПИОН / место проведения — двухстрочная структура:
+           год слева (крупно), справа чемпион и под ним место проведения */
         const champ = fbYearChampion(year);
-        if (champ) title += ' <span class="badge badge-gold">🏆 ' + champ + '</span>';
-        else if (data.places) title += ' <span class="badge badge-muted">чемпион не определён</span>';
-        if (data.note && !data.places) title += ' <span class="note-red">⚠️ ' + data.note + '</span>';
-        title += '</span>';
+        let champLine = '';
+        if (champ) champLine = '<span class="badge badge-gold">🏆 ' + champ + '</span>';
+        else if (data.places) champLine = '<span class="badge badge-muted">чемпион не определён</span>';
+        else if (data.note) champLine = '<span class="note-red">⚠️ ' + data.note + '</span>';
+        let title = '<span class="fb-year-head"><span class="fb-year-num">' + year + '</span><span class="fb-year-info">' +
+            '<span class="fb-year-champ">' + champLine + '</span>' +
+            (data.venue ? '<span class="fb-year-venue">🏁 ' + data.venue + '</span>' : '') +
+            '</span></span>';
         let detail = '';
         if (data.places) {
             const sorted = Object.entries(data.places).sort(function (a, b) { return a[1] - b[1]; });
@@ -2333,9 +2367,319 @@ function startSnow() {
     tick();
 }
 function stopSnow() {
-    /* не обрываем резко: tick сам гаситOpacity и удаляет canvas */
+    /* не обрываем резко: tick сам гасит прозрачность и удаляет canvas */
     if (!snowState.active) return;
     snowState.active = false;
+}
+
+/* ============================================================
+   12.3 ФУТБОЛЬНЫЕ МЯЧИ при входе в раздел «⚽ ФУТБОЛ»
+   Летящие мячи (emoji ⚽) поднимаются снизу вверх с лёгким
+   покачиванием и вращением. Работает 5 секунд, затем частицы
+   дорисовываются и canvas удаляется — как у конфетти.
+   ============================================================ */
+var fbBallsState = { active: false, rafId: 0 };
+function launchFootballBalls(durationMs) {
+    if (fbBallsState.active) return;
+    fbBallsState.active = true;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'fbBallsCanvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:9997;pointer-events:none;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const balls = [];
+    const finishAt = Date.now() + durationMs;
+    let lastSpawn = 0;
+
+    function spawn() {
+        balls.push({
+            x: Math.random() * W,
+            y: H + 40,
+            vx: (Math.random() - 0.5) * 1.1,
+            vy: -(2.2 + Math.random() * 2.6),
+            amp: 0.4 + Math.random() * 1.1,
+            phase: Math.random() * Math.PI * 2,
+            vr: 0.012 + Math.random() * 0.02,
+            rot: Math.random() * Math.PI,
+            size: 15 + Math.random() * 19
+        });
+    }
+
+    function tick() {
+        ctx.clearRect(0, 0, W, H);
+        const now = Date.now();
+        if (now < finishAt && now - lastSpawn > 320 && balls.length < 24) { spawn(); lastSpawn = now; }
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        for (let i = balls.length - 1; i >= 0; i--) {
+            const b = balls[i];
+            b.phase += b.vr;
+            b.rot += b.vr;
+            b.x += b.vx + Math.sin(b.phase) * b.amp * 0.5;
+            b.y += b.vy;
+            if (b.y < -60 || b.x < -60 || b.x > W + 60) { balls.splice(i, 1); continue; }
+            ctx.save();
+            ctx.translate(b.x, b.y);
+            ctx.rotate(b.rot);
+            ctx.font = b.size + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+            ctx.fillText('⚽', 0, 0);
+            ctx.restore();
+        }
+        /* конец: после 5 секунд и вылета всех мячей — отключаемся */
+        if (now >= finishAt && !balls.length) {
+            cancelAnimationFrame(fbBallsState.rafId);
+            window.removeEventListener('resize', resize);
+            canvas.remove();
+            fbBallsState.active = false;
+            return;
+        }
+        fbBallsState.rafId = requestAnimationFrame(tick);
+    }
+    tick();
+}
+
+/* ============================================================
+   12.4 ТЕМАТИЧЕСКИЕ АНИМАЦИИ ДИСЦИПЛИН («По дисциплинам»)
+   У каждой дисциплины — свой эффект по виду спорта:
+     волейбол 🏐 (мячи подбрасываются с отскоками) · гиревой спорт
+     (гири поднимаются вверх) · ГТО (золотые звёзды-значки) ·
+     футбол (⚽, см. 12.3) · кросс (🏃 бегут слева направо) ·
+     настольный теннис (шарики скачут от краёв, как в пинг-понге) ·
+     шахматы (волна полупрозрачных клеток + проявляющиеся фигуры) ·
+     баскетбол 🏀 (падают сверху и отскакивают).
+   Длительность ≤5 с (снег у лыж — исключение: он живёт, пока
+   дисциплина открыта). При смене дисциплины предыдущая гаснет.
+   ============================================================ */
+var discFxState = { active: false, fade: 1, rafId: 0 };
+var DISC_FX_KIND = {
+    vbm: 'volley', vbw: 'volley', weight: 'kettlebell', gto: 'stars',
+    fb: 'football', run: 'runners', tt: 'pingpong', chess: 'chess', bb: 'basket'
+};
+function stopDiscFx(force) {
+    if (!discFxState.active) return;
+    discFxState.active = false;
+    if (force) {
+        cancelAnimationFrame(discFxState.rafId);
+        const c = document.getElementById('discFxCanvas');
+        if (c) c.remove();
+    }
+}
+function startDiscFx(discId) {
+    const kind = DISC_FX_KIND[discId];
+    if (!kind) return;
+    if (kind === 'football') { stopDiscFx(true); launchFootballBalls(5000); return; }
+    stopDiscFx(true); /* мгновенно гасим анимацию предыдущей дисциплины */
+    discFxState.active = true;
+    discFxState.fade = 1;
+
+    const canvas = document.createElement('canvas');
+    canvas.id = 'discFxCanvas';
+    canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:9997;pointer-events:none;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const dark = document.body.classList.contains('dark-theme');
+    const startAt = Date.now();
+    const finishAt = startAt + 5000;
+    const parts = [];
+    let cells = null;                /* шахматные клетки (рисуются под фигурами) */
+    let lastSpawn = 0, spawnEvery = 0, maxParts = 0;
+
+    /* --- параметры потока и стартовые наборы по виду спорта --- */
+    if (kind === 'volley') { spawnEvery = 380; maxParts = 10; }
+    else if (kind === 'kettlebell') { spawnEvery = 480; maxParts = 7; }
+    else if (kind === 'stars') { spawnEvery = 300; maxParts = 14; }
+    else if (kind === 'runners') { spawnEvery = 550; maxParts = 6; }
+    else if (kind === 'pingpong') { spawnEvery = 420; maxParts = 6; }
+    else if (kind === 'basket') { spawnEvery = 620; maxParts = 8; }
+    else if (kind === 'chess') {
+        /* полупрозрачная доска: клетки проявляются волной от случайного эпицентра */
+        const cell = Math.max(46, Math.round(W / 14));
+        const cols = Math.ceil(W / cell), rows = Math.ceil(H / cell);
+        const ex = Math.random() * W, ey = Math.random() * H;
+        cells = [];
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                if ((i + j) % 2) continue;
+                const x = i * cell, y = j * cell;
+                cells.push({ x: x, y: y, s: cell, delay: Math.hypot(x - ex, y - ey) * 0.9 });
+            }
+        }
+        /* шахматные фигуры проявляются в случайных местах */
+        const glyphs = ['♟', '♞', '♝', '♜', '♛', '♚'];
+        for (let k = 0; k < 14; k++) {
+            parts.push({
+                x: 40 + Math.random() * (W - 80), y: 60 + Math.random() * (H - 120),
+                size: 34 + Math.random() * 30, glyph: glyphs[k % glyphs.length],
+                born: 300 + Math.random() * 2800
+            });
+        }
+    }
+
+    function spawn() {
+        if (kind === 'volley') {
+            parts.push({ x: W * (0.08 + Math.random() * 0.84), y: H + 24, vx: (Math.random() - 0.5) * 1.4, vy: -(6.5 + Math.random() * 3), rot: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.14, size: 20 + Math.random() * 12, bounces: 0, alpha: 0.92 });
+        } else if (kind === 'kettlebell') {
+            parts.push({ x: W * (0.1 + Math.random() * 0.8), y: H + 60, vy: -(0.9 + Math.random() * 0.8), phase: Math.random() * 6.3, vr: 0.018 + Math.random() * 0.02, r: 12 + Math.random() * 10, alpha: 0.88 });
+        } else if (kind === 'stars') {
+            parts.push({ x: W * (0.05 + Math.random() * 0.9), y: H + 30, vy: -(0.8 + Math.random() * 1.2), phase: Math.random() * 6.3, rot: Math.random() * 6.3, vr: (Math.random() - 0.5) * 0.03, r: 9 + Math.random() * 12, alpha: 0.75 + Math.random() * 0.25 });
+        } else if (kind === 'runners') {
+            parts.push({ x: -34, y: H * (0.5 + Math.random() * 0.38), vx: 2.8 + Math.random() * 1.8, phase: Math.random() * 6.3, vr: 0.22 + Math.random() * 0.12, size: 24 + Math.random() * 12 });
+        } else if (kind === 'pingpong') {
+            const a = Math.random() * Math.PI * 2, sp = 3.6 + Math.random() * 2.8;
+            parts.push({ x: W * (0.15 + Math.random() * 0.7), y: H * (0.2 + Math.random() * 0.6), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 7 + Math.random() * 5, alpha: 0.9 });
+        } else if (kind === 'basket') {
+            parts.push({ x: W * (0.08 + Math.random() * 0.84), y: -34, vx: (Math.random() - 0.5) * 1.2, vy: 1.6 + Math.random() * 2.2, rot: Math.random() * 6.3, vr: 0.05 + Math.random() * 0.06, size: 22 + Math.random() * 12, bounces: 0, alpha: 0.92 });
+        }
+    }
+
+    /* --- отрисовка частиц --- */
+    function drawEmoji(p, emoji) {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        if (p.rot !== undefined) ctx.rotate(p.rot);
+        ctx.font = p.size + 'px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+        ctx.fillText(emoji, 0, 0);
+        ctx.restore();
+    }
+    function drawStar(p) {
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+            const rad = (i % 2 === 0) ? p.r : p.r * 0.45;
+            const a = p.rot + i * Math.PI / 5 - Math.PI / 2;
+            const px = p.x + Math.cos(a) * rad, py = p.y + Math.sin(a) * rad;
+            if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = '#f6b40e';
+        ctx.fill();
+    }
+    function drawKettlebell(p) {
+        const r = p.r;
+        ctx.strokeStyle = '#3a4150';
+        ctx.lineWidth = r * 0.30;
+        ctx.lineCap = 'round';
+        ctx.beginPath();                       /* ручка гири */
+        ctx.arc(p.x, p.y - r * 0.18, r * 0.78, Math.PI * 1.05, Math.PI * 1.95);
+        ctx.stroke();
+        ctx.fillStyle = '#454e5e';             /* тело */
+        ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#f6b40e';           /* золотая маркировка */
+        ctx.lineWidth = r * 0.10;
+        ctx.beginPath(); ctx.arc(p.x, p.y, r * 0.62, Math.PI * 0.72, Math.PI * 1.28);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.30)'; /* блик */
+        ctx.beginPath(); ctx.arc(p.x - r * 0.34, p.y - r * 0.34, r * 0.16, 0, Math.PI * 2); ctx.fill();
+    }
+    function drawPingBall(p) {
+        ctx.fillStyle = '#ff8a1e';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.beginPath(); ctx.arc(p.x - p.r * 0.3, p.y - p.r * 0.3, p.r * 0.3, 0, Math.PI * 2); ctx.fill();
+    }
+
+    function tick() {
+        ctx.clearRect(0, 0, W, H);
+        const now = Date.now();
+        const t = now - startAt;
+        if (now >= finishAt) discFxState.fade = Math.max(0, discFxState.fade - 0.05);
+        if (spawnEvery && now < finishAt && now - lastSpawn > spawnEvery && parts.length < maxParts) {
+            spawn(); lastSpawn = now;
+        }
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const fade = discFxState.fade;
+
+        /* шахматные клетки — проявляются волной, под фигурами */
+        if (cells) {
+            ctx.fillStyle = dark ? 'rgba(255,255,255,0.075)' : 'rgba(23,32,50,0.085)';
+            for (const c of cells) {
+                const a = Math.min(1, Math.max(0, (t - c.delay) / 280)) * fade;
+                if (a <= 0.01) continue;
+                ctx.globalAlpha = a;
+                ctx.fillRect(c.x, c.y, c.s, c.s);
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        for (let i = parts.length - 1; i >= 0; i--) {
+            const p = parts[i];
+            if (kind === 'volley') {
+                p.vy += 0.055; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+                if (p.y > H - 18 && p.vy > 0) {          /* отскок от пола */
+                    p.y = H - 18; p.vy = -p.vy * 0.8;
+                    if (++p.bounces >= 3) p.alpha -= 0.05;
+                }
+                if (p.y < -60 || p.x < -60 || p.x > W + 60) p.alpha -= 0.05;
+                if (p.alpha <= 0) { parts.splice(i, 1); continue; }
+                ctx.globalAlpha = p.alpha * fade;
+                drawEmoji(p, '🏐');
+            } else if (kind === 'kettlebell') {
+                p.phase += p.vr; p.y += p.vy; p.x += Math.sin(p.phase) * 0.4;
+                if (p.y < -p.r * 3) { parts.splice(i, 1); continue; }
+                ctx.globalAlpha = p.alpha * fade;
+                drawKettlebell(p);
+            } else if (kind === 'stars') {
+                p.phase += 0.05; p.rot += p.vr; p.y += p.vy; p.x += Math.sin(p.phase) * 0.35;
+                if (p.y < -40) { parts.splice(i, 1); continue; }
+                ctx.globalAlpha = p.alpha * (0.65 + 0.35 * Math.sin(p.phase * 2.2)) * fade;
+                drawStar(p);
+            } else if (kind === 'runners') {
+                p.phase += p.vr; p.x += p.vx;
+                if (p.x > W + 40) { parts.splice(i, 1); continue; }
+                ctx.globalAlpha = 0.95 * fade;
+                ctx.save();
+                ctx.translate(p.x, p.y - Math.abs(Math.sin(p.phase)) * 7); /* подскок при беге */
+                drawEmoji({ x: 0, y: 0, size: p.size }, '🏃');
+                ctx.restore();
+            } else if (kind === 'pingpong') {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < p.r) { p.x = p.r; p.vx = Math.abs(p.vx); }
+                if (p.x > W - p.r) { p.x = W - p.r; p.vx = -Math.abs(p.vx); }
+                if (p.y < p.r) { p.y = p.r; p.vy = Math.abs(p.vy); }
+                if (p.y > H - p.r) { p.y = H - p.r; p.vy = -Math.abs(p.vy); }
+                ctx.globalAlpha = p.alpha * fade;
+                drawPingBall(p);
+            } else if (kind === 'basket') {
+                p.vy += 0.045; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+                if (p.y > H - 20 && p.vy > 0) {          /* отскок от пола */
+                    p.y = H - 20; p.vy = -p.vy * 0.8;
+                    if (++p.bounces >= 3) p.alpha -= 0.05;
+                }
+                if (p.y > H + 60 || p.x < -60 || p.x > W + 60) p.alpha -= 0.05;
+                if (p.alpha <= 0) { parts.splice(i, 1); continue; }
+                ctx.globalAlpha = p.alpha * fade;
+                drawEmoji(p, '🏀');
+            } else if (kind === 'chess') {
+                const a = Math.min(1, Math.max(0, (t - p.born) / 350)) * fade;
+                if (a <= 0.01) continue;
+                ctx.globalAlpha = a;
+                ctx.fillStyle = dark ? 'rgba(238,243,255,0.30)' : 'rgba(25,33,52,0.30)';
+                ctx.font = p.size + 'px "Segoe UI Symbol", "DejaVu Sans", serif';
+                ctx.fillText(p.glyph, p.x, p.y);
+            }
+        }
+        ctx.globalAlpha = 1;
+
+        if (fade <= 0) {                          /* 5 секунд прошли — всё гаснет, canvas удаляем */
+            cancelAnimationFrame(discFxState.rafId);
+            window.removeEventListener('resize', resize);
+            canvas.remove();
+            discFxState.active = false;
+            return;
+        }
+        discFxState.rafId = requestAnimationFrame(tick);
+    }
+    tick();
 }
 
 /* ============================================================
@@ -2350,6 +2694,7 @@ document.addEventListener('click', function (e) {
         state.tab = tBtn.dataset.tab;
         renderTabs();
         renderContent();
+        if (state.tab === 'football') launchFootballBalls(5000);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
