@@ -105,7 +105,7 @@ body {
 /* Флаг района — фоновый водяной знак контейнера «Действующий чемпион»:
    перекрывает бокс с запасом 10px, прозрачность 20% */
 .stat-box.champ-box { position: relative; overflow: hidden; }
-.champ-flag-bg { position: absolute; inset: -10px; object-fit: cover; opacity: 0.1; z-index: 0; }
+.champ-flag-bg { position: absolute; inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px); object-fit: cover; object-position: center; opacity: 0.1; z-index: 0; }
 .champ-content { position: relative; z-index: 1; display: block; }
 .hero .subhead { color: rgba(255, 255, 255, 0.82); font-size: 0.95rem; margin: 0; }
 
