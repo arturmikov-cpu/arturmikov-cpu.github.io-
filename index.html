@@ -107,6 +107,8 @@ body {
 .stat-box.champ-box { position: relative; overflow: hidden; }
 .champ-flag-bg { position: absolute; inset: -10px; width: calc(100% + 20px); height: calc(100% + 20px); object-fit: cover; object-position: center; opacity: 0.1; z-index: 0; }
 .champ-content { position: relative; z-index: 1; display: block; }
+/* Центрирование содержимого контейнеров «Наибольшее число побед» и «Действующий чемпион» */
+.stat-box.center-box { text-align: center; }
 .hero .subhead { color: rgba(255, 255, 255, 0.82); font-size: 0.95rem; margin: 0; }
 
 /* Группы — сегментный переключатель в стиле VK */
@@ -1554,7 +1556,8 @@ function renderWelcome() {
    Пополняется по мере появления данных: команда → URL флага. */
 const TEAM_FLAGS = {
     'Карагайский': 'https://upload.wikimedia.org/wikipedia/commons/1/13/Flag_of_Karagaysky_rayon_%28Perm_krai%29.png',
-    'Куединский': 'https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Kuedinsky_rayon_%28Perm_krai%29.png'
+    'Куединский': 'https://upload.wikimedia.org/wikipedia/commons/3/32/Flag_of_Kuedinsky_rayon_%28Perm_krai%29.png',
+    'Берёзовский': 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Flag_of_Beryozovskoe_%28Perm_krai%29.png'
 };
 
 function renderOverview() {
@@ -1570,6 +1573,8 @@ function renderOverview() {
         .sort(function (a, b) { return a[0].localeCompare(b[0], 'ru'); });
     const currentChampion = champGroups.length ? champGroups[champGroups.length - 1].team : null;
     const champFlag = currentChampion ? (TEAM_FLAGS[currentChampion] || '') : '';
+    /* водяной знак у «Наибольшее число побед» — только когда лидер единственный и есть его флаг */
+    const winsFlag = topTeams.length === 1 ? (TEAM_FLAGS[topTeams[0][0]] || '') : '';
     const groupName = state.group === 'g1' ? 'первой' : 'второй';
 
     /* изменение программы дисциплин — считается автоматически */
@@ -1586,10 +1591,12 @@ function renderOverview() {
             '<br><div class="grid-2">' +
                 '<div class="stat-box"><strong>Период</strong><br>' + first + ' – ' + last + '</div>' +
                 '<div class="stat-box"><strong>Всего чемпионов</strong><br>' + winEntries.length + ' ' + plural(winEntries.length, 'команда', 'команды', 'команд') + '</div>' +
-                '<div class="stat-box"><strong>Наибольшее число побед</strong><br>' +
+                '<div class="stat-box champ-box center-box">' +
+                    (winsFlag ? '<img class="champ-flag-bg" src="' + winsFlag + '" alt="">' : '') +
+                    '<span class="champ-content"><strong>Наибольшее число побед</strong><br>' +
                     topTeams.map(function (e) { return '<span class="badge badge-gold">' + e[0] + ' – ' + e[1] + '</span>'; }).join(' ') +
-                '</div>' +
-                '<div class="stat-box champ-box">' +
+                '</span></div>' +
+                '<div class="stat-box champ-box center-box">' +
                     (champFlag ? '<img class="champ-flag-bg" src="' + champFlag + '" alt="">' : '') +
                     '<span class="champ-content"><strong>Действующий чемпион</strong><br>' +
                     '<span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 ' + currentChampion + ' (' + last + ')</span>' +
@@ -2026,8 +2033,9 @@ const donateCard =
     '</div>';
 
 function renderFootballShell() {
-    /* флаг района действующего чемпиона — фоновым водяным знаком (карта TEAM_FLAGS) */
+    /* флаги районов — фоновым водяным знаком (карта TEAM_FLAGS) */
     const champFlag = TEAM_FLAGS['Куединский'] || '';
+    const winsFlag = TEAM_FLAGS['Берёзовский'] || '';
     return '<div data-sport="fb">' +
         '<div class="sport-banner"><h2>⚽ Сельские спортивные игры по футболу</h2><div class="sport-sub">Группа 2 · Финальные турниры (1997–2026) — известные данные</div></div>' +
         '<div class="nav-tabs">' +
@@ -2045,8 +2053,11 @@ function renderFootballShell() {
             '<div class="grid-2">' +
                 '<div class="stat-box"><strong>Период</strong><br>1997 – 2026 (с перерывами)</div>' +
                 '<div class="stat-box"><strong>Всего чемпионов</strong><br>5 разных команд (плюс 2022 – не определён)</div>' +
-                '<div class="stat-box"><strong>Наибольшее число побед</strong><br><span class="badge badge-gold">Берёзовский – 13</span></div>' +
-                '<div class="stat-box champ-box">' +
+                '<div class="stat-box champ-box center-box">' +
+                    (winsFlag ? '<img class="champ-flag-bg" src="' + winsFlag + '" alt="">' : '') +
+                    '<span class="champ-content"><strong>Наибольшее число побед</strong><br>' +
+                    '<span class="badge badge-gold">Берёзовский – 13</span></span></div>' +
+                '<div class="stat-box champ-box center-box">' +
                     (champFlag ? '<img class="champ-flag-bg" src="' + champFlag + '" alt="">' : '') +
                     '<span class="champ-content"><strong>Действующий чемпион</strong><br>' +
                     '<span class="badge badge-gold badge-champ" title="Нажмите — поздравим чемпиона!">🏆 Куединский (2026)</span>' +
