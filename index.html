@@ -305,7 +305,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-
     </header>
 
     <div class="group-switch" id="groupSwitch">
-        <button type="button" data-group="g1" class="active">ГРУППА 1<span class="g-sub">Свыше 25 тыс. жителей</span></button>
+        <button type="button" data-group="g1" class="active">ГРУППА 1<span class="g-sub">Более 25 тыс. жителей</span></button>
         <button type="button" data-group="g2">ГРУППА 2<span class="g-sub">Менее 25 тыс. жителей</span></button>
     </div>
 
@@ -1506,7 +1506,7 @@ function renderGroupSwitch() {
         b.classList.toggle('active', b.dataset.group === state.group);
     });
     const sub1 = document.querySelector('#groupSwitch button[data-group="g1"] .g-sub');
-    if (sub1) sub1.textContent = 'Свыше 25 тыс. жителей';
+    if (sub1) sub1.textContent = 'Более 25 тыс. жителей';
 }
 function renderSubhead() {
     const p = getPeriod(getGroupData());
@@ -1541,7 +1541,7 @@ function renderWelcome() {
         '<h2>👋 Добро пожаловать</h2>' +
         '<p>Краевые сельские спортивные игры — база знаний по результатам с 2006 года. Выберите группу участников (<strong>сверху</strong>), чтобы открыть общие зачёты, архив по годам, по командам и по дисциплинам.</p>' +
         '<div class="grid-2">' +
-            '<div class="stat-box"><strong>Группа 1</strong><br>Свыше 25 тыс. жителей</div>' +
+            '<div class="stat-box"><strong>Группа 1</strong><br>Более 25 тыс. жителей</div>' +
             '<div class="stat-box"><strong>Группа 2</strong><br>Менее 25 тыс. жителей · ⚽ футбол</div>' +
         '</div>' +
         '<p class="footnote">⚽ Отдельная база по футболу (1997–2026) доступна в группе 2.</p>' +
@@ -1587,7 +1587,7 @@ function renderOverview() {
     let html =
         '<div class="card">' +
             '<h2>📋 Общая информация</h2>' +
-            '<p>Информация по известным данным с 2006 года. Раздел содержит результаты общих зачётов краевых сельских спортивных игр среди команд ' + groupName + ' группы.</p>' +
+            '<p>Раздел содержит результаты общих зачётов краевых сельских спортивных игр среди команд ' + groupName + ' группы.</p>' +
             '<br><div class="grid-2">' +
                 '<div class="stat-box center-box"><strong>Период</strong><br>' + first + ' – ' + last + '</div>' +
                 '<div class="stat-box center-box"><strong>Всего чемпионов</strong><br>' + winEntries.length + ' ' + plural(winEntries.length, 'команда', 'команды', 'команд') + '</div>' +
